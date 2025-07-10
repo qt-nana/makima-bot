@@ -172,13 +172,11 @@ async def send_membership_reminder(chat_id, user_id, user_name):
     user_mention = f'<a href="tg://user?id={user_id}"><b>{user_name}</b></a>'
 
     reminder_message = f"""
-🌺 <b>Aww {user_mention}! Let's become besties first~</b> 💖
+🌺 <b>Hey {user_mention}!</b> Let's be friends first 💖
 
-🥰 I'm Makima and I absolutely love making new friends, but I can only play with cuties who are part of our adorable little family! 
+I'm <b>Makima</b>, and I can only play with those who join our <b>lovely family</b>.
 
-✨ Please join both of my special places so we can have lots of fun together! 🌸
-
-<i>After joining, just tap the sparkly button below and I'll shower you with love! 🎀💕</i>
+✨ Join both my <b>special places</b> and tap the button below. I’ll be waiting! 🎀💕
 """
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -2026,19 +2024,15 @@ async def cmd_start(msg: Message):
     ])
 
     welcome_text = f"""
-💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>! 
+💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>! <b>Welcome!</b>
 
-I'm <b>Makima</b> and I'm here to make your day better! 🌸
+I'm <b>Makima</b>, here to brighten your day! 🌸
 
-💫 <b>What I've got for you:</b>
-✨ <b>97 awesome anime commands</b>
-🎀 <b>Amazing content</b> from 22+ series
-💕 <b>Super easy</b> to use and explore
+💫 I’ve got <b>97 anime commands</b> and <b>amazing content</b> from 22+ series. All super easy to explore!
 
-🚀 <b>Ready to dive in?</b> 
-Just type <b>/help</b> to see everything!
+💌 Just type <b>/help</b> to dive in!
 
-Can't wait to show you what I can do! 💝
+Can’t wait to show you what I can do! 💝
 """
 
     # List of 20 Makima-style image URLs
