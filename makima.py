@@ -1974,7 +1974,7 @@ def make_anime_handler(anime_name):
         # Check membership for non-owner users in private chats
         if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
             if not check_membership(msg.from_user.id):
-                await send_membership_reminder(msg.chat.id)
+                await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
                 return
         await send_media_selection(anime_name, msg.chat.id)
     return handler
@@ -2076,7 +2076,7 @@ async def cmd_help(msg: Message):
     # Check membership for non-owner users in private chats
     if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
         if not check_membership(msg.from_user.id):
-            await send_membership_reminder(msg.chat.id)
+            await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
     
     user_name = msg.from_user.full_name if msg.from_user else "User"
@@ -2146,7 +2146,7 @@ async def cmd_random(msg: Message):
     # Check membership for non-owner users in private chats
     if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
         if not check_membership(msg.from_user.id):
-            await send_membership_reminder(msg.chat.id)
+            await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
     
     logger.info("Random command requested")
@@ -2236,7 +2236,7 @@ async def handle_live_search(msg: Message):
     # Check membership for non-owner users
     if msg.from_user and msg.from_user.id != OWNER_ID:
         if not check_membership(msg.from_user.id):
-            await send_membership_reminder(msg.chat.id)
+            await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
     
     if not msg.text:
