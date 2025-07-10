@@ -1961,21 +1961,21 @@ async def cmd_start(msg: Message):
         else:
             group_ids.add(msg.chat.id)
             logger.info(f"👥 Group tracked for broadcasting: {msg.chat.id}")
-    
+
     # Skip membership check for owner
     if msg.from_user and msg.from_user.id != OWNER_ID:
         # Check membership for private chats only
         if msg.chat.type == "private" and not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id)
             return
-    
+
     user_name = msg.from_user.full_name if msg.from_user else "User"
     user_id = msg.from_user.id if msg.from_user else ""
-    
+
     # Get bot username dynamically for group invite
     bot_info = await bot.get_me()
     bot_username = bot_info.username
-    
+
     # Create inline keyboard with dynamic group invite button
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -1986,7 +1986,7 @@ async def cmd_start(msg: Message):
             InlineKeyboardButton(text="💕 Add Me To Your Group", url=f"https://t.me/{bot_username}?startgroup=true")
         ]
     ])
-    
+
     welcome_text = f"""
 💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>! 
 
@@ -2002,7 +2002,14 @@ Just type <b>/help</b> to see everything!
 
 Can't wait to show you what I can do! 💝
 """
-    await msg.answer(welcome_text, reply_markup=keyboard)
+
+    # Send the image first
+    await msg.answer_photo(
+        photo="https://i.postimg.cc/zGgdgJJc/New-Project-235-165-FE5-A.png",
+        caption=welcome_text,
+        parse_mode="HTML",
+        reply_markup=keyboard
+    )
 
 # ─── /help Handler ─────────────────────────────────────────────────
 @dp.message(Command("help"))
