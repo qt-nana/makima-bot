@@ -166,10 +166,13 @@ def check_membership(user_id):
         logger.error(f"❌ Error checking membership: {e}")
         return False
 
-async def send_membership_reminder(chat_id):
+async def send_membership_reminder(chat_id, user_id, user_name):
     """Send cute reminder about joining required channel and group"""
-    reminder_message = """
-🌺 <b>Aww sweetie! Let's become besties first~</b> 💖
+
+    user_mention = f'<a href="tg://user?id={user_id}"><b>{user_name}</b></a>'
+
+    reminder_message = f"""
+🌺 <b>Aww {user_mention}! Let's become besties first~</b> 💖
 
 🥰 I'm Makima and I absolutely love making new friends, but I can only play with cuties who are part of our adorable little family! 
 
@@ -177,7 +180,7 @@ async def send_membership_reminder(chat_id):
 
 <i>After joining, just tap the sparkly button below and I'll shower you with love! 🎀💕</i>
 """
-    
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="💌 Our Channel", url="https://t.me/WorkGlows"),
@@ -187,10 +190,42 @@ async def send_membership_reminder(chat_id):
             InlineKeyboardButton(text="💕 Joined Both 💕", callback_data="check_membership")
         ]
     ])
-    
-    await bot.send_message(chat_id, reminder_message, reply_markup=keyboard)
-    logger.info(f"💖 Cute membership reminder sent to {chat_id}")
 
+    image_urls = [
+        "https://i.postimg.cc/x841BwFW/New-Project-235-FFA9646.png",
+        "https://i.postimg.cc/5NC7HwSV/New-Project-235-A06-DD7-A.png",
+        "https://i.postimg.cc/HnPqpdm9/New-Project-235-9-E45-B87.png",
+        "https://i.postimg.cc/1tSPTmRg/New-Project-235-AB394-C0.png",
+        "https://i.postimg.cc/8ct1M2S7/New-Project-235-9-CAE309.png",
+        "https://i.postimg.cc/TYtwDDdt/New-Project-235-2-F658-B0.png",
+        "https://i.postimg.cc/xdwqdVfY/New-Project-235-68-BAF06.png",
+        "https://i.postimg.cc/hPczxn9t/New-Project-235-9-E9-A004.png",
+        "https://i.postimg.cc/jjFPQ1Rk/New-Project-235-A1-E7-CC1.png",
+        "https://i.postimg.cc/TPqJV0pz/New-Project-235-CA65155.png",
+        "https://i.postimg.cc/wBh0WHbb/New-Project-235-89799-CD.png",
+        "https://i.postimg.cc/FKdQ1fzk/New-Project-235-C377613.png",
+        "https://i.postimg.cc/rpKqWnnm/New-Project-235-CFD2548.png",
+        "https://i.postimg.cc/g0kn7HMF/New-Project-235-C4-A32-AC.png",
+        "https://i.postimg.cc/XY6jRkY1/New-Project-235-28-DCBC9.png",
+        "https://i.postimg.cc/SN32J9Nc/New-Project-235-99-D1478.png",
+        "https://i.postimg.cc/8C86n62T/New-Project-235-F1556-B9.png",
+        "https://i.postimg.cc/RCGwVqHT/New-Project-235-5-BBB339.png",
+        "https://i.postimg.cc/pTfYBZyN/New-Project-235-17-D796-A.png",
+        "https://i.postimg.cc/zGgdgJJc/New-Project-235-165-FE5-A.png"
+    ]
+
+    selected_image = random.choice(image_urls)
+
+    await bot.send_photo(
+        chat_id=chat_id,
+        photo=selected_image,
+        caption=reminder_message,
+        parse_mode="HTML",
+        reply_markup=keyboard
+    )
+
+    logger.info(f"💖 Cute membership reminder sent to {chat_id}")
+    
 logger.info("🚀 Makima bot starting up - loading configuration")
 
 # ─── Load .env ──────────────────────────────────────────────────────
@@ -1964,9 +1999,12 @@ async def cmd_start(msg: Message):
 
     # Skip membership check for owner
     if msg.from_user and msg.from_user.id != OWNER_ID:
-        # Check membership for private chats only
         if msg.chat.type == "private" and not check_membership(msg.from_user.id):
-            await send_membership_reminder(msg.chat.id)
+            await send_membership_reminder(
+                chat_id=msg.chat.id,
+                user_id=msg.from_user.id,
+                user_name=msg.from_user.full_name
+            )
             return
 
     user_name = msg.from_user.full_name if msg.from_user else "User"
@@ -2003,9 +2041,36 @@ Just type <b>/help</b> to see everything!
 Can't wait to show you what I can do! 💝
 """
 
-    # Send the image first
+    # List of 20 Makima-style image URLs
+    image_urls = [
+        "https://i.postimg.cc/x841BwFW/New-Project-235-FFA9646.png",
+        "https://i.postimg.cc/5NC7HwSV/New-Project-235-A06-DD7-A.png",
+        "https://i.postimg.cc/HnPqpdm9/New-Project-235-9-E45-B87.png",
+        "https://i.postimg.cc/1tSPTmRg/New-Project-235-AB394-C0.png",
+        "https://i.postimg.cc/8ct1M2S7/New-Project-235-9-CAE309.png",
+        "https://i.postimg.cc/TYtwDDdt/New-Project-235-2-F658-B0.png",
+        "https://i.postimg.cc/xdwqdVfY/New-Project-235-68-BAF06.png",
+        "https://i.postimg.cc/hPczxn9t/New-Project-235-9-E9-A004.png",
+        "https://i.postimg.cc/jjFPQ1Rk/New-Project-235-A1-E7-CC1.png",
+        "https://i.postimg.cc/TPqJV0pz/New-Project-235-CA65155.png",
+        "https://i.postimg.cc/wBh0WHbb/New-Project-235-89799-CD.png",
+        "https://i.postimg.cc/FKdQ1fzk/New-Project-235-C377613.png",
+        "https://i.postimg.cc/rpKqWnnm/New-Project-235-CFD2548.png",
+        "https://i.postimg.cc/g0kn7HMF/New-Project-235-C4-A32-AC.png",
+        "https://i.postimg.cc/XY6jRkY1/New-Project-235-28-DCBC9.png",
+        "https://i.postimg.cc/SN32J9Nc/New-Project-235-99-D1478.png",
+        "https://i.postimg.cc/8C86n62T/New-Project-235-F1556-B9.png",
+        "https://i.postimg.cc/RCGwVqHT/New-Project-235-5-BBB339.png",
+        "https://i.postimg.cc/pTfYBZyN/New-Project-235-17-D796-A.png",
+        "https://i.postimg.cc/zGgdgJJc/New-Project-235-165-FE5-A.png"
+    ]
+
+    # Pick one at random
+    selected_image = random.choice(image_urls)
+
+    # Send image with caption + buttons
     await msg.answer_photo(
-        photo="https://i.postimg.cc/zGgdgJJc/New-Project-235-165-FE5-A.png",
+        photo=selected_image,
         caption=welcome_text,
         parse_mode="HTML",
         reply_markup=keyboard
