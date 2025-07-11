@@ -172,7 +172,7 @@ async def send_membership_reminder(chat_id, user_id, user_name):
     user_mention = f'<a href="tg://user?id={user_id}"><b>{user_name}</b></a>'
 
     reminder_message = f"""
-🌺 <b>Hey {user_mention}!</b> Wanna be friends? 💖
+🌺 <b>Hey {user_mention}!</b> Be my friend? 💖
 
 I'm <b>Makima</b>, but I only play with those who join our <b>lovely family</b>.
 
@@ -181,7 +181,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family</b>.
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="❣️ Our Channel", url="https://t.me/WorkGlows"),
+            InlineKeyboardButton(text="💟 Our Channel", url="https://t.me/WorkGlows"),
             InlineKeyboardButton(text="Our Group 💞", url="https://t.me/c/2186262653/1")
         ],
         [
@@ -2015,7 +2015,7 @@ async def cmd_start(msg: Message):
     # Create inline keyboard with dynamic group invite button
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="❣️ Updates", url="https://t.me/WorkGlows"),
+            InlineKeyboardButton(text="💟 Updates", url="https://t.me/WorkGlows"),
             InlineKeyboardButton(text="💞 Support", url="https://t.me/TheCryptoElders")
         ],
         [
@@ -2028,7 +2028,7 @@ async def cmd_start(msg: Message):
 
 <b>Makima</b> here, to brighten your day! 🌸
 
-🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from 22+ series. All super easy to explore!
+🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
 💌 Just type <b>/help</b> to dive in!
 
