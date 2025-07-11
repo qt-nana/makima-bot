@@ -2098,10 +2098,6 @@ async def cmd_help(msg: Message):
 ├─ Select media type (Video/Image/Animation)  
 └─ Explore with navigation buttons
 
-<b>🎲 New Features:</b>
-├─ /random - Get random content
-└─ Live Search - Just type any character name!
-
 Type any command to start exploring! 🌟
 """
     
