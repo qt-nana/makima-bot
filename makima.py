@@ -172,20 +172,20 @@ async def send_membership_reminder(chat_id, user_id, user_name):
     user_mention = f'<a href="tg://user?id={user_id}"><b>{user_name}</b></a>'
 
     reminder_message = f"""
-🌺 <b>Hey {user_mention}!</b> Let's be friends first 💖
+🌺 <b>Hey {user_mention}!</b> Wanna be friends? 💖
 
-I'm <b>Makima</b>, and I can only play with those who join our <b>lovely family</b>.
+I'm <b>Makima</b>, but I only play with those who join our <b>lovely family</b>.
 
-✨ Join both my <b>special places</b> and tap the button below. I’ll be waiting! 🎀💕
+✨ <i>Join our <b>special places</b>. Tap below and come find me!</i> 🎀💕
 """
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="💌 Our Channel", url="https://t.me/WorkGlows"),
+            InlineKeyboardButton(text="❣️ Our Channel", url="https://t.me/WorkGlows"),
             InlineKeyboardButton(text="Our Group 💞", url="https://t.me/c/2186262653/1")
         ],
         [
-            InlineKeyboardButton(text="💕 Joined Both 💕", callback_data="check_membership")
+            InlineKeyboardButton(text="💗 Joined Both 💗", callback_data="check_membership")
         ]
     ])
 
@@ -2015,24 +2015,24 @@ async def cmd_start(msg: Message):
     # Create inline keyboard with dynamic group invite button
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="💌 Updates", url="https://t.me/WorkGlows"),
+            InlineKeyboardButton(text="❣️ Updates", url="https://t.me/WorkGlows"),
             InlineKeyboardButton(text="💞 Support", url="https://t.me/TheCryptoElders")
         ],
         [
-            InlineKeyboardButton(text="💕 Add Me To Your Group", url=f"https://t.me/{bot_username}?startgroup=true")
+            InlineKeyboardButton(text="💓 Add Me To Your Group", url=f"https://t.me/{bot_username}?startgroup=true")
         ]
     ])
 
     welcome_text = f"""
 💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>! <b>Welcome!</b>
 
-I'm <b>Makima</b>, here to brighten your day! 🌸
+<b>Makima</b> here, to brighten your day! 🌸
 
-💫 I’ve got <b>97 anime commands</b> and <b>amazing content</b> from 22+ series. All super easy to explore!
+🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from 22+ series. All super easy to explore!
 
 💌 Just type <b>/help</b> to dive in!
 
-Can’t wait to show you what I can do! 💝
+Time to have some fun! 💝
 """
 
     # List of 20 Makima-style image URLs
