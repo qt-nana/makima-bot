@@ -182,7 +182,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family</b>.
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="💟 Our Channel", url="https://t.me/WorkGlows"),
-            InlineKeyboardButton(text="Our Group 💞", url="https://t.me/c/2186262653/1")
+            InlineKeyboardButton(text="Our Group 💞", url="https://t.me/TheCryptoElders")
         ],
         [
             InlineKeyboardButton(text="💗 Joined Both 💗", callback_data="check_membership")
