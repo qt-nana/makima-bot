@@ -2032,7 +2032,7 @@ async def cmd_start(msg: Message):
 
 <blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
 
-It's' time to have some fun! 💝
+It's time to have some fun! 💝
 """
 
     # List of 20 Makima-style image URLs
