@@ -176,7 +176,7 @@ async def send_membership_reminder(chat_id, user_id, user_name):
 
 I'm <b>Makima</b>, but I only play with those who join our <b>lovely family</b>.
 
-✨ <i>Join our <b>special places</b>. Tap below and come find me!</i> 🎀💕
+<blockquote><i>✨ Join our <b>special places</b>. Tap below and come find me! 🎀💕</i></blockquote>
 """
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -2030,7 +2030,7 @@ async def cmd_start(msg: Message):
 
 🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
-<blockquote><i>💌 Just type <b>/help</b> to dive in!</i></blockquote>
+<blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
 
 Time to have some fun! 💝
 """
@@ -3195,7 +3195,7 @@ Type any command to start exploring! 🌟
 
 🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
-<blockquote><i>💌 Just type <b>/help</b> to dive in!</i></blockquote>
+<blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
 
 Time to have some fun! 💝
 """
