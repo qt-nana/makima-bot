@@ -2031,8 +2031,6 @@ async def cmd_start(msg: Message):
 🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
 <blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
-
-It's time to have some fun! 💝
 """
 
     # List of 20 Makima-style image URLs
@@ -3196,8 +3194,6 @@ Type any command to start exploring! 🌟
 🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
 <blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
-
-It's time to have some fun! 💝
 """
         
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
