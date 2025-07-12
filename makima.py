@@ -182,7 +182,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family</b>.
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="💟 Our Channel", url="https://t.me/WorkGlows"),
-            InlineKeyboardButton(text="Our Group 💞", url="https://t.me/TheCryptoElders")
+            InlineKeyboardButton(text="Our Group 💞", url="https://t.me/SoulMeetsHQ")
         ],
         [
             InlineKeyboardButton(text="💗 Joined Both 💗", callback_data="check_membership")
@@ -2016,7 +2016,7 @@ async def cmd_start(msg: Message):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="💟 Updates", url="https://t.me/WorkGlows"),
-            InlineKeyboardButton(text="💞 Support", url="https://t.me/TheCryptoElders")
+            InlineKeyboardButton(text="💞 Support", url="https://t.me/SoulMeetsHQ")
         ],
         [
             InlineKeyboardButton(text="💓 Add Me To Your Group", url=f"https://t.me/{bot_username}?startgroup=true")
@@ -3207,7 +3207,7 @@ Can't wait to show you what I can do! 💝
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [
                 InlineKeyboardButton(text="💌 Updates", url="https://t.me/WorkGlows"),
-                InlineKeyboardButton(text="💞 Support", url="https://t.me/TheCryptoElders")
+                InlineKeyboardButton(text="💞 Support", url="https://t.me/SoulMeetsHQ")
             ],
             [
                 InlineKeyboardButton(text="💕 Add Me To Your Group", url=f"https://t.me/{(await bot.get_me()).username}?startgroup=true")
