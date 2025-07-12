@@ -2030,7 +2030,7 @@ async def cmd_start(msg: Message):
 
 🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
-💌 Just type <b>/help</b> to dive in!
+<blockquote><i>💌 Just type <b>/help</b> to dive in!</i></blockquote>
 
 Time to have some fun! 💝
 """
@@ -3189,19 +3189,15 @@ Type any command to start exploring! 🌟
         user_id = callback.from_user.id if callback.from_user else ""
         
         welcome_text = f"""
-💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>! 
+💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>! <b>Welcome!</b>
 
-I'm <b>Makima</b> and I'm here to make your day better! 🌸
+<b>Makima</b> here, to brighten your day! 🌸
 
-💫 <b>What I've got for you:</b>
-✨ <b>97 awesome anime commands</b>
-🎀 <b>Amazing content</b> from 22+ series
-💕 <b>Super easy</b> to use and explore
+🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
-🚀 <b>Ready to dive in?</b> 
-Just type <b>/help</b> to see everything!
+<blockquote><i>💌 Just type <b>/help</b> to dive in!</i></blockquote>
 
-Can't wait to show you what I can do! 💝
+Time to have some fun! 💝
 """
         
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
