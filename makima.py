@@ -2410,9 +2410,9 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 1: Welcome + Main Anime Series
         if page == 1:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
-<b>🎌 ALL ANIME SERIES:</b>
+<blockquote><b>🎌 ALL ANIME SERIES:</b>
 ├─ /naruto - Ninja World
 ├─ /bleach - Soul Society  
 ├─ /op - Grand Line
@@ -2434,7 +2434,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /dn - Death Gods
 ├─ /tg - Ghoul World
 ├─ /mdd - Cosplay Fun
-└─ /ps - School Prison
+└─ /ps - School Prison</blockquote>
 
 <b>📖 Page 1 of 20</b>
 """
@@ -2448,7 +2448,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 2: Naruto Characters Part 1
         elif page == 2:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>💖 NARUTO CHARACTERS - Part 1:</b>
 ├─ /hinata - Shy Princess
@@ -2475,7 +2475,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 3: Naruto Characters Part 2
         elif page == 3:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>💖 NARUTO CHARACTERS - Part 2:</b>
 ├─ /sarada - New Generation
@@ -2503,7 +2503,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 4: Bleach Characters Part 1
         elif page == 4:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>⚔️ BLEACH CHARACTERS - Part 1:</b>
 ├─ /rukia - Ice Princess
@@ -2530,7 +2530,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 5: Bleach Characters Part 2
         elif page == 5:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>⚔️ BLEACH CHARACTERS - Part 2:</b>
 ├─ /mashiro - Cheerful Vizard
@@ -2556,7 +2556,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 6: One Piece + Jujutsu Kaisen Part 1
         elif page == 6:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>🏴‍☠️ ONE PIECE CHARACTERS:</b>
 ├─ /nami - Navigator Queen
@@ -2584,7 +2584,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 7: Jujutsu Kaisen Part 2 + Attack on Titan Part 1
         elif page == 7:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>✨ JUJUTSU KAISEN CHARACTERS - Part 2:</b>
 ├─ /kasumi - Simple Girl
@@ -2613,7 +2613,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 8: Attack on Titan Part 2 + Demon Slayer Part 1
         elif page == 8:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>⚡ ATTACK ON TITAN CHARACTERS - Part 2:</b>
 ├─ /hange - Research Titan
@@ -2644,7 +2644,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 9: Demon Slayer Part 2
         elif page == 9:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>🗡️ DEMON SLAYER CHARACTERS - Part 2:</b>
 ├─ /daki - Upper Moon Six
@@ -2668,7 +2668,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 10: My Hero Academia Characters
         elif page == 10:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>🦸 MY HERO ACADEMIA CHARACTERS:</b>
 ├─ /ochaco - Gravity Girl
@@ -2697,7 +2697,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 11: Chainsaw Man Characters
         elif page == 11:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>🔥 CHAINSAW MAN CHARACTERS:</b>
 ├─ /power - Blood Fiend
@@ -2723,7 +2723,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 12: One Punch Man + Spy x Family + Hunter x Hunter
         elif page == 12:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>⚡ ONE PUNCH MAN CHARACTERS:</b>
 ├─ /tatsumaki - Tornado Terror
@@ -2753,7 +2753,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 13: Fullmetal Alchemist Characters
         elif page == 13:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>⚗️ FULLMETAL ALCHEMIST CHARACTERS:</b>
 ├─ /winry - Automail Mechanic
@@ -2782,7 +2782,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 14: Death Note + Tokyo Ghoul Part 1
         elif page == 14:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>📓 DEATH NOTE CHARACTERS:</b>
 ├─ /misa - Second Kira
@@ -2811,7 +2811,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 15: Tokyo Ghoul Part 2 + Other Series
         elif page == 15:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>🖤 TOKYO GHOUL CHARACTERS - Part 2:</b>
 ├─ /itori - Information Broker
@@ -2846,7 +2846,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 16: Dandadan Characters
         elif page == 16:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>👻 DANDADAN CHARACTERS:</b>
 ├─ /momoayase - Psychic Girl
@@ -2870,7 +2870,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 17: Dr Stone Characters
         elif page == 17:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>🧪 DR STONE CHARACTERS:</b>
 ├─ /yuzuriha - Lion's Mane
@@ -2894,7 +2894,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 18: Overflow + Sakamoto Days
         elif page == 18:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>💧 OVERFLOW CHARACTERS:</b>
 ├─ /kotone - Elder Sister
@@ -2918,7 +2918,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 19: How to Enjoy Guide
         elif page == 19:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide</b> 💝
 
 <b>🎀 How to Enjoy:</b>
 ├─ Choose any anime or character!
@@ -2957,7 +2957,7 @@ async def handle_callbacks(callback: CallbackQuery):
 <b>• Navigate easily between different media types</b>
 <b>• Get fresh updates regularly</b></blockquote>
 
-<b>Type /start anytime to go back to the main menu</b>
+<b>Use /start to return home anytime.</b>
 
 <b>📖 Page 20 of 20</b>
 """
@@ -2974,7 +2974,7 @@ async def handle_callbacks(callback: CallbackQuery):
         # Default fallback for invalid pages
         else:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide </b> 💝
 
 <b>🌸 Invalid page! Use the buttons to navigate properly.</b>
 
