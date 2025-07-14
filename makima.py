@@ -2412,8 +2412,6 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
 
-<b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ characters!
-
 <b>🎌 ALL ANIME SERIES:</b>
 ├─ /naruto - Ninja World
 ├─ /bleach - Soul Society  
