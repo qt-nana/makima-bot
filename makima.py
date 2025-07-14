@@ -2088,15 +2088,15 @@ async def cmd_help(msg: Message):
 
 <b>🎌 Quick Start:</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
-├─ /hinata /sakura /tsunade /rukia /orihime
-└─ /mikasa /nezuko /nobara /power /makima
+├─ /hinata /sakura /rukia /orihime
+└─ /mikasa /nezuko /nobara /makima
 
 <b>🎀 How to use:</b>
-├─ Choose any anime or character command
-├─ Select media type (Video/Image/Animation)  
+├─ Choose any kind of command
+├─ Select media type Vid/img/Gif  
 └─ Explore with navigation buttons
 
-Type any command to start exploring! 🌟
+Type a command to begin! 🌟
 """
     
     # Create keyboard with expand button
@@ -2921,16 +2921,16 @@ async def handle_callbacks(callback: CallbackQuery):
 💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
 
 <b>🎀 How to Enjoy:</b>
-├─ Choose any anime series or character command
-├─ Select media type (🎬 Video/🖼️ Image/✨ Animation)
-├─ Use navigation buttons (🔄 Refresh/💫 Next/💕 Back)
-└─ Discover new content with each update
+├─ Choose any anime or character!
+├─ Select media type Vid/img/Gif
+├─ Use navigation buttons 
+└─ Find new content every update!
 
 <b>🌺 Pro Tips:</b>
-├─ Commands are organized by anime series
-├─ Each character has unique high-quality content  
-├─ Navigate freely between different media types
-└─ Use /start to return to main menu anytime
+├─ Anime-based command list!
+├─ Each character, unique content!
+├─ Explore all media types freely!
+└─ Use /start to return to main menu!
 
 <b>📖 Page 19 of 20</b>
 """
@@ -2947,20 +2947,24 @@ async def handle_callbacks(callback: CallbackQuery):
         # Page 20: Final Page
         elif page == 20:
             help_text = f"""
-💝 <b>Makima's Complete Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b>Makima's Complete Guide </b> 💝
 
-<b>🌟 Thank you for exploring!</b>
+<b>💗 Thanks <a href="tg://user?id={user_id}">{user_name}</a> for exploring with me!</b>
 
-<i>Enjoy exploring the wonderful anime universe with me! 🌟</i>
+<i>Enjoy diving into the anime world with unique content for every character. 💘</i>
 
-<b>Use /start to return to main menu anytime</b>
+<blockquote><b>• Use commands to browse anime series and characters</b>
+<b>• Navigate easily between different media types</b>
+<b>• Get fresh updates regularly</b></blockquote>
+
+<b>Type /start anytime to go back to the main menu</b>
 
 <b>📖 Page 20 of 20</b>
 """
             keyboard = InlineKeyboardMarkup(inline_keyboard=[
                 [
                     InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_19"),
-                    InlineKeyboardButton(text="🏠 Back to Page 1", callback_data="help_page_1")
+                    InlineKeyboardButton(text="🏠 Page 1", callback_data="help_page_1")
                 ],
                 [
                     InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
@@ -2978,7 +2982,7 @@ async def handle_callbacks(callback: CallbackQuery):
 """
             keyboard = InlineKeyboardMarkup(inline_keyboard=[
                 [
-                    InlineKeyboardButton(text="🏠 Back to Page 1", callback_data="help_page_1"),
+                    InlineKeyboardButton(text="🏠 Page 1", callback_data="help_page_1"),
                     InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
                 ]
             ])
@@ -3007,15 +3011,15 @@ async def handle_callbacks(callback: CallbackQuery):
 
 <b>🎌 Quick Start:</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
-├─ /hinata /sakura /tsunade /rukia /orihime
-└─ /mikasa /nezuko /nobara /power /makima
+├─ /hinata /sakura /tsunade /rukia
+└─ /mikasa /nobara /power /makima
 
 <b>🎀 How to use:</b>
-├─ Choose any anime or character command
-├─ Select media type (Video/Image/Animation)  
+├─ Choose any type of command
+├─ Select media type Vid/img/Gif  
 └─ Explore with navigation buttons
 
-Type any command to start exploring! 🌟
+Type a command to begin! 🌟
 """
         
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
