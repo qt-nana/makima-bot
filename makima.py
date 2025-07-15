@@ -2920,17 +2920,17 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>🎀 How to Enjoy:</b>
+<blockquote><b>🎀 How to Enjoy:</b>
 ├─ Choose any anime or character!
 ├─ Select media type Vid/img/Gif
 ├─ Use navigation buttons 
-└─ Find new content every update!
+└─ Find new content every update!</blockquote>
 
-<b>🌺 Pro Tips:</b>
+<blockquote><b>🌺 Pro Tips:</b>
 ├─ Anime-based command list!
 ├─ Each character, unique content!
 ├─ Explore all media types freely!
-└─ Use /start to return to main menu!
+└─ Use /start to return to main menu!</blockquote>
 
 <b>📖 Page 19 of 20</b>
 """
