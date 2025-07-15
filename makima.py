@@ -176,12 +176,12 @@ async def send_membership_reminder(chat_id, user_id, user_name):
 
 I'm <b>Makima</b>, but I only play with those who join our <b>lovely family</b>.
 
-<blockquote><i>✨ Join our <b>special places</b>. Tap below and come find me! 🎀💕</i></blockquote>
+<blockquote><i>✨ Join our <b>special places</b>. Tap below and come find me! 💕</i></blockquote>
 """
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="💟 Our Channel", url="https://t.me/WorkGlows"),
+            InlineKeyboardButton(text="💫 Our Channel", url="https://t.me/WorkGlows"),
             InlineKeyboardButton(text="Our Group 💞", url="https://t.me/SoulMeetsHQ")
         ],
         [
