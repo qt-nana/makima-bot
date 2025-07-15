@@ -2086,15 +2086,15 @@ async def cmd_help(msg: Message):
 
 <b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
 
-<b>🎌 Quick Start:</b>
+<blockquote><b>🎌 Quick Start:</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
 ├─ /hinata /sakura /rukia /orihime
-└─ /mikasa /nezuko /nobara /makima
+└─ /mikasa /nezuko /nobara /makima</blockquote>
 
-<b>🎀 How to use:</b>
+<blockquote><b>🎀 How to use:</b>
 ├─ Choose any kind of command
 ├─ Select media type Vid/img/Gif  
-└─ Explore with navigation buttons
+└─ Explore with navigation buttons</blockquote>
 
 Type a command to begin! 🌟
 """
@@ -3009,15 +3009,15 @@ async def handle_callbacks(callback: CallbackQuery):
 
 <b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
 
-<b>🎌 Quick Start:</b>
+<blockquote><b>🎌 Quick Start:</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
 ├─ /hinata /sakura /tsunade /rukia
-└─ /mikasa /nobara /power /makima
+└─ /mikasa /nobara /power /makima</blockquote>
 
-<b>🎀 How to use:</b>
+<blockquote><b>🎀 How to use:</b>
 ├─ Choose any type of command
 ├─ Select media type Vid/img/Gif  
-└─ Explore with navigation buttons
+└─ Explore with navigation buttons</blockquote>
 
 Type a command to begin! 🌟
 """
