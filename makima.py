@@ -2262,18 +2262,18 @@ async def handle_live_search(msg: Message):
 
 <i>Searching for:</i> <b>"{search_text}"</b>
 
-🌟 <b>Search Tips:</b>
-├─ Use character names: "hinata", "sakura", "rukia"
-├─ Try anime names: "naruto", "bleach", "jujutsu_kaisen"  
-├─ Use underscores: "misa_amane", "yor_forger"
-├─ Combine tags: "hinata big_breasts", "sakura swimsuit"
+<blockquote>🌟 <b>Search Tips:</b>
+├─ Use character names: "sakura"
+├─ Try anime names: "naruto", "bleach"
+├─ Use underscores: "yor_forger"
+└─ Combine tags: "big_breasts"</blockquote>
 
-💡 <b>Popular searches:</b>
+<blockquote>💡 <b>Popular searches:</b>
 ├─ Character names from any anime
 ├─ Series names with specific tags
-└─ Art styles like "anime", "manga", "3d"
+└─ Art styles like "anime", "manga", "3d"</blockquote>
 
-⏳ <i>Searching live from Rule34...</i>
+⏳ <i>Searching live from internet...</i>
 """
     
     guidance_msg = await msg.answer(guidance_text)
@@ -2305,16 +2305,16 @@ async def handle_live_search(msg: Message):
 
 <i>Searched for:</i> <b>"{search_text}"</b>
 
-💡 <b>Try these instead:</b>
+<blockquote>💡 <b>Try these instead:</b>
 ├─ Use underscores: "{search_text.replace(' ', '_')}"
 ├─ Try character first name only
 ├─ Check spelling of character names
-├─ Use /random for surprise content
+└─ Use /random for surprise content</blockquote>
 
-🌸 <b>Or try these popular characters:</b>
+<blockquote>🌸 <b>Or try these popular characters:</b>
 ├─ hinata, sakura, tsunade (Naruto)
 ├─ rukia, orihime, yoruichi (Bleach)
-└─ mikasa, annie, historia (AOT)
+└─ mikasa, annie, historia (AOT)</blockquote>
 """
         await bot.edit_message_text(
             text=no_results_text,
