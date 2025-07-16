@@ -2401,11 +2401,27 @@ async def handle_callbacks(callback: CallbackQuery):
         if check_membership(user_id):
             await callback.answer("🎀 Yay! Welcome to our loving family, sweetheart! 💖", show_alert=True)
             try:
-                await bot.edit_message_text(
-                    text="🌸 <b>Aww, you're officially part of my heart now!</b> 💕\n\n🥰 I'm so excited to be your anime companion! You can now enjoy all my special features and content!\n\n✨ Type /start to begin our magical adventure together! 🎀\n\n<i>I can't wait to share all my favorite anime moments with you, darling! 🌺💖</i>",
-                    chat_id=callback.message.chat.id,
-                    message_id=callback.message.message_id
+                response_text = (
+                    "🌸 <b>Aww, you're officially part of my heart now!</b> 💕\n\n"
+                    "🥰 I'm so excited to be your anime companion! You can now enjoy all my special features and content!\n\n"
+                    "✨ Type /start to begin our magical adventure together! 🎀\n\n"
+                    "<i>I can't wait to share all my favorite anime moments with you, darling! 🌺💖</i>"
                 )
+
+                if callback.message.content_type == "photo":
+                    await bot.edit_message_caption(
+                        caption=response_text,
+                        chat_id=callback.message.chat.id,
+                        message_id=callback.message.message_id,
+                        parse_mode="HTML"
+                    )
+                else:
+                    await bot.edit_message_text(
+                        text=response_text,
+                        chat_id=callback.message.chat.id,
+                        message_id=callback.message.message_id,
+                        parse_mode="HTML"
+                    )
             except Exception as e:
                 logger.error(f"❌ Failed to edit membership message: {e}")
         else:
