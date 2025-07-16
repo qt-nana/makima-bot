@@ -1510,25 +1510,40 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
         if edit_mode and message_id:
             if media_type == "video":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaVideo(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaVideo(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             elif media_type == "gif":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaAnimation(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaAnimation(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             else:  # image
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaPhoto(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaPhoto(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             logger.info(f"Successfully loaded random {media_type}")
         else:
             if media_type == "video":
@@ -1575,25 +1590,40 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
         if edit_mode and message_id:
             if media_type == "video":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaVideo(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaVideo(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             elif media_type == "gif":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaAnimation(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaAnimation(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             else:  # image
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaPhoto(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaPhoto(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             logger.info(f"Successfully loaded search {media_type} for '{search_query}'")
         else:
             if media_type == "video":
@@ -1666,25 +1696,40 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
             # Edit existing message based on media type
             if media_type == "video":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaVideo(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaVideo(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             elif media_type == "gif":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaAnimation(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaAnimation(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             else:  # image
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaPhoto(media=post['url'], caption=caption),
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaPhoto(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             return None
         else:
             # Send new message based on media type
