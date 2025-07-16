@@ -1476,7 +1476,8 @@ async def send_media_selection(anime_name: str, chat_id: int):
             chat_id=chat_id,
             photo=post['url'],
             caption=caption,
-            reply_markup=keyboard
+            reply_markup=keyboard,
+            has_spoiler=True
         )
         return sent_msg
     except Exception as e:
@@ -1535,21 +1536,24 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
                     chat_id=chat_id,
                     video=post['url'],
                     caption=caption,
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             elif media_type == "gif":
                 await bot.send_animation(
                     chat_id=chat_id,
                     animation=post['url'],
                     caption=caption,
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             else:  # image
                 await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
                     caption=caption,
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             logger.info(f"Successfully sent random {media_type}")
             
@@ -1597,21 +1601,24 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
                     chat_id=chat_id,
                     video=post['url'],
                     caption=caption,
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             elif media_type == "gif":
                 await bot.send_animation(
                     chat_id=chat_id,
                     animation=post['url'],
                     caption=caption,
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             else:  # image
                 await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
                     caption=caption,
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             logger.info(f"Successfully sent search {media_type} for '{search_query}'")
             
@@ -1676,7 +1683,8 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     chat_id=chat_id,
                     message_id=message_id,
                     media=InputMediaPhoto(media=post['url'], caption=caption),
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             return None
         else:
@@ -1687,21 +1695,24 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     video=post['url'],
                     caption=caption,
                     reply_markup=keyboard,
-                    supports_streaming=True
+                    supports_streaming=True,
+                    has_spoiler=True
                 )
             elif media_type == "gif":
                 sent_msg = await bot.send_animation(
                     chat_id=chat_id,
                     animation=post['url'],
                     caption=caption,
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             else:  # image
                 sent_msg = await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
                     caption=caption,
-                    reply_markup=keyboard
+                    reply_markup=keyboard,
+                    has_spoiler=True
                 )
             return sent_msg
             
@@ -2170,7 +2181,8 @@ async def send_random_selection(chat_id: int):
             chat_id=chat_id,
             photo=post['url'],
             caption=caption,
-            reply_markup=keyboard
+            reply_markup=keyboard,
+            has_spoiler=True
         )
         logger.info("Random media selection sent successfully")
         return True
