@@ -1683,8 +1683,7 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     chat_id=chat_id,
                     message_id=message_id,
                     media=InputMediaPhoto(media=post['url'], caption=caption),
-                    reply_markup=keyboard,
-                    has_spoiler=True
+                    reply_markup=keyboard
                 )
             return None
         else:
@@ -2390,7 +2389,8 @@ async def handle_live_search(msg: Message):
             chat_id=msg.chat.id,
             photo=post['url'],
             caption=caption,
-            reply_markup=keyboard
+            reply_markup=keyboard,
+            has_spoiler=True
         )
         logger.info(f"Live search selection sent for: {search_text}")
     except Exception as e:
