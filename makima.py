@@ -2402,11 +2402,11 @@ async def handle_callbacks(callback: CallbackQuery):
             await callback.answer("🎀 Yay! Welcome to our loving family, sweetheart! 💖", show_alert=True)
             try:
                 response_text = (
-                    "🌸 <b>Aww, you're officially part of my heart now!</b> 💕\n\n"
-                    "🥰 I'm so excited to be your anime companion! You can now enjoy all my special features and content!\n\n"
-                    "✨ Type /start to begin our magical adventure together! 🎀\n\n"
-                    "<i>I can't wait to share all my favorite anime moments with you, darling! 🌺💖</i>"
-                )
+    "🌸 <b>You're now officially part of our little world!</b> 💕\n\n"
+    "🥰 I'm really happy to have you here. You can now enjoy all the special features and content waiting for you.\n\n"
+    "✨ Type <b>/start</b> to begin your journey with me! 🎀\n\n"
+    "<blockquote><i>I can't wait to share my favorite anime moments with you, sweetheart 🌺</i></blockquote>"
+				)
 
                 if callback.message.content_type == "photo":
                     await bot.edit_message_caption(
@@ -2425,7 +2425,7 @@ async def handle_callbacks(callback: CallbackQuery):
             except Exception as e:
                 logger.error(f"❌ Failed to edit membership message: {e}")
         else:
-            await callback.answer("🥺 Aww sweetie, I don't see you in both places yet! Please join my channel and group first! 💕", show_alert=True)
+            await callback.answer("😭 You're still not part of our channel and group. Please join both, it hurts... 💔", show_alert=True)
         return
     
     # Handle broadcast target selection
