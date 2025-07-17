@@ -2461,8 +2461,8 @@ async def handle_callbacks(callback: CallbackQuery):
                 response_text = (
     "🌸 <b>You're now officially part of our little world!</b> 💕\n\n"
     "🥰 I'm really happy to have you here. You can now enjoy all the special features and content waiting for you.\n\n"
-    "✨ Type <b>/start</b> to begin your journey with me! 🎀\n\n"
-    "<blockquote><i>I can't wait to share my favorite anime moments with you, sweetheart 🌺</i></blockquote>"
+    "<blockquote><b><i>I can't wait to share my favorite anime moments with you, sweetheart 🌺</i></b></blockquote>\n\n"
+    "✨ Type <b>/start</b> to begin your journey with me! 🎀"
 				)
 
                 if callback.message.content_type == "photo":
