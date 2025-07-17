@@ -172,9 +172,9 @@ async def send_membership_reminder(chat_id, user_id, user_name):
     user_mention = f'<a href="tg://user?id={user_id}"><b>{user_name}</b></a>'
 
     reminder_message = f"""
-🌺 <b>Hey {user_mention}!</b> Be my friend? 💖
+🌺 <b>Hey {user_mention}, Glad to see you!</b>
 
-I'm <b>Makima</b>, but I only play with those who join our <b>lovely family</b>.
+I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b> 💖
 
 <blockquote><i>✨ Join our <b>special places</b>. Tap below and come find me! 💕</i></blockquote>
 """
