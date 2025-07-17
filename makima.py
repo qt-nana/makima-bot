@@ -1431,7 +1431,7 @@ def create_media_selection_keyboard(anime_name: str):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="🎬 Videos", callback_data=f"select_video_{anime_name}"),
-            InlineKeyboardButton(text="Images 🖼️", callback_data=f"select_image_{anime_name}")
+            InlineKeyboardButton(text="🖼️ Images", callback_data=f"select_image_{anime_name}")
         ],
         [
             InlineKeyboardButton(text="🎨 Animations", callback_data=f"select_gif_{anime_name}")
@@ -1444,11 +1444,11 @@ def create_media_navigation_keyboard(anime_name: str, media_type: str, page: int
     """Create beautiful keyboard for media navigation with Update, Next, Back buttons"""
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="🔁 Refresh", callback_data=f"update_{anime_name}_{media_type}_{page}"),
-            InlineKeyboardButton(text="Next ⏭️", callback_data=f"next_{anime_name}_{media_type}_{page}")
+            InlineKeyboardButton(text="💞 Refresh", callback_data=f"update_{anime_name}_{media_type}_{page}"),
+            InlineKeyboardButton(text="💘 Next", callback_data=f"next_{anime_name}_{media_type}_{page}")
         ],
         [
-            InlineKeyboardButton(text="◀️ Back", callback_data=f"back_{anime_name}")
+            InlineKeyboardButton(text="💓 Back", callback_data=f"back_{anime_name}")
         ]
     ])
     return keyboard
@@ -1991,7 +1991,7 @@ def create_random_selection_keyboard():
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="🎬 Videos", callback_data="select_video_random"),
-            InlineKeyboardButton(text="Images 🖼️", callback_data="select_image_random")
+            InlineKeyboardButton(text="🖼️ Images️", callback_data="select_image_random")
         ],
         [
             InlineKeyboardButton(text="🎨 Animations", callback_data="select_gif_random")
@@ -2003,11 +2003,11 @@ def create_random_navigation_keyboard(media_type: str = "image", page: int = 1):
     """Create navigation keyboard for random content (matching anime command style)"""
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="🔁 Refresh", callback_data=f"update_random_{media_type}_{page}"),
-            InlineKeyboardButton(text="Next ⏭️", callback_data=f"next_random_{media_type}_{page}")
+            InlineKeyboardButton(text="💞 Refresh", callback_data=f"update_random_{media_type}_{page}"),
+            InlineKeyboardButton(text="💘 Next", callback_data=f"next_random_{media_type}_{page}")
         ],
         [
-            InlineKeyboardButton(text="◀️ Back", callback_data="back_random")
+            InlineKeyboardButton(text="💓 Back", callback_data="back_random")
         ]
     ])
     return keyboard
@@ -2021,7 +2021,7 @@ def create_search_selection_keyboard(search_query: str):
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="🎬 Videos", callback_data=f"select_video_{encoded_query}"),
-            InlineKeyboardButton(text="Images 🖼️", callback_data=f"select_image_{encoded_query}")
+            InlineKeyboardButton(text="🖼️ Images️", callback_data=f"select_image_{encoded_query}")
         ],
         [
             InlineKeyboardButton(text="🎨 Animations", callback_data=f"select_gif_{encoded_query}")
@@ -2036,11 +2036,11 @@ def create_search_navigation_keyboard(search_query: str, media_type: str = "imag
     
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text="🔁 Refresh", callback_data=f"update_{encoded_query}_{media_type}_{page}"),
-            InlineKeyboardButton(text="Next ⏭️", callback_data=f"next_{encoded_query}_{media_type}_{page}")
+            InlineKeyboardButton(text="💞 Refresh", callback_data=f"update_{encoded_query}_{media_type}_{page}"),
+            InlineKeyboardButton(text="💘 Next", callback_data=f"next_{encoded_query}_{media_type}_{page}")
         ],
         [
-            InlineKeyboardButton(text="◀️ Back", callback_data=f"back_{encoded_query}")
+            InlineKeyboardButton(text="💓 Back", callback_data=f"back_{encoded_query}")
         ]
     ])
     return keyboard
