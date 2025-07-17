@@ -2482,7 +2482,7 @@ async def handle_callbacks(callback: CallbackQuery):
             except Exception as e:
                 logger.error(f"❌ Failed to edit membership message: {e}")
         else:
-            await callback.answer("😭 You're still not part of our channel and group. Please join both, it hurts... 💔", show_alert=True)
+            await callback.answer("💖 You're still not part of our channel and group. Join both so we can begin this journey together and enjoy every moment side by side 💕", show_alert=True)
         return
     
     # Handle broadcast target selection
