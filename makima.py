@@ -1664,7 +1664,7 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
         return None
         
     title = anime_data["title"]
-    media_emoji = {"image": "🖼️", "video": "🎬", "gif": "✨"}
+    media_emoji = {"image": "🖼️", "video": "🎬", "gif": "🎨"}
     logger.info(f"Fetching {title} {media_type} content using API")
     
     # Try to get media with fallback system
