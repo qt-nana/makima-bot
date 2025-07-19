@@ -2284,8 +2284,7 @@ async def cmd_broadcast(msg: Message):
     logger.info(f"✅ Broadcast target selection sent, message ID: {response.message_id}")
 
 # Ping command handler
-
-@router.message(F.text == "/ping")
+@dp.message(F.text == "/ping")
 async def ping_command(msg: Message):
     """Respond with latency after checking membership and track for broadcast"""
     info = extract_user_info(msg)
