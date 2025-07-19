@@ -2283,6 +2283,48 @@ async def cmd_broadcast(msg: Message):
     )
     logger.info(f"✅ Broadcast target selection sent, message ID: {response.message_id}")
 
+# Ping command handler
+
+@router.message(F.text == "/ping")
+async def ping_command(msg: Message):
+    """Respond with latency after checking membership and track for broadcast"""
+    info = extract_user_info(msg)
+    user_id = info['user_id']
+
+    logger.info(f"📥 /ping received | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat: {info['chat_title']} ({info['chat_type']}) | Chat ID: {info['chat_id']} | Link: {info['chat_link']}")
+
+    # Membership check
+    if not check_membership(user_id):
+        await send_membership_reminder(chat_id=msg.chat.id, user_id=user_id, user_name=info['full_name'])
+        logger.info(f"🚫 /ping blocked — not a member | Name: {info['full_name']} | User ID: {user_id}")
+        return
+
+    # Broadcast tracking
+    if msg.from_user:
+        if msg.chat.type == "private":
+            user_ids.add(user_id)
+            logger.info(f"👤 User tracked for broadcasting: {user_id}")
+        else:
+            group_ids.add(msg.chat.id)
+            logger.info(f"👥 Group tracked for broadcasting: {msg.chat.id}")
+
+    try:
+        start = time.perf_counter()
+        response = await msg.answer("🛰️ Pinging...")
+        end = time.perf_counter()
+        latency_ms = (end - start) * 1000
+
+        await response.edit_text(
+            f"🏓 <a href='https://t.me/SoulMeetsHQ'>Pong!</a> {latency_ms:.2f}ms",
+            parse_mode=ParseMode.HTML,
+            disable_web_page_preview=True
+        )
+
+        logger.info(f"✅ Pong sent | Latency: {latency_ms:.2f}ms | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat: {info['chat_title']} ({info['chat_type']}) | Chat ID: {info['chat_id']}")
+
+    except Exception as e:
+        logger.error(f"❌ /ping failed | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat ID: {info['chat_id']} | Error: {str(e)}")
+
 # ─── Live Search Handler for Private Messages ──────────────────────
 @dp.message(F.chat.type == "private")
 async def handle_live_search(msg: Message):
