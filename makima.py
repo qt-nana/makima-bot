@@ -2283,7 +2283,6 @@ async def cmd_broadcast(msg: Message):
     )
     logger.info(f"✅ Broadcast target selection sent, message ID: {response.message_id}")
 
-# Ping command handler
 @dp.message(F.text == "/ping")
 async def ping_command(msg: Message):
     """Respond with latency after checking membership and track for broadcast"""
@@ -2292,11 +2291,12 @@ async def ping_command(msg: Message):
 
     logger.info(f"📥 /ping received | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat: {info['chat_title']} ({info['chat_type']}) | Chat ID: {info['chat_id']} | Link: {info['chat_link']}")
 
-    # Membership check
-    if not check_membership(user_id):
-        await send_membership_reminder(chat_id=msg.chat.id, user_id=user_id, user_name=info['full_name'])
-        logger.info(f"🚫 /ping blocked — not a member | Name: {info['full_name']} | User ID: {user_id}")
-        return
+    # Skip membership check for owner
+    if user_id != OWNER_ID:
+        if not check_membership(user_id):
+            await send_membership_reminder(chat_id=msg.chat.id, user_id=user_id, user_name=info['full_name'])
+            logger.info(f"🚫 /ping blocked — not a member | Name: {info['full_name']} | User ID: {user_id}")
+            return
 
     # Broadcast tracking
     if msg.from_user:
