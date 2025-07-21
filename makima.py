@@ -3201,7 +3201,7 @@ Type a command to begin! 🌟
     message_id=callback.message.message_id,
     reply_markup=keyboard
 )
-await callback.answer("📖 Guide minimized!")
+	await callback.answer("📖 Guide minimized!")
 return
 
 data_parts = callback.data.split("_")
