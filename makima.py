@@ -2337,16 +2337,29 @@ async def handle_live_search(msg: Message):
         
         success_count = 0
         failed_count = 0
+
+        is_forwarded = hasattr(msg, "forward_from") or hasattr(msg, "forward_from_chat")
         
         for target_id in target_list:
             try:
-                await bot.copy_message(
-                    chat_id=target_id,
-                    from_chat_id=msg.chat.id,
-                    message_id=msg.message_id
-                )
+                if is_forwarded:
+                    # If message is forwarded, preserve that
+                    await bot.forward_message(
+                        chat_id=target_id,
+                        from_chat_id=msg.chat.id,
+                        message_id=msg.message_id
+                    )
+                    logger.info(f"🔁 Forwarded to {target_id}")
+                else:
+                    # Fallback to copy (clean look, no forward header)
+                    await bot.copy_message(
+                        chat_id=target_id,
+                        from_chat_id=msg.chat.id,
+                        message_id=msg.message_id
+                    )
+                    logger.info(f"📋 Copied to {target_id}")
+
                 success_count += 1
-                logger.info(f"✅ Message sent to {target_id}")
             except Exception as e:
                 failed_count += 1
                 logger.warning(f"❌ Failed to send to {target_id}: {e}")
