@@ -1471,9 +1471,6 @@ async def send_media_selection(anime_name: str, chat_id: int):
     try:
         keyboard = create_media_selection_keyboard(anime_name)
         caption = f"💖 {title}\n\n✨ What would you like to see?"
-
-        # Show "sending photo..." indicator
-        await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
         
         sent_msg = await bot.send_photo(
             chat_id=chat_id,
@@ -1494,51 +1491,62 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
         # Force truly new content on each call by using multiple attempts
         attempts = 0
         post = None
-
+        
         while attempts < 3 and not post:
+            # Add microsecond delay to ensure different random seeds
             await asyncio.sleep(0.001)
             post = await fetch_random_content(media_type)
             attempts += 1
-
-        if not post and media_type != "image":
+            
+        if not post:
+            # Try again with different media type if failed
             post = await fetch_random_content("image")
         if not post:
             return None
-
+            
         keyboard = create_random_navigation_keyboard(media_type, page)
         caption = f"🎲 <b>Random {media_type.title()}</b> ✨\n\n💫 Enjoy this surprise!"
-
+        
         if edit_mode and message_id:
             if media_type == "video":
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaVideo(
-                        media=post['url'],
-                        caption=caption,
-                        parse_mode="HTML",
-                        has_spoiler=True
-                    ),
-                    reply_markup=keyboard
-                )
-            else:  # Treat gif as photo
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
-                media = (
-                    InputMediaAnimation(media=post['url'], caption=caption, parse_mode="HTML", has_spoiler=True)
-                    if media_type == "gif"
-                    else InputMediaPhoto(media=post['url'], caption=caption, parse_mode="HTML", has_spoiler=True)
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaVideo(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
+            elif media_type == "gif":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=media,
-                    reply_markup=keyboard
-                )
-            logger.info(f"Successfully edited random {media_type}")
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaAnimation(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
+            else:  # image
+                await bot.edit_message_media(
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaPhoto(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
+            logger.info(f"Successfully loaded random {media_type}")
         else:
             if media_type == "video":
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
                 await bot.send_video(
                     chat_id=chat_id,
                     video=post['url'],
@@ -1546,26 +1554,24 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-            else:  # Treat gif as photo
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
-                if media_type == "gif":
-                    await bot.send_animation(
-                        chat_id=chat_id,
-                        animation=post['url'],
-                        caption=caption,
-                        reply_markup=keyboard,
-                        has_spoiler=True
-                    )
-                else:
-                    await bot.send_photo(
-                        chat_id=chat_id,
-                        photo=post['url'],
-                        caption=caption,
-                        reply_markup=keyboard,
-                        has_spoiler=True
-                    )
+            elif media_type == "gif":
+                await bot.send_animation(
+                    chat_id=chat_id,
+                    animation=post['url'],
+                    caption=caption,
+                    reply_markup=keyboard,
+                    has_spoiler=True
+                )
+            else:  # image
+                await bot.send_photo(
+                    chat_id=chat_id,
+                    photo=post['url'],
+                    caption=caption,
+                    reply_markup=keyboard,
+                    has_spoiler=True
+                )
             logger.info(f"Successfully sent random {media_type}")
-
+            
         return True
     except Exception as e:
         logger.error(f"Random media send error: {e}")
@@ -1577,41 +1583,50 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
         post = await search_rule34_live(search_query, media_type)
         if not post:
             return None
-
+            
         keyboard = create_search_navigation_keyboard(search_query, media_type, page)
         caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_query}</i>"
-
+        
         if edit_mode and message_id:
             if media_type == "video":
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaVideo(
-                        media=post['url'],
-                        caption=caption,
-                        parse_mode="HTML",
-                        has_spoiler=True
-                    ),
-                    reply_markup=keyboard
-                )
-            else:  # Treat gif as photo
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
-                media = (
-                    InputMediaAnimation(media=post['url'], caption=caption, parse_mode="HTML", has_spoiler=True)
-                    if media_type == "gif"
-                    else InputMediaPhoto(media=post['url'], caption=caption, parse_mode="HTML", has_spoiler=True)
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaVideo(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
+            elif media_type == "gif":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=media,
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaAnimation(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
+            else:  # image
+                await bot.edit_message_media(
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaPhoto(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             logger.info(f"Successfully loaded search {media_type} for '{search_query}'")
         else:
             if media_type == "video":
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
                 await bot.send_video(
                     chat_id=chat_id,
                     video=post['url'],
@@ -1619,26 +1634,24 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-            else:  # Treat gif as photo
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
-                if media_type == "gif":
-                    await bot.send_animation(
-                        chat_id=chat_id,
-                        animation=post['url'],
-                        caption=caption,
-                        reply_markup=keyboard,
-                        has_spoiler=True
-                    )
-                else:
-                    await bot.send_photo(
-                        chat_id=chat_id,
-                        photo=post['url'],
-                        caption=caption,
-                        reply_markup=keyboard,
-                        has_spoiler=True
-                    )
+            elif media_type == "gif":
+                await bot.send_animation(
+                    chat_id=chat_id,
+                    animation=post['url'],
+                    caption=caption,
+                    reply_markup=keyboard,
+                    has_spoiler=True
+                )
+            else:  # image
+                await bot.send_photo(
+                    chat_id=chat_id,
+                    photo=post['url'],
+                    caption=caption,
+                    reply_markup=keyboard,
+                    has_spoiler=True
+                )
             logger.info(f"Successfully sent search {media_type} for '{search_query}'")
-
+            
         return True
     except Exception as e:
         logger.error(f"Search media send error: {e}")
@@ -1649,68 +1662,78 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
     anime_data = ANIME_COMMANDS.get(anime_name)
     if not anime_data:
         return None
-
+        
     title = anime_data["title"]
     media_emoji = {"image": "🖼️", "video": "🎬", "gif": "🎨"}
     logger.info(f"Fetching {title} {media_type} content using API")
-
+    
     # Try to get media with fallback system
     post = None
     for attempt in range(15):
         post = await fetch_rule34_media(anime_name, media_type, chat_id)
         if post:
             break
-
-        # Fallback to image if no video/gif found
+        
+        # If no videos/gifs found after 10 attempts, fallback to images
         if attempt >= 10 and media_type in ["video", "gif"]:
             logger.info(f"No {media_type} found for {anime_name}, falling back to images")
             post = await fetch_rule34_media(anime_name, "image", chat_id)
             if post:
                 break
-
+    
     if not post:
         logger.error(f"Failed to fetch any media for {anime_name}")
         return None
-
+    
     try:
         keyboard = create_media_navigation_keyboard(anime_name, media_type, page)
         caption = f"💖 {title} {media_emoji.get(media_type, '')} ✨"
-
+        
+        # Log media details for debugging
         logger.info(f"Sending {media_type} for {anime_name}: {post['url'][-50:]}")
-
+        
         if edit_mode and message_id is not None:
-            # Send indicator
+            # Edit existing message based on media type
             if media_type == "video":
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=InputMediaVideo(
-                        media=post['url'],
-                        caption=caption,
-                        parse_mode="HTML",
-                        has_spoiler=True
-                    ),
-                    reply_markup=keyboard
-                )
-            else:
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
-                media = (
-                    InputMediaAnimation(media=post['url'], caption=caption, parse_mode="HTML", has_spoiler=True)
-                    if media_type == "gif"
-                    else InputMediaPhoto(media=post['url'], caption=caption, parse_mode="HTML", has_spoiler=True)
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaVideo(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
+            elif media_type == "gif":
                 await bot.edit_message_media(
-                    chat_id=chat_id,
-                    message_id=message_id,
-                    media=media,
-                    reply_markup=keyboard
-                )
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaAnimation(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
+            else:  # image
+                await bot.edit_message_media(
+    chat_id=chat_id,
+    message_id=message_id,
+    media=InputMediaPhoto(
+        media=post['url'],
+        caption=caption,
+        parse_mode="HTML",
+        has_spoiler=True
+    ),
+    reply_markup=keyboard
+				)
             return None
         else:
-            # Send indicator
+            # Send new message based on media type
             if media_type == "video":
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
                 sent_msg = await bot.send_video(
                     chat_id=chat_id,
                     video=post['url'],
@@ -1719,26 +1742,24 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     supports_streaming=True,
                     has_spoiler=True
                 )
-            else:
-                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
-                if media_type == "gif":
-                    sent_msg = await bot.send_animation(
-                        chat_id=chat_id,
-                        animation=post['url'],
-                        caption=caption,
-                        reply_markup=keyboard,
-                        has_spoiler=True
-                    )
-                else:
-                    sent_msg = await bot.send_photo(
-                        chat_id=chat_id,
-                        photo=post['url'],
-                        caption=caption,
-                        reply_markup=keyboard,
-                        has_spoiler=True
-                    )
+            elif media_type == "gif":
+                sent_msg = await bot.send_animation(
+                    chat_id=chat_id,
+                    animation=post['url'],
+                    caption=caption,
+                    reply_markup=keyboard,
+                    has_spoiler=True
+                )
+            else:  # image
+                sent_msg = await bot.send_photo(
+                    chat_id=chat_id,
+                    photo=post['url'],
+                    caption=caption,
+                    reply_markup=keyboard,
+                    has_spoiler=True
+                )
             return sent_msg
-
+            
     except Exception as e:
         logger.warning(f"Send error: {e}")
         return None
@@ -2137,8 +2158,6 @@ async def cmd_start(msg: Message):
 
     # Pick one at random
     selected_image = random.choice(image_urls)
-    
-    await bot.send_chat_action(msg.chat.id, ChatAction.UPLOAD_PHOTO)
 
     # Send image with caption + buttons
     await msg.answer_photo(
@@ -2151,17 +2170,16 @@ async def cmd_start(msg: Message):
 # ─── /help Handler ─────────────────────────────────────────────────
 @dp.message(Command("help"))
 async def cmd_help(msg: Message):
-    await bot.send_chat_action(msg.chat.id, ChatActions.TYPING)  # typing indicator
-
     # Check membership for non-owner users in private chats
     if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
-
+    
     user_name = msg.from_user.full_name if msg.from_user else "User"
     user_id = msg.from_user.id if msg.from_user else ""
-
+    
+    # Create short help text with expand button
     short_help_text = f"""
 💝 <b>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
 
@@ -2179,11 +2197,14 @@ async def cmd_help(msg: Message):
 
 Type a command to begin! 🌟
 """
-
+    
+    # Create keyboard with expand button
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text="📖 Expand Full Guide", callback_data="expand_help")]
+        [
+            InlineKeyboardButton(text="📖 Expand Full Guide", callback_data="expand_help")
+        ]
     ])
-
+    
     await msg.answer(short_help_text, reply_markup=keyboard)
 
 # ─── /random Handler ───────────────────────────────────────────────
@@ -2197,9 +2218,6 @@ async def send_random_selection(chat_id: int):
         return None
     
     try:
-        # Send 'upload_photo' action to show photo sending indicator
-        await bot.send_chat_action(chat_id, ChatActions.UPLOAD_PHOTO)
-        
         keyboard = create_random_selection_keyboard()
         caption = "🎲 <b>Random Content</b> ✨\n\n💫 What would you like to see?"
         
@@ -2228,9 +2246,6 @@ async def cmd_random(msg: Message):
     logger.info("Random command requested")
     
     try:
-        # Send typing indicator before processing
-        await bot.send_chat_action(msg.chat.id, ChatActions.TYPING)
-        
         await send_random_selection(msg.chat.id)
     except Exception as e:
         logger.error(f"Random command error: {e}")
@@ -2329,7 +2344,6 @@ async def handle_live_search(msg: Message):
             try:
                 if is_forwarded:
                     # If message is forwarded, preserve that
-                    await bot.send_chat_action(target_id, ChatActions.TYPING)
                     await bot.forward_message(
                         chat_id=target_id,
                         from_chat_id=msg.chat.id,
@@ -2337,7 +2351,6 @@ async def handle_live_search(msg: Message):
                     )
                     logger.info(f"🔁 Forwarded to {target_id}")
                 else:
-                    await bot.send_chat_action(target_id, ChatActions.TYPING)
                     # Fallback to copy (clean look, no forward header)
                     await bot.copy_message(
                         chat_id=target_id,
@@ -2394,7 +2407,6 @@ async def handle_live_search(msg: Message):
         # Check if it matches any of our existing anime commands
         if search_query in ANIME_COMMANDS:
             # Use existing anime command logic
-            await bot.send_chat_action(msg.chat.id, ChatActions.TYPING)
             await send_media_selection(search_query, msg.chat.id)
             return
     
@@ -2420,25 +2432,28 @@ async def handle_live_search(msg: Message):
     
     guidance_msg = await msg.answer(guidance_text)
     
-    await bot.send_chat_action(msg.chat.id, ChatActions.TYPING)
-    
     # Perform live search with fallback strategy
     post = await search_rule34_live(search_text, "image")
     
+    # If no results, try alternative search strategies
     if not post and " " in search_text:
+        # Try with underscores
         alt_search = search_text.replace(" ", "_")
         post = await search_rule34_live(alt_search, "image")
         
     if not post and len(search_text.split()) > 1:
+        # Try with just the first word (character name)
         first_word = search_text.split()[0]
         post = await search_rule34_live(first_word, "image")
         
     if not post:
+        # Try removing common suffixes
         clean_name = search_text.replace(" uzumaki", "").replace(" uchiha", "").replace(" hyuga", "")
         if clean_name != search_text:
             post = await search_rule34_live(clean_name, "image")
     
     if not post:
+        # If no results found, show helpful message
         no_results_text = f"""
 🔍 <b>No Results Found</b> 😔
 
@@ -2463,12 +2478,12 @@ async def handle_live_search(msg: Message):
         return
     
     try:
+        # Delete guidance message and send result with media selection (like anime commands)
         await bot.delete_message(msg.chat.id, guidance_msg.message_id)
         
         keyboard = create_search_selection_keyboard(search_text)
         caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_text}</i>\n\n✨ What would you like to see?"
         
-        await bot.send_chat_action(msg.chat.id, ChatActions.UPLOAD_PHOTO)
         await bot.send_photo(
             chat_id=msg.chat.id,
             photo=post['url'],
@@ -2479,7 +2494,7 @@ async def handle_live_search(msg: Message):
         logger.info(f"Live search selection sent for: {search_text}")
     except Exception as e:
         logger.error(f"Live search send error: {e}")
-        pass
+        pass  # Remove error message
 
 # ─── Callback Query Handlers ─────────────────────────────────────────
 @dp.callback_query()
@@ -2494,19 +2509,15 @@ async def handle_callbacks(callback: CallbackQuery):
     # Handle membership check callback
     if callback.data == "check_membership":
         user_id = callback.from_user.id
-        
-        # Send typing action before processing (optional, since editing is fast)
-        await bot.send_chat_action(callback.message.chat.id, ChatActions.TYPING)
-        
         if check_membership(user_id):
             await callback.answer("🎀 Yay! Welcome to our loving family, sweetheart! 💖", show_alert=True)
             try:
                 response_text = (
-                    "🌸 <b>You're now officially part of our little world!</b> 💕\n\n"
-                    "🥰 I'm really happy to have you here. You can now enjoy all the special features and content waiting for you.\n\n"
-                    "<blockquote><b><i>I can't wait to share my favorite anime moments with you, sweetheart 🌺</i></b></blockquote>\n\n"
-                    "✨ Type <b>/start</b> to begin your journey with me! 🎀"
-                )
+    "🌸 <b>You're now officially part of our little world!</b> 💕\n\n"
+    "🥰 I'm really happy to have you here. You can now enjoy all the special features and content waiting for you.\n\n"
+    "<blockquote><b><i>I can't wait to share my favorite anime moments with you, sweetheart 🌺</i></b></blockquote>\n\n"
+    "✨ Type <b>/start</b> to begin your journey with me! 🎀"
+				)
 
                 if callback.message.content_type == "photo":
                     await bot.edit_message_caption(
@@ -2525,14 +2536,12 @@ async def handle_callbacks(callback: CallbackQuery):
             except Exception as e:
                 logger.error(f"❌ Failed to edit membership message: {e}")
         else:
-            await callback.answer(
-                "💖 You're still not part of our channel and group. Join both so we can begin this journey together and enjoy every moment side by side 💕",
-                show_alert=True
-            )
+            await callback.answer("💖 You're still not part of our channel and group. Join both so we can begin this journey together and enjoy every moment side by side 💕", show_alert=True)
         return
     
     # Handle broadcast target selection
     if callback.data.startswith('broadcast_'):
+        # Handle broadcast target selection
         if callback.from_user.id != OWNER_ID:
             await callback.answer("⛔ This command is restricted.", show_alert=True)
             return
@@ -2546,13 +2555,11 @@ async def handle_callbacks(callback: CallbackQuery):
         target_text = "individual users" if target == "users" else "groups"
         target_count = len(user_ids) if target == "users" else len(group_ids)
 
-        await bot.send_chat_action(callback.message.chat.id, ChatActions.TYPING)  # typing before editing message
-        
         try:
             await bot.edit_message_text(
                 text=f"📣 <b>Broadcast mode enabled!</b>\n\n"
-                     f"🎯 <b>Target:</b> {target_text} ({target_count})\n\n"
-                     "Send me any message and I will forward it to all selected targets.",
+                f"🎯 <b>Target:</b> {target_text} ({target_count})\n\n"
+                "Send me any message and I will forward it to all selected targets.",
                 chat_id=callback.message.chat.id,
                 message_id=callback.message.message_id
             )
@@ -2564,9 +2571,6 @@ async def handle_callbacks(callback: CallbackQuery):
     if callback.data == "expand_help" or callback.data.startswith("help_page_"):
         user_name = callback.from_user.full_name if callback.from_user else "User"
         user_id = callback.from_user.id if callback.from_user else ""
-        
-        # Optional: typing indicator before responding (if it involves sending/editing messages)
-        await bot.send_chat_action(callback.message.chat.id, ChatActions.TYPING)
         
         # Determine current page
         if callback.data == "expand_help":
@@ -3196,174 +3200,166 @@ Type a command to begin! 🌟
         ])
         
         await bot.edit_message_text(
-    text=short_help_text,
-    chat_id=callback.message.chat.id,
-    message_id=callback.message.message_id,
-    reply_markup=keyboard
-)
-	await callback.answer("📖 Guide minimized!")
-return
-
-data_parts = callback.data.split("_")
-action = data_parts[0]
-
-if len(data_parts) < 2:
-    await callback.answer("Invalid button format")
-    return
-
-# Handle media type selection
-if action == "select":
-    media_type = data_parts[1]  # video, image, or gif
-    target = data_parts[2]  # anime_name, random, or search_query
-
-    logger.info(f"Media type {media_type} selected for: {target}")
-
-    # Show relevant chat action
-    if media_type == "image":
-        await bot.send_chat_action(callback.message.chat.id, ChatAction.UPLOAD_PHOTO)
-    elif media_type == "video":
-        await bot.send_chat_action(callback.message.chat.id, ChatAction.UPLOAD_VIDEO)
-    else:
-        await bot.send_chat_action(callback.message.chat.id, ChatAction.TYPING)
-
-    # Handle different target types
-    if target == "random":
-        await callback.answer(f"🎲 Loading random {media_type}...")
-        try:
-            await send_random_media(
-                chat_id=callback.message.chat.id,
-                message_id=callback.message.message_id,
-                edit_mode=True,
-                media_type=media_type,
-                page=1
-            )
-            logger.info(f"Successfully loaded random {media_type}")
-        except Exception as e:
-            logger.error(f"Random selection error: {e}")
-            await callback.answer("Failed to load random content", show_alert=True)
-
-    elif target in ANIME_COMMANDS:
-        await callback.answer(f"Loading {media_type}...")
-        try:
-            await send_anime_media(
-                anime_name=target,
-                chat_id=callback.message.chat.id,
-                message_id=callback.message.message_id,
-                edit_mode=True,
-                media_type=media_type,
-                page=1
-            )
-            logger.info(f"Successfully loaded {media_type} for {target}")
-        except Exception as e:
-            logger.error(f"Anime selection error: {e}")
-            await callback.answer("Failed to load anime content", show_alert=True)
-
-    else:
-        search_query = target.replace("_", " ")
-        await callback.answer(f"🔍 Loading {media_type} for '{search_query}'...")
-        try:
-            await send_search_media(
-                search_query=search_query,
-                chat_id=callback.message.chat.id,
-                message_id=callback.message.message_id,
-                edit_mode=True,
-                media_type=media_type,
-                page=1
-            )
-            logger.info(f"Successfully loaded search {media_type} for '{search_query}'")
-        except Exception as e:
-            logger.error(f"Search selection error: {e}")
-            await callback.answer(f"Failed to load search content", show_alert=True)
-
-# Handle navigation buttons (update, next)
-elif action in ["update", "next"]:
-    anime_name = data_parts[1]
-    media_type = data_parts[2] if len(data_parts) > 2 else "image"
-    page = int(data_parts[3]) if len(data_parts) > 3 else 1
-
-    if media_type == "image":
-        await bot.send_chat_action(callback.message.chat.id, ChatAction.UPLOAD_PHOTO)
-    elif media_type == "video":
-        await bot.send_chat_action(callback.message.chat.id, ChatAction.UPLOAD_VIDEO)
-    else:
-        await bot.send_chat_action(callback.message.chat.id, ChatAction.TYPING)
-
-    if action == "update":
-        logger.info(f"Update button pressed for: {anime_name} ({media_type}, page {page})")
-        await callback.answer("✨ Getting fresh content...")
-        try:
-            if anime_name == "random":
+            text=short_help_text,
+            chat_id=callback.message.chat.id,
+            message_id=callback.message.message_id,
+            reply_markup=keyboard
+        )
+        await callback.answer("📖 Guide minimized!")
+        return
+    
+    data_parts = callback.data.split("_")
+    action = data_parts[0]
+    
+    if len(data_parts) < 2:
+        await callback.answer("Invalid button format")
+        return
+    
+    # Handle media type selection
+    if action == "select":
+        media_type = data_parts[1]  # video, image, or gif
+        target = data_parts[2]  # anime_name, random, or search_query
+        
+        logger.info(f"Media type {media_type} selected for: {target}")
+        
+        # Handle different target types
+        if target == "random":
+            # Random content selection
+            await callback.answer(f"🎲 Loading random {media_type}...")
+            try:
                 await send_random_media(
                     chat_id=callback.message.chat.id,
                     message_id=callback.message.message_id,
                     edit_mode=True,
                     media_type=media_type,
-                    page=page
+                    page=1
                 )
-            elif anime_name in ANIME_COMMANDS:
+                logger.info(f"Successfully loaded random {media_type}")
+            except Exception as e:
+                logger.error(f"Random selection error: {e}")
+                await callback.answer("Failed to load random content", show_alert=True)
+        elif target in ANIME_COMMANDS:
+            # Anime command selection
+            await callback.answer(f"Loading {media_type}...")
+            try:
                 await send_anime_media(
-                    anime_name=anime_name,
+                    anime_name=target,
                     chat_id=callback.message.chat.id,
                     message_id=callback.message.message_id,
                     edit_mode=True,
                     media_type=media_type,
-                    page=page
+                    page=1
                 )
-            else:
-                search_query = anime_name.replace("_", " ")
+                logger.info(f"Successfully loaded {media_type} for {target}")
+            except Exception as e:
+                logger.error(f"Anime selection error: {e}")
+                await callback.answer("Failed to load anime content", show_alert=True)
+        else:
+            # Search query selection (decode the search query)
+            search_query = target.replace("_", " ")
+            await callback.answer(f"🔍 Loading {media_type} for '{search_query}'...")
+            try:
                 await send_search_media(
                     search_query=search_query,
                     chat_id=callback.message.chat.id,
                     message_id=callback.message.message_id,
                     edit_mode=True,
                     media_type=media_type,
-                    page=page
+                    page=1
                 )
-            logger.info(f"Successfully updated {media_type} for {anime_name}")
-        except Exception as e:
-            logger.error(f"Update callback error: {e}")
-
-    elif action == "next":
-        logger.info(f"Next button pressed for: {anime_name} ({media_type}, page {page})")
-        await callback.answer("💫 Loading more content...")
-        try:
-            if anime_name == "random":
-                await send_random_media(
-                    chat_id=callback.message.chat.id,
-                    edit_mode=False,
-                    media_type=media_type,
-                    page=page + 1
-                )
-            elif anime_name in ANIME_COMMANDS:
-                await send_anime_media(
-                    anime_name=anime_name,
-                    chat_id=callback.message.chat.id,
-                    edit_mode=False,
-                    media_type=media_type,
-                    page=page + 1
-                )
-            else:
-                search_query = anime_name.replace("_", " ")
-                await send_search_media(
-                    search_query=search_query,
-                    chat_id=callback.message.chat.id,
-                    edit_mode=False,
-                    media_type=media_type,
-                    page=page + 1
-                )
-            logger.info(f"Successfully sent next {media_type} for {anime_name}")
-        except Exception as e:
-            logger.error(f"Next callback error: {e}")
-
-# Handle back to menu button
-elif callback.data == "back_to_menu":
-    logger.info("Back to menu button pressed")
-    await callback.answer("💕 Returning to main menu...")
-
-    user_name = callback.from_user.full_name if callback.from_user else "User"
-    user_id = callback.from_user.id if callback.from_user else ""
-
-    welcome_text = f"""
+                logger.info(f"Successfully loaded search {media_type} for '{search_query}'")
+            except Exception as e:
+                logger.error(f"Search selection error: {e}")
+                await callback.answer(f"Failed to load search content", show_alert=True)
+    
+    # Handle navigation buttons (update, next)
+    elif action in ["update", "next"]:
+        anime_name = data_parts[1]
+        media_type = data_parts[2] if len(data_parts) > 2 else "image"
+        page = int(data_parts[3]) if len(data_parts) > 3 else 1
+        
+        if action == "update":
+            logger.info(f"Update button pressed for: {anime_name} ({media_type}, page {page})")
+            await callback.answer("✨ Getting fresh content...")
+            
+            try:
+                # Handle different content types
+                if anime_name == "random":
+                    await send_random_media(
+                        chat_id=callback.message.chat.id,
+                        message_id=callback.message.message_id,
+                        edit_mode=True,
+                        media_type=media_type,
+                        page=page
+                    )
+                elif anime_name in ANIME_COMMANDS:
+                    await send_anime_media(
+                        anime_name=anime_name,
+                        chat_id=callback.message.chat.id,
+                        message_id=callback.message.message_id,
+                        edit_mode=True,
+                        media_type=media_type,
+                        page=page
+                    )
+                else:
+                    # Search query
+                    search_query = anime_name.replace("_", " ")
+                    await send_search_media(
+                        search_query=search_query,
+                        chat_id=callback.message.chat.id,
+                        message_id=callback.message.message_id,
+                        edit_mode=True,
+                        media_type=media_type,
+                        page=page
+                    )
+                logger.info(f"Successfully updated {media_type} for {anime_name}")
+            except Exception as e:
+                logger.error(f"Update callback error: {e}")
+                
+        elif action == "next":
+            logger.info(f"Next button pressed for: {anime_name} ({media_type}, page {page})")
+            await callback.answer("💫 Loading more content...")
+            
+            try:
+                # Handle different content types
+                if anime_name == "random":
+                    await send_random_media(
+                        chat_id=callback.message.chat.id,
+                        edit_mode=False,
+                        media_type=media_type,
+                        page=page + 1
+                    )
+                elif anime_name in ANIME_COMMANDS:
+                    await send_anime_media(
+                        anime_name=anime_name,
+                        chat_id=callback.message.chat.id,
+                        edit_mode=False,
+                        media_type=media_type,
+                        page=page + 1
+                    )
+                else:
+                    # Search query
+                    search_query = anime_name.replace("_", " ")
+                    await send_search_media(
+                        search_query=search_query,
+                        chat_id=callback.message.chat.id,
+                        edit_mode=False,
+                        media_type=media_type,
+                        page=page + 1
+                    )
+                logger.info(f"Successfully sent next {media_type} for {anime_name}")
+            except Exception as e:
+                logger.error(f"Next callback error: {e}")
+    
+    # Handle back to menu button
+    elif callback.data == "back_to_menu":
+        logger.info("Back to menu button pressed")
+        await callback.answer("💕 Returning to main menu...")
+        
+        user_name = callback.from_user.full_name if callback.from_user else "User"
+        user_id = callback.from_user.id if callback.from_user else ""
+        
+        welcome_text = f"""
 💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</b>
 
 <b>Makima</b> here, to brighten your day! 🌸
@@ -3372,65 +3368,69 @@ elif callback.data == "back_to_menu":
 
 <blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
 """
-
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="💟 Updates", url="https://t.me/WorkGlows"),
-            InlineKeyboardButton(text="Support 💞", url="https://t.me/SoulMeetsHQ")
-        ],
-        [
-            InlineKeyboardButton(text="💗️ Add Me To Your Group 💗️", url=f"https://t.me/{(await bot.get_me()).username}?startgroup=true")
-        ]
-    ])
-
-    try:
-        await bot.edit_message_text(
-            text=welcome_text,
-            chat_id=callback.message.chat.id,
-            message_id=callback.message.message_id,
-            reply_markup=keyboard
-        )
-        logger.info("Successfully returned to main menu")
-    except Exception as e:
-        logger.error(f"Back to menu error: {e}")
-        await callback.answer("Failed to return to menu", show_alert=True)
-    return
-
-# Handle back to media selection
-elif action == "back":
-    target = data_parts[1]
-    logger.info(f"Back button pressed for: {target}")
-    await callback.answer("💕 Going back to selection...")
-
-    try:
-        if target == "random":
-            keyboard = create_random_selection_keyboard()
-            caption = "🎲 <b>Random Content</b> ✨\n\n💫 What would you like to see?"
-        elif target in ANIME_COMMANDS:
-            anime_data = ANIME_COMMANDS.get(target)
-            keyboard = create_media_selection_keyboard(target)
-            if anime_data:
-                caption = f"💖 {anime_data['title']}\n\n✨ What would you like to see?"
+        
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [
+                InlineKeyboardButton(text="💟 Updates", url="https://t.me/WorkGlows"),
+                InlineKeyboardButton(text="Support 💞", url="https://t.me/SoulMeetsHQ")
+            ],
+            [
+                InlineKeyboardButton(text="💗️ Add Me To Your Group 💗️", url=f"https://t.me/{(await bot.get_me()).username}?startgroup=true")
+            ]
+        ])
+        
+        try:
+            await bot.edit_message_text(
+                text=welcome_text,
+                chat_id=callback.message.chat.id,
+                message_id=callback.message.message_id,
+                reply_markup=keyboard
+            )
+            logger.info("Successfully returned to main menu")
+        except Exception as e:
+            logger.error(f"Back to menu error: {e}")
+            await callback.answer("Failed to return to menu", show_alert=True)
+        return
+        
+    # Handle back button - return to media selection
+    elif action == "back":
+        target = data_parts[1]
+        logger.info(f"Back button pressed for: {target}")
+        await callback.answer("💕 Going back to selection...")
+        
+        try:
+            if target == "random":
+                # Return to random selection
+                keyboard = create_random_selection_keyboard()
+                caption = "🎲 <b>Random Content</b> ✨\n\n💫 What would you like to see?"
+            elif target in ANIME_COMMANDS:
+                # Return to anime command selection
+                anime_data = ANIME_COMMANDS.get(target)
+                keyboard = create_media_selection_keyboard(target)
+                if anime_data:
+                    caption = f"💖 {anime_data['title']}\n\n✨ What would you like to see?"
+                else:
+                    caption = f"💖 {target.title()}\n\n✨ What would you like to see?"
             else:
-                caption = f"💖 {target.title()}\n\n✨ What would you like to see?"
-        else:
-            search_query = target.replace("_", " ")
-            keyboard = create_search_selection_keyboard(search_query)
-            caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_query}</i>\n\n✨ What would you like to see?"
+                # Return to search selection (decode search query)
+                search_query = target.replace("_", " ")
+                keyboard = create_search_selection_keyboard(search_query)
+                caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_query}</i>\n\n✨ What would you like to see?"
+            
+            await bot.edit_message_caption(
+                chat_id=callback.message.chat.id,
+                message_id=callback.message.message_id,
+                caption=caption,
+                reply_markup=keyboard
+            )
+            logger.info(f"Successfully returned to media selection for {target}")
+        except Exception as e:
+            logger.error(f"Back button error: {e}")
+            await callback.answer("Failed to go back", show_alert=True)
 
-        await bot.edit_message_caption(
-            chat_id=callback.message.chat.id,
-            message_id=callback.message.message_id,
-            caption=caption,
-            reply_markup=keyboard
-        )
-        logger.info(f"Successfully returned to media selection for {target}")
-    except Exception as e:
-        logger.error(f"Back button error: {e}")
-        await callback.answer("Failed to go back", show_alert=True)
-
-else:
-    await callback.answer("Unknown button")
+            
+    else:
+        await callback.answer("Unknown button")
 
 # ─── Performance Monitoring ─────────────────────────────────────────
 def log_performance_stats():
