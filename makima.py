@@ -2655,7 +2655,7 @@ async def handle_callbacks(callback: CallbackQuery):
             keyboard = InlineKeyboardMarkup(inline_keyboard=[
                 [
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_2"),
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2682,7 +2682,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_3")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2710,7 +2710,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_4")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
 
@@ -2737,7 +2737,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_5")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
 
@@ -2763,7 +2763,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_6")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2791,7 +2791,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_7")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2820,7 +2820,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_8")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2851,7 +2851,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_9")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2875,7 +2875,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_10")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2904,7 +2904,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_11")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2930,7 +2930,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_12")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2960,7 +2960,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_13")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -2989,7 +2989,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_14")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -3018,7 +3018,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_15")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -3053,7 +3053,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_16")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -3077,7 +3077,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_17")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -3101,7 +3101,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_18")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -3125,7 +3125,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_19")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -3154,7 +3154,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="▶️ Next", callback_data="help_page_20")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -3167,11 +3167,7 @@ async def handle_callbacks(callback: CallbackQuery):
 
 <i>Enjoy diving into the anime world with unique content for every character. 💘</i>
 
-<blockquote><b>• Use commands to browse anime series and characters</b>
-<b>• Navigate easily between different media types</b>
-<b>• Get fresh updates regularly</b></blockquote>
-
-<b>Use /start to return home anytime.</b>
+<blockquote>✨ Use <b>/start</b> to return home anytime!</blockquote>
 
 <b>📖 Page 20 of 20</b>
 """
@@ -3181,7 +3177,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="🏠 Page 1", callback_data="help_page_1")
                 ],
                 [
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
@@ -3197,7 +3193,7 @@ async def handle_callbacks(callback: CallbackQuery):
             keyboard = InlineKeyboardMarkup(inline_keyboard=[
                 [
                     InlineKeyboardButton(text="🏠 Page 1", callback_data="help_page_1"),
-                    InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
+                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
         
