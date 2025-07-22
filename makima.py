@@ -1472,6 +1472,8 @@ async def send_media_selection(anime_name: str, chat_id: int):
         keyboard = create_media_selection_keyboard(anime_name)
         caption = f"💖 {title}\n\n✨ What would you like to see?"
         
+        await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+        
         sent_msg = await bot.send_photo(
             chat_id=chat_id,
             photo=post['url'],
@@ -1509,6 +1511,9 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
         
         if edit_mode and message_id:
             if media_type == "video":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1521,6 +1526,9 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
     reply_markup=keyboard
 				)
             elif media_type == "gif":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1532,7 +1540,10 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
     ),
     reply_markup=keyboard
 				)
-            else:  # image
+            else:
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1547,6 +1558,9 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
             logger.info(f"Successfully loaded random {media_type}")
         else:
             if media_type == "video":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+                
                 await bot.send_video(
                     chat_id=chat_id,
                     video=post['url'],
@@ -1555,6 +1569,9 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
                     has_spoiler=True
                 )
             elif media_type == "gif":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.send_animation(
                     chat_id=chat_id,
                     animation=post['url'],
@@ -1562,7 +1579,10 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-            else:  # image
+            else:
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
