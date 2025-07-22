@@ -2128,9 +2128,9 @@ async def cmd_start(msg: Message):
 
 <b>Makima</b> here, to brighten your day! 🌸
 
-🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
+<blockquote>🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!</blockquote>
 
-<blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
+<i>💌 Just type <b>/help</b> to unlock magic!</i>
 """
 
     # List of 42 Makima-style image URLs
@@ -3407,9 +3407,9 @@ Type a command to begin! 🌟
 
 <b>Makima</b> here, to brighten your day! 🌸
 
-🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
+<blockquote>🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!</blockquote>
 
-<blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
+<i>💌 Just type <b>/help</b> to unlock magic!</i>
 """
         
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
