@@ -2285,17 +2285,26 @@ async def cmd_random(msg: Message):
 # ─── Broadcast Command Handler ───────────────────────────────────────
 @dp.message(Command("broadcast"))
 async def cmd_broadcast(msg: Message):
-    """Handle broadcast command (owner only)"""
+    """Handle broadcast command (owner only, others silently ignored or reminded to join)"""
+    if not msg.from_user:
+        return  # Ignore anonymous users or system messages
+
+    user_id = msg.from_user.id
     info = extract_user_info(msg)
+
     logger.info(f"📢 Broadcast command attempted by {info['full_name']}")
 
-    if not msg.from_user or msg.from_user.id != OWNER_ID:
-        logger.warning(f"🚫 Unauthorized broadcast attempt by user {msg.from_user.id if msg.from_user else 'Unknown'}")
-        await bot.send_chat_action(msg.chat.id, ChatAction.TYPING)
-        response = await msg.answer("⛔ This command is restricted.")
-        logger.info(f"⚠️ Unauthorized access message sent, ID: {response.message_id}")
-        return
+    # If user is not the owner
+    if user_id != OWNER_ID:
+        # Check if user has joined both required groups
+        if not check_membership(user_id):
+            await send_membership_reminder(chat_id=msg.chat.id, user_id=user_id, user_name=info['full_name'])
+            logger.info(f"🔒 Non-member attempted broadcast | User ID: {user_id}")
+        else:
+            logger.info(f"🚫 Non-owner but member tried broadcast | User ID: {user_id} — Silently ignored.")
+        return  # Do nothing more
 
+    # Owner access granted
     await bot.send_chat_action(msg.chat.id, ChatAction.TYPING)
 
     # Create inline keyboard for broadcast target selection
