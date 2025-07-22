@@ -713,7 +713,7 @@ ANIME_COMMANDS = {
     # Sakamoto Days character commands
     "osaragi": {
         "title": "Osaragi",
-        "tags": ["osaragi"]
+        "tags": ["osaragi_(sakamoto_days)"]
     },
     "drs": {
         "title": "Dr Stone", 
