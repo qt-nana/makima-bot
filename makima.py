@@ -2214,12 +2214,12 @@ async def cmd_help(msg: Message):
 <blockquote><b>🎌 Quick Start:</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
 ├─ /hinata /sakura /rukia /orihime
-└─ /mikasa /nezuko /nobara /makima</blockquote>
+╰─ /mikasa /nezuko /nobara /makima</blockquote>
 
 <blockquote><b>🎀 How to use:</b>
 ├─ Choose any kind of command
 ├─ Select media type Vid/img/Gif  
-└─ Explore with navigation buttons</blockquote>
+╰─ Explore with navigation buttons</blockquote>
 
 Type a command to begin! 🌟
 """
@@ -2461,12 +2461,12 @@ async def handle_live_search(msg: Message):
 ├─ Use character names: "sakura"
 ├─ Try anime names: "naruto", "bleach"
 ├─ Use underscores: "yor_forger"
-└─ Combine tags: "big_breasts"</blockquote>
+╰─ Combine tags: "big_breasts"</blockquote>
 
 <blockquote>💡 <b>Popular searches:</b>
 ├─ Character names from any anime
 ├─ Series names with specific tags
-└─ Art styles like "anime", "manga", "3d"</blockquote>
+╰─ Art styles like "anime", "manga", "3d"</blockquote>
 
 ⏳ <i>Searching live from internet...</i>
 """
@@ -2504,12 +2504,12 @@ async def handle_live_search(msg: Message):
 ├─ Use underscores: "{search_text.replace(' ', '_')}"
 ├─ Try character first name only
 ├─ Check spelling of character names
-└─ Use /random for surprise content</blockquote>
+╰─ Use /random for surprise content</blockquote>
 
 <blockquote>🌸 <b>Or try these popular characters:</b>
 ├─ hinata, sakura, tsunade (Naruto)
 ├─ rukia, orihime, yoruichi (Bleach)
-└─ mikasa, annie, historia (AOT)</blockquote>
+╰─ mikasa, annie, historia (AOT)</blockquote>
 """
         await bot.edit_message_text(
             text=no_results_text,
@@ -2648,7 +2648,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /dn - Death Gods
 ├─ /tg - Ghoul World
 ├─ /mdd - Cosplay Fun
-└─ /ps - School Prison</blockquote>
+╰─ /ps - School Prison</blockquote>
 
 <b>📖 Page 1 of 20</b>
 """
@@ -2672,7 +2672,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /temari - Wind Master
 ├─ /ino - Mind Transfer
 ├─ /konan - Paper Angel
-└─ /shizune - Medical Ninja
+╰─ /shizune - Medical Ninja
 
 <b>📖 Page 2 of 20</b>
 """
@@ -2700,7 +2700,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /hanabi - Gentle Fist
 ├─ /kaguya - Moon Goddess
 ├─ /mei - Mist Kage
-└─ /karin - Sensor Type
+╰─ /karin - Sensor Type
 
 <b>📖 Page 3 of 20</b>
 """
@@ -2727,7 +2727,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /soifon - Stealth Force
 ├─ /nemu - Synthetic Soul
 ├─ /lisa - Serious Beauty
-└─ /hiyori - Tomboy Fighter
+╰─ /hiyori - Tomboy Fighter
 
 <b>📖 Page 4 of 20</b>
 """
@@ -2753,7 +2753,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /nanao - Book Lover
 ├─ /yachiru - Pink Terror
 ├─ /nelliel - Arrancar Queen
-└─ /katen - Spirit Sword
+╰─ /katen - Spirit Sword
 
 <b>📖 Page 5 of 20</b>
 """
@@ -2774,14 +2774,14 @@ async def handle_callbacks(callback: CallbackQuery):
 
 <b>🏴‍☠️ ONE PIECE CHARACTERS:</b>
 ├─ /nami - Navigator Queen
-└─ /hancock - Snake Princess
+╰─ /hancock - Snake Princess
 
 <b>✨ JUJUTSU KAISEN CHARACTERS - Part 1:</b>
 ├─ /nobara - Strong Girl
 ├─ /maki - Weapon Master
 ├─ /yuki - Special Grade
 ├─ /meimei - Money Lover
-└─ /utahime - School Teacher
+╰─ /utahime - School Teacher
 
 <b>📖 Page 6 of 20</b>
 """
@@ -2803,14 +2803,14 @@ async def handle_callbacks(callback: CallbackQuery):
 <b>✨ JUJUTSU KAISEN CHARACTERS - Part 2:</b>
 ├─ /kasumi - Simple Girl
 ├─ /shoko - Medical Student
-└─ /rika - Cursed Spirit
+╰─ /rika - Cursed Spirit
 
 <b>⚡ ATTACK ON TITAN CHARACTERS - Part 1:</b>
 ├─ /mikasa - Warrior Queen
 ├─ /annie - Crystal Girl
 ├─ /historia - True Queen
 ├─ /sasha - Potato Girl
-└─ /ymir - Jaw Titan
+╰─ /ymir - Jaw Titan
 
 <b>📖 Page 7 of 20</b>
 """
@@ -2835,13 +2835,13 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /gabi - Marley Warrior
 ├─ /carla - Loving Mother
 ├─ /frieda - Founding Titan
-└─ /ymirfritz - First Titan
+╰─ /ymirfritz - First Titan
 
 <b>🗡️ DEMON SLAYER CHARACTERS - Part 1:</b>
 ├─ /nezuko - Bamboo Cutie
 ├─ /shinobu - Butterfly Beauty
 ├─ /mitsuri - Love Pillar
-└─ /kanao - Flower Breathing
+╰─ /kanao - Flower Breathing
 
 <b>📖 Page 8 of 20</b>
 """
@@ -2865,7 +2865,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /tamayo - Demon Doctor
 ├─ /aoi - Medical Helper
 ├─ /kanae - Flower Pillar
-└─ /amane - Master's Wife
+╰─ /amane - Master's Wife
 
 <b>📖 Page 9 of 20</b>
 """
@@ -2894,7 +2894,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /mirko - Rabbit Hero
 ├─ /mina - Acid Queen
 ├─ /star - American Hero
-└─ /eri - Rewind Quirk
+╰─ /eri - Rewind Quirk
 
 <b>📖 Page 10 of 20</b>
 """
@@ -2920,7 +2920,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /quanxi - First Devil
 ├─ /reze - Bomb Girl
 ├─ /angel - Angel Devil
-└─ /asa - War Devil
+╰─ /asa - War Devil
 
 <b>📖 Page 11 of 20</b>
 """
@@ -2941,16 +2941,16 @@ async def handle_callbacks(callback: CallbackQuery):
 
 <b>⚡ ONE PUNCH MAN CHARACTERS:</b>
 ├─ /tatsumaki - Tornado Terror
-└─ /fubuki - Blizzard Beauty
+╰─ /fubuki - Blizzard Beauty
 
 <b>🕵️ SPY X FAMILY CHARACTERS:</b>
 ├─ /yor - Assassin Mom
-└─ /anya - Mind Reader
+╰─ /anya - Mind Reader
 
 <b>🎮 HUNTER X HUNTER CHARACTERS:</b>
 ├─ /biscuit - Transform Master
 ├─ /machi - Thread Specialist
-└─ /neon - Fortune Teller
+╰─ /neon - Fortune Teller
 
 <b>📖 Page 12 of 20</b>
 """
@@ -2979,7 +2979,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /rose - Church Girl
 ├─ /nina - Tragic Child
 ├─ /trisha - Loving Mother
-└─ /sheska - Book Lover
+╰─ /sheska - Book Lover
 
 <b>📖 Page 13 of 20</b>
 """
@@ -3001,14 +3001,14 @@ async def handle_callbacks(callback: CallbackQuery):
 <b>📓 DEATH NOTE CHARACTERS:</b>
 ├─ /misa - Second Kira
 ├─ /naomimisora - FBI Agent
-└─ /kiyomi - News Anchor
+╰─ /kiyomi - News Anchor
 
 <b>🖤 TOKYO GHOUL CHARACTERS - Part 1:</b>
 ├─ /touka - Coffee Shop
 ├─ /eto - One Eyed
 ├─ /rize - Binge Eater
 ├─ /akira - Investigator Daughter
-└─ /hinami - Book Lover
+╰─ /hinami - Book Lover
 
 <b>📖 Page 14 of 20</b>
 """
@@ -3032,18 +3032,18 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /karren - Rose Family
 ├─ /kimi - Human Friend
 ├─ /yoriko - Best Friend
-└─ /roma - Clown Member
+╰─ /roma - Clown Member
 
 <b>👗 MY DRESS-UP DARLING:</b>
 ├─ /marin - Cosplay Queen
 ├─ /sajuna - Photography Expert
-└─ /shinju - Shy Sister
+╰─ /shinju - Shy Sister
 
 <b>🛡️ VINLAND SAGA:</b>
 ├─ /helga - Viking Mother
 ├─ /ylva - Strong Sister
 ├─ /arnheid - Slave Girl
-└─ /gudrid - Explorer Girl
+╰─ /gudrid - Explorer Girl
 
 <b>📖 Page 15 of 20</b>
 """
@@ -3067,7 +3067,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /oka - Occult Club
 ├─ /naomidand - Mystery Girl
 ├─ /shakunetsu - Fire Spirit
-└─ /ikue - School Girl
+╰─ /ikue - School Girl
 
 <b>📖 Page 16 of 20</b>
 """
@@ -3091,7 +3091,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /kohaku - Village Warrior
 ├─ /ruri - Village Priestess
 ├─ /suika - Melon Head
-└─ /stella - Modern Girl
+╰─ /stella - Modern Girl
 
 <b>📖 Page 17 of 20</b>
 """
@@ -3112,10 +3112,10 @@ async def handle_callbacks(callback: CallbackQuery):
 
 <b>💧 OVERFLOW CHARACTERS:</b>
 ├─ /kotone - Elder Sister
-└─ /ayane - Younger Sister
+╰─ /ayane - Younger Sister
 
 <b>🎯 SAKAMOTO DAYS CHARACTERS:</b>
-└─ /osaragi - Fortune Teller
+╰─ /osaragi - Fortune Teller
 
 <b>📖 Page 18 of 20</b>
 """
@@ -3138,13 +3138,13 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ Choose any anime or character!
 ├─ Select media type Vid/img/Gif
 ├─ Use navigation buttons 
-└─ Find new content every update!</blockquote>
+╰─ Find new content every update!</blockquote>
 
 <blockquote><b>🌺 Pro Tips:</b>
 ├─ Anime-based command list!
 ├─ Each character, unique content!
 ├─ Explore all media types freely!
-└─ Use /start to return to main menu!</blockquote>
+╰─ Use /start to return to main menu!</blockquote>
 
 <b>📖 Page 19 of 20</b>
 """
@@ -3226,12 +3226,12 @@ async def handle_callbacks(callback: CallbackQuery):
 <blockquote><b>🎌 Quick Start:</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
 ├─ /hinata /sakura /tsunade /rukia
-└─ /mikasa /nobara /power /makima</blockquote>
+╰─ /mikasa /nobara /power /makima</blockquote>
 
 <blockquote><b>🎀 How to use:</b>
 ├─ Choose any type of command
 ├─ Select media type Vid/img/Gif  
-└─ Explore with navigation buttons</blockquote>
+╰─ Explore with navigation buttons</blockquote>
 
 Type a command to begin! 🌟
 """
