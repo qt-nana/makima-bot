@@ -1472,6 +1472,8 @@ async def send_media_selection(anime_name: str, chat_id: int):
         keyboard = create_media_selection_keyboard(anime_name)
         caption = f"💖 {title}\n\n✨ What would you like to see?"
         
+        await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+        
         sent_msg = await bot.send_photo(
             chat_id=chat_id,
             photo=post['url'],
@@ -1510,42 +1512,48 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
         if edit_mode and message_id:
             if media_type == "video":
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaVideo(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaVideo(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             elif media_type == "gif":
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaAnimation(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaAnimation(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             else:  # image
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaPhoto(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaPhoto(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             logger.info(f"Successfully loaded random {media_type}")
         else:
+            # ✅ Uploading indicator before sending
+            if media_type == "video":
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+            else:  # Treat gif as photo
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+
             if media_type == "video":
                 await bot.send_video(
                     chat_id=chat_id,
@@ -1590,42 +1598,48 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
         if edit_mode and message_id:
             if media_type == "video":
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaVideo(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaVideo(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             elif media_type == "gif":
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaAnimation(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaAnimation(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             else:  # image
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaPhoto(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaPhoto(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             logger.info(f"Successfully loaded search {media_type} for '{search_query}'")
         else:
+            # ✅ Add upload indicator
+            if media_type == "video":
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+            else:  # Treat gif as photo
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+
             if media_type == "video":
                 await bot.send_video(
                     chat_id=chat_id,
@@ -1696,42 +1710,48 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
             # Edit existing message based on media type
             if media_type == "video":
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaVideo(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaVideo(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             elif media_type == "gif":
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaAnimation(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaAnimation(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             else:  # image
                 await bot.edit_message_media(
-    chat_id=chat_id,
-    message_id=message_id,
-    media=InputMediaPhoto(
-        media=post['url'],
-        caption=caption,
-        parse_mode="HTML",
-        has_spoiler=True
-    ),
-    reply_markup=keyboard
-				)
+                    chat_id=chat_id,
+                    message_id=message_id,
+                    media=InputMediaPhoto(
+                        media=post['url'],
+                        caption=caption,
+                        parse_mode="HTML",
+                        has_spoiler=True
+                    ),
+                    reply_markup=keyboard
+                )
             return None
         else:
+            # ✅ Show upload indicator (photo/video) before sending
+            if media_type == "video":
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+            else:  # includes "gif" and "image"
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+
             # Send new message based on media type
             if media_type == "video":
                 sent_msg = await bot.send_video(
@@ -2063,6 +2083,9 @@ for anime_name in ANIME_COMMANDS:
 # ─── /start Handler ─────────────────────────────────────────────────
 @dp.message(Command("start"))
 async def cmd_start(msg: Message):
+    
+    await bot.send_chat_action(msg.chat.id, action="upload_photo")
+    
     # Track user/group for broadcasting
     if msg.from_user:
         if msg.chat.type == "private":
@@ -2170,6 +2193,9 @@ async def cmd_start(msg: Message):
 # ─── /help Handler ─────────────────────────────────────────────────
 @dp.message(Command("help"))
 async def cmd_help(msg: Message):
+    
+    await bot.send_chat_action(msg.chat.id, action="typing")
+    
     # Check membership for non-owner users in private chats
     if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
         if not check_membership(msg.from_user.id):
@@ -2211,6 +2237,9 @@ Type a command to begin! 🌟
 async def send_random_selection(chat_id: int):
     """Send initial random content with media type selection buttons (like anime commands)"""
     logger.info("Sending random media selection")
+
+    # 👇 Show photo sending indicator
+    await bot.send_chat_action(chat_id, action="upload_photo")
     
     # Get a sample image first
     post = await fetch_random_content("image")
@@ -2244,6 +2273,9 @@ async def cmd_random(msg: Message):
             return
     
     logger.info("Random command requested")
+
+    # 👇 Show "sending photo..." indicator
+    await bot.send_chat_action(msg.chat.id, action="upload_photo")
     
     try:
         await send_random_selection(msg.chat.id)
@@ -2483,6 +2515,8 @@ async def handle_live_search(msg: Message):
         
         keyboard = create_search_selection_keyboard(search_text)
         caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_text}</i>\n\n✨ What would you like to see?"
+        
+        await bot.send_chat_action(msg.chat.id, action="upload_photo")
         
         await bot.send_photo(
             chat_id=msg.chat.id,
