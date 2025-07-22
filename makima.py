@@ -2215,7 +2215,7 @@ async def cmd_start(msg: Message):
     # Pick one at random
     selected_image = random.choice(image_urls)
     
-    await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+    await bot.send_chat_action(chat_id=msg.chat.id, action=ChatAction.UPLOAD_PHOTO)
     
 
     # Send image with caption + buttons
