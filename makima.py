@@ -2211,12 +2211,12 @@ async def cmd_help(msg: Message):
 
 <b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
 
-<blockquote><b>╭─ 🎌 Quick Start:</b>
+<blockquote>╭─<b> 🎌 Quick Start</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
 ├─ /hinata /sakura /rukia /orihime
 ╰─ /mikasa /nezuko /nobara /makima</blockquote>
 
-<blockquote><b>╭─ 🎀 How to use:</b>
+<blockquote>╭─<b> 🎀 How to use</b>
 ├─ Choose any kind of command
 ├─ Select media type Vid/img/Gif  
 ╰─ Explore with navigation buttons</blockquote>
@@ -2626,7 +2626,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<blockquote><b>╭─ 🎌 ALL ANIME SERIES:</b>
+<blockquote>╭─<b> 🎌 ALL ANIME SERIES</b>
 ├─ /naruto - Ninja World
 ├─ /bleach - Soul Society  
 ├─ /op - Grand Line
@@ -2664,7 +2664,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 💖 NARUTO CHARACTERS - Part 1:</b>
+╭─<b> 💖 NARUTO P1</b>
 ├─ /hinata - Shy Princess
 ├─ /sakura - Cherry Blossom
 ├─ /tsunade - Legendary Sannin
@@ -2691,7 +2691,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 💖 NARUTO CHARACTERS - Part 2:</b>
+╭─<b> 💖 NARUTO P2</b>
 ├─ /sarada - New Generation
 ├─ /rin - Lost Love
 ├─ /tenten - Weapon Specialist
@@ -2719,7 +2719,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ ⚔️ BLEACH CHARACTERS - Part 1:</b>
+╭─<b> ⚔️ BLEACH P1</b>
 ├─ /rukia - Ice Princess
 ├─ /orihime - Sweet Angel
 ├─ /yoruichi - Flash Goddess
@@ -2746,7 +2746,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ ⚔️ BLEACH CHARACTERS - Part 2:</b>
+╭─<b> ⚔️ BLEACH P2</b>
 ├─ /mashiro - Cheerful Vizard
 ├─ /retsu - Healing Captain
 ├─ /isane - Gentle Giant
@@ -2772,11 +2772,11 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 🏴‍☠️ ONE PIECE CHARACTERS:</b>
+╭─<b> 🏴‍☠️ ONE PIECE</b>
 ├─ /nami - Navigator Queen
 ╰─ /hancock - Snake Princess
 
-<b>╭─ ✨ JUJUTSU KAISEN CHARACTERS - Part 1:</b>
+╭─<b> ✨ JUJUTSU KAISEN P1</b>
 ├─ /nobara - Strong Girl
 ├─ /maki - Weapon Master
 ├─ /yuki - Special Grade
@@ -2800,12 +2800,12 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ ✨ JUJUTSU KAISEN CHARACTERS - Part 2:</b>
+╭─<b> ✨ JUJUTSU KAISEN P2</b>
 ├─ /kasumi - Simple Girl
 ├─ /shoko - Medical Student
 ╰─ /rika - Cursed Spirit
 
-<b>╭─ ⚡ ATTACK ON TITAN CHARACTERS - Part 1:</b>
+╭─<b> ⚡ ATTACK ON TITAN P1</b>
 ├─ /mikasa - Warrior Queen
 ├─ /annie - Crystal Girl
 ├─ /historia - True Queen
@@ -2829,7 +2829,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ ⚡ ATTACK ON TITAN CHARACTERS - Part 2:</b>
+╭─<b>⚡ ATTACK ON TITAN P2</b>
 ├─ /hange - Research Titan
 ├─ /pieck - Cart Titan
 ├─ /gabi - Marley Warrior
@@ -2837,7 +2837,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /frieda - Founding Titan
 ╰─ /ymirfritz - First Titan
 
-<b>╭─ 🗡️ DEMON SLAYER CHARACTERS - Part 1:</b>
+╭─<b> 🗡️ DEMON SLAYER P1</b>
 ├─ /nezuko - Bamboo Cutie
 ├─ /shinobu - Butterfly Beauty
 ├─ /mitsuri - Love Pillar
@@ -2860,7 +2860,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 🗡️ DEMON SLAYER CHARACTERS - Part 2:</b>
+╭─<b> 🗡️ DEMON SLAYER P2</b>
 ├─ /daki - Upper Moon Six
 ├─ /tamayo - Demon Doctor
 ├─ /aoi - Medical Helper
@@ -2884,7 +2884,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 🦸 MY HERO ACADEMIA CHARACTERS:</b>
+╭─<b> 🦸 MY HERO ACADEMIA</b>
 ├─ /ochaco - Gravity Girl
 ├─ /tsuyu - Frog Hero
 ├─ /momoyaoyorozu - Creation Queen
@@ -2913,7 +2913,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 🔥 CHAINSAW MAN CHARACTERS:</b>
+╭─<b> 🔥 CHAINSAW MAN</b>
 ├─ /power - Blood Fiend
 ├─ /makima - Control Devil
 ├─ /himeno - Ghost Hunter
@@ -2939,15 +2939,15 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ ⚡ ONE PUNCH MAN CHARACTERS:</b>
+╭─<b> ⚡ ONE PUNCH MAN</b>
 ├─ /tatsumaki - Tornado Terror
 ╰─ /fubuki - Blizzard Beauty
 
-<b>🕵️ SPY X FAMILY CHARACTERS:</b>
+╭─<b>🕵️ SPY X FAMILY</b>
 ├─ /yor - Assassin Mom
 ╰─ /anya - Mind Reader
 
-<b>╭─ 🎮 HUNTER X HUNTER CHARACTERS:</b>
+╭─<b> 🎮 HUNTER X HUNTER</b>
 ├─ /biscuit - Transform Master
 ├─ /machi - Thread Specialist
 ╰─ /neon - Fortune Teller
@@ -2969,7 +2969,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ ⚗️ FULLMETAL ALCHEMIST CHARACTERS:</b>
+╭─<b> ⚗️ FULLMETAL ALCHEMIST</b>
 ├─ /winry - Automail Mechanic
 ├─ /riza - Hawk's Eye
 ├─ /olivier - Ice Queen
@@ -2998,12 +2998,12 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 📓 DEATH NOTE CHARACTERS:</b>
+╭─<b> 📓 DEATH NOTE</b>
 ├─ /misa - Second Kira
 ├─ /naomimisora - FBI Agent
 ╰─ /kiyomi - News Anchor
 
-<b>╭─ 🖤 TOKYO GHOUL CHARACTERS - Part 1:</b>
+╭─<b> 🖤 TOKYO GHOUL P1</b>
 ├─ /touka - Coffee Shop
 ├─ /eto - One Eyed
 ├─ /rize - Binge Eater
@@ -3027,19 +3027,19 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 🖤 TOKYO GHOUL CHARACTERS - Part 2:</b>
+╭─<b> 🖤 TOKYO GHOUL P2</b>
 ├─ /itori - Information Broker
 ├─ /karren - Rose Family
 ├─ /kimi - Human Friend
 ├─ /yoriko - Best Friend
 ╰─ /roma - Clown Member
 
-<b>╭─ 👗 MY DRESS-UP DARLING:</b>
+╭─<b> 👗 MY DRESS-UP DARLING</b>
 ├─ /marin - Cosplay Queen
 ├─ /sajuna - Photography Expert
 ╰─ /shinju - Shy Sister
 
-<b>╭─ 🛡️ VINLAND SAGA:</b>
+╭─<b> 🛡️ VINLAND SAGA</b>
 ├─ /helga - Viking Mother
 ├─ /ylva - Strong Sister
 ├─ /arnheid - Slave Girl
@@ -3062,7 +3062,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 👻 DANDADAN CHARACTERS:</b>
+╭─<b> 👻 DANDADAN</b>
 ├─ /momoayase - Psychic Girl
 ├─ /oka - Occult Club
 ├─ /naomidand - Mystery Girl
@@ -3086,7 +3086,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 🧪 DR STONE CHARACTERS:</b>
+╭─<b> 🧪 DR STONE</b>
 ├─ /yuzuriha - Lion's Mane
 ├─ /kohaku - Village Warrior
 ├─ /ruri - Village Priestess
@@ -3110,11 +3110,11 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<b>╭─ 💧 OVERFLOW CHARACTERS:</b>
+╭─<b> 💧 OVERFLOW</b>
 ├─ /kotone - Elder Sister
 ╰─ /ayane - Younger Sister
 
-<b>╭─ 🎯 SAKAMOTO DAYS CHARACTERS:</b>
+╭─<b> 🎯 SAKAMOTO DAYS CHARACTERS:</b>
 ╰─ /osaragi - Fortune Teller
 
 <b>📖 Page 18 of 20</b>
@@ -3134,13 +3134,13 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-<blockquote><b>╭─ 🎀 How to Enjoy:</b>
+<blockquote>╭─<b> 🎀 How to Enjoy:</b>
 ├─ Choose any anime or character!
 ├─ Select media type Vid/img/Gif
 ├─ Use navigation buttons 
 ╰─ Find new content every update!</blockquote>
 
-<blockquote><b>╭─ 🌺 Pro Tips:</b>
+<blockquote>╭─<b> 🌺 Pro Tips:</b>
 ├─ Anime-based command list!
 ├─ Each character, unique content!
 ├─ Explore all media types freely!
@@ -3223,12 +3223,12 @@ async def handle_callbacks(callback: CallbackQuery):
 
 <b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
 
-<blockquote><b>╭─ 🎌 Quick Start:</b>
+<blockquote>╭─<b> 🎌 Quick Start:</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
 ├─ /hinata /sakura /tsunade /rukia
 ╰─ /mikasa /nobara /power /makima</blockquote>
 
-<blockquote><b>╭─ 🎀 How to use:</b>
+<blockquote>╭─<b> 🎀 How to use:</b>
 ├─ Choose any type of command
 ├─ Select media type Vid/img/Gif  
 ╰─ Explore with navigation buttons</blockquote>
