@@ -2128,7 +2128,7 @@ async def cmd_start(msg: Message):
 
 <b>Makima</b> here, to brighten your day! 🌸
 
-🎀 Enjoy <b>150+ anime commands</b> from <b>22+ series!</b>
+🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
 <blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
 """
@@ -3407,7 +3407,7 @@ Type a command to begin! 🌟
 
 <b>Makima</b> here, to brighten your day! 🌸
 
-🎀 Enjoy <b>150+ anime commands</b> from <b>22+ series!</b>
+🎀 I’ve got <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
 <blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
 """
