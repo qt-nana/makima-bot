@@ -2664,7 +2664,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 💖 NARUTO P1</b>
+<blockquote>╭─<b> 💖 NARUTO P1</b>
 ├─ /hinata - Shy Princess
 ├─ /sakura - Cherry Blossom
 ├─ /tsunade - Legendary Sannin
@@ -2672,7 +2672,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /temari - Wind Master
 ├─ /ino - Mind Transfer
 ├─ /konan - Paper Angel
-╰─ /shizune - Medical Ninja
+╰─ /shizune - Medical Ninja</blockquote>
 
 <b>📖 Page 2 of 20</b>
 """
@@ -2691,7 +2691,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 💖 NARUTO P2</b>
+<blockquote>╭─<b> 💖 NARUTO P2</b>
 ├─ /sarada - New Generation
 ├─ /rin - Lost Love
 ├─ /tenten - Weapon Specialist
@@ -2700,7 +2700,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /hanabi - Gentle Fist
 ├─ /kaguya - Moon Goddess
 ├─ /mei - Mist Kage
-╰─ /karin - Sensor Type
+╰─ /karin - Sensor Type</blockquote>
 
 <b>📖 Page 3 of 20</b>
 """
@@ -2719,7 +2719,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> ⚔️ BLEACH P1</b>
+<blockquote>╭─<b> ⚔️ BLEACH P1</b>
 ├─ /rukia - Ice Princess
 ├─ /orihime - Sweet Angel
 ├─ /yoruichi - Flash Goddess
@@ -2727,7 +2727,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /soifon - Stealth Force
 ├─ /nemu - Synthetic Soul
 ├─ /lisa - Serious Beauty
-╰─ /hiyori - Tomboy Fighter
+╰─ /hiyori - Tomboy Fighter</blockquote>
 
 <b>📖 Page 4 of 20</b>
 """
@@ -2746,14 +2746,14 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> ⚔️ BLEACH P2</b>
+<blockquote>╭─<b> ⚔️ BLEACH P2</b>
 ├─ /mashiro - Cheerful Vizard
 ├─ /retsu - Healing Captain
 ├─ /isane - Gentle Giant
 ├─ /nanao - Book Lover
 ├─ /yachiru - Pink Terror
 ├─ /nelliel - Arrancar Queen
-╰─ /katen - Spirit Sword
+╰─ /katen - Spirit Sword</blockquote>
 
 <b>📖 Page 5 of 20</b>
 """
@@ -2772,16 +2772,16 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 🏴‍☠️ ONE PIECE</b>
+<blockquote>╭─<b> 🏴‍☠️ ONE PIECE</b>
 ├─ /nami - Navigator Queen
-╰─ /hancock - Snake Princess
+╰─ /hancock - Snake Princess</blockquote>
 
-╭─<b> ✨ JUJUTSU KAISEN P1</b>
+<blockquote>╭─<b> ✨ JUJUTSU KAISEN P1</b>
 ├─ /nobara - Strong Girl
 ├─ /maki - Weapon Master
 ├─ /yuki - Special Grade
 ├─ /meimei - Money Lover
-╰─ /utahime - School Teacher
+╰─ /utahime - School Teacher</blockquote>
 
 <b>📖 Page 6 of 20</b>
 """
@@ -2800,17 +2800,17 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> ✨ JUJUTSU KAISEN P2</b>
+<blockquote>╭─<b> ✨ JUJUTSU KAISEN P2</b>
 ├─ /kasumi - Simple Girl
 ├─ /shoko - Medical Student
-╰─ /rika - Cursed Spirit
+╰─ /rika - Cursed Spirit</blockquote>
 
-╭─<b> ⚡ ATTACK ON TITAN P1</b>
+<blockquote>╭─<b> ⚡ ATTACK ON TITAN P1</b>
 ├─ /mikasa - Warrior Queen
 ├─ /annie - Crystal Girl
 ├─ /historia - True Queen
 ├─ /sasha - Potato Girl
-╰─ /ymir - Jaw Titan
+╰─ /ymir - Jaw Titan</blockquote>
 
 <b>📖 Page 7 of 20</b>
 """
@@ -2829,19 +2829,19 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b>⚡ ATTACK ON TITAN P2</b>
+<blockquote>╭─<b>⚡ ATTACK ON TITAN P2</b>
 ├─ /hange - Research Titan
 ├─ /pieck - Cart Titan
 ├─ /gabi - Marley Warrior
 ├─ /carla - Loving Mother
 ├─ /frieda - Founding Titan
-╰─ /ymirfritz - First Titan
+╰─ /ymirfritz - First Titan</blockquote>
 
-╭─<b> 🗡️ DEMON SLAYER P1</b>
+<blockquote>╭─<b> 🗡️ DEMON SLAYER P1</b>
 ├─ /nezuko - Bamboo Cutie
 ├─ /shinobu - Butterfly Beauty
 ├─ /mitsuri - Love Pillar
-╰─ /kanao - Flower Breathing
+╰─ /kanao - Flower Breathing</blockquote>
 
 <b>📖 Page 8 of 20</b>
 """
@@ -2860,12 +2860,12 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 🗡️ DEMON SLAYER P2</b>
+<blockquote>╭─<b> 🗡️ DEMON SLAYER P2</b>
 ├─ /daki - Upper Moon Six
 ├─ /tamayo - Demon Doctor
 ├─ /aoi - Medical Helper
 ├─ /kanae - Flower Pillar
-╰─ /amane - Master's Wife
+╰─ /amane - Master's Wife</blockquote>
 
 <b>📖 Page 9 of 20</b>
 """
@@ -2884,7 +2884,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 🦸 MY HERO ACADEMIA</b>
+<blockquote>╭─<b> 🦸 MY HERO ACADEMIA</b>
 ├─ /ochaco - Gravity Girl
 ├─ /tsuyu - Frog Hero
 ├─ /momoyaoyorozu - Creation Queen
@@ -2894,7 +2894,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /mirko - Rabbit Hero
 ├─ /mina - Acid Queen
 ├─ /star - American Hero
-╰─ /eri - Rewind Quirk
+╰─ /eri - Rewind Quirk</blockquote>
 
 <b>📖 Page 10 of 20</b>
 """
@@ -2913,14 +2913,14 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 🔥 CHAINSAW MAN</b>
+<blockquote>╭─<b> 🔥 CHAINSAW MAN</b>
 ├─ /power - Blood Fiend
 ├─ /makima - Control Devil
 ├─ /himeno - Ghost Hunter
 ├─ /quanxi - First Devil
 ├─ /reze - Bomb Girl
 ├─ /angel - Angel Devil
-╰─ /asa - War Devil
+╰─ /asa - War Devil</blockquote>
 
 <b>📖 Page 11 of 20</b>
 """
@@ -2939,18 +2939,18 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> ⚡ ONE PUNCH MAN</b>
+<blockquote>╭─<b> ⚡ ONE PUNCH MAN</b>
 ├─ /tatsumaki - Tornado Terror
-╰─ /fubuki - Blizzard Beauty
+╰─ /fubuki - Blizzard Beauty</blockquote>
 
-╭─<b>🕵️ SPY X FAMILY</b>
+<blockquote>╭─<b>🕵️ SPY X FAMILY</b>
 ├─ /yor - Assassin Mom
-╰─ /anya - Mind Reader
+╰─ /anya - Mind Reader</blockquote>
 
-╭─<b> 🎮 HUNTER X HUNTER</b>
+<blockquote>╭─<b> 🎮 HUNTER X HUNTER</b>
 ├─ /biscuit - Transform Master
 ├─ /machi - Thread Specialist
-╰─ /neon - Fortune Teller
+╰─ /neon - Fortune Teller</blockquote>
 
 <b>📖 Page 12 of 20</b>
 """
@@ -2969,7 +2969,7 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> ⚗️ FULLMETAL ALCHEMIST</b>
+<blockquote>╭─<b> ⚗️ FULLMETAL ALCHEMIST</b>
 ├─ /winry - Automail Mechanic
 ├─ /riza - Hawk's Eye
 ├─ /olivier - Ice Queen
@@ -2979,7 +2979,7 @@ async def handle_callbacks(callback: CallbackQuery):
 ├─ /rose - Church Girl
 ├─ /nina - Tragic Child
 ├─ /trisha - Loving Mother
-╰─ /sheska - Book Lover
+╰─ /sheska - Book Lover</blockquote>
 
 <b>📖 Page 13 of 20</b>
 """
@@ -2998,17 +2998,17 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 📓 DEATH NOTE</b>
+<blockquote>╭─<b> 📓 DEATH NOTE</b>
 ├─ /misa - Second Kira
 ├─ /naomimisora - FBI Agent
-╰─ /kiyomi - News Anchor
+╰─ /kiyomi - News Anchor</blockquote>
 
-╭─<b> 🖤 TOKYO GHOUL P1</b>
+<blockquote>╭─<b> 🖤 TOKYO GHOUL P1</b>
 ├─ /touka - Coffee Shop
 ├─ /eto - One Eyed
 ├─ /rize - Binge Eater
 ├─ /akira - Investigator Daughter
-╰─ /hinami - Book Lover
+╰─ /hinami - Book Lover</blockquote>
 
 <b>📖 Page 14 of 20</b>
 """
@@ -3027,23 +3027,23 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 🖤 TOKYO GHOUL P2</b>
+<blockquote>╭─<b> 🖤 TOKYO GHOUL P2</b>
 ├─ /itori - Information Broker
 ├─ /karren - Rose Family
 ├─ /kimi - Human Friend
 ├─ /yoriko - Best Friend
-╰─ /roma - Clown Member
+╰─ /roma - Clown Member</blockquote>
 
-╭─<b> 👗 MY DRESS-UP DARLING</b>
+<blockquote>╭─<b> 👗 MY DRESS-UP DARLING</b>
 ├─ /marin - Cosplay Queen
 ├─ /sajuna - Photography Expert
-╰─ /shinju - Shy Sister
+╰─ /shinju - Shy Sister</blockquote>
 
-╭─<b> 🛡️ VINLAND SAGA</b>
+<blockquote>╭─<b> 🛡️ VINLAND SAGA</b>
 ├─ /helga - Viking Mother
 ├─ /ylva - Strong Sister
 ├─ /arnheid - Slave Girl
-╰─ /gudrid - Explorer Girl
+╰─ /gudrid - Explorer Girl</blockquote>
 
 <b>📖 Page 15 of 20</b>
 """
@@ -3062,12 +3062,12 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 👻 DANDADAN</b>
+<blockquote>╭─<b> 👻 DANDADAN</b>
 ├─ /momoayase - Psychic Girl
 ├─ /oka - Occult Club
 ├─ /naomidand - Mystery Girl
 ├─ /shakunetsu - Fire Spirit
-╰─ /ikue - School Girl
+╰─ /ikue - School Girl</blockquote>
 
 <b>📖 Page 16 of 20</b>
 """
@@ -3086,12 +3086,12 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 🧪 DR STONE</b>
+<blockquote>╭─<b> 🧪 DR STONE</b>
 ├─ /yuzuriha - Lion's Mane
 ├─ /kohaku - Village Warrior
 ├─ /ruri - Village Priestess
 ├─ /suika - Melon Head
-╰─ /stella - Modern Girl
+╰─ /stella - Modern Girl</blockquote>
 
 <b>📖 Page 17 of 20</b>
 """
@@ -3110,12 +3110,12 @@ async def handle_callbacks(callback: CallbackQuery):
             help_text = f"""
 💝 <b>Makima's Complete Guide</b> 💝
 
-╭─<b> 💧 OVERFLOW</b>
+<blockquote>╭─<b> 💧 OVERFLOW</b>
 ├─ /kotone - Elder Sister
-╰─ /ayane - Younger Sister
+╰─ /ayane - Younger Sister</blockquote>
 
-╭─<b> 🎯 SAKAMOTO DAYS CHARACTERS:</b>
-╰─ /osaragi - Fortune Teller
+<blockquote>╭─<b> 🎯 SAKAMOTO DAYS</b>
+╰─ /osaragi - Fortune Teller</blockquote>
 
 <b>📖 Page 18 of 20</b>
 """
@@ -3223,12 +3223,12 @@ async def handle_callbacks(callback: CallbackQuery):
 
 <b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
 
-<blockquote>╭─<b> 🎌 Quick Start:</b>
+<blockquote>╭─<b> 🎌 Quick Start</b>
 ├─ /naruto /bleach /op /jjk /aot /ds
 ├─ /hinata /sakura /tsunade /rukia
 ╰─ /mikasa /nobara /power /makima</blockquote>
 
-<blockquote>╭─<b> 🎀 How to use:</b>
+<blockquote>╭─<b> 🎀 How to use</b>
 ├─ Choose any type of command
 ├─ Select media type Vid/img/Gif  
 ╰─ Explore with navigation buttons</blockquote>
