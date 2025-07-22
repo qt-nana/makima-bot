@@ -1609,6 +1609,9 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
         
         if edit_mode and message_id:
             if media_type == "video":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1621,6 +1624,9 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
     reply_markup=keyboard
 				)
             elif media_type == "gif":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1632,7 +1638,10 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
     ),
     reply_markup=keyboard
 				)
-            else:  # image
+            else:
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1647,6 +1656,9 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
             logger.info(f"Successfully loaded search {media_type} for '{search_query}'")
         else:
             if media_type == "video":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+                
                 await bot.send_video(
                     chat_id=chat_id,
                     video=post['url'],
@@ -1655,6 +1667,9 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
                     has_spoiler=True
                 )
             elif media_type == "gif":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.send_animation(
                     chat_id=chat_id,
                     animation=post['url'],
@@ -1662,7 +1677,10 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-            else:  # image
+            else:
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
@@ -1715,6 +1733,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
         if edit_mode and message_id is not None:
             # Edit existing message based on media type
             if media_type == "video":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1727,6 +1748,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
     reply_markup=keyboard
 				)
             elif media_type == "gif":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1738,7 +1762,10 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
     ),
     reply_markup=keyboard
 				)
-            else:  # image
+            else:
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 await bot.edit_message_media(
     chat_id=chat_id,
     message_id=message_id,
@@ -1754,6 +1781,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
         else:
             # Send new message based on media type
             if media_type == "video":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
+                
                 sent_msg = await bot.send_video(
                     chat_id=chat_id,
                     video=post['url'],
@@ -1763,6 +1793,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     has_spoiler=True
                 )
             elif media_type == "gif":
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 sent_msg = await bot.send_animation(
                     chat_id=chat_id,
                     animation=post['url'],
@@ -1770,7 +1803,10 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-            else:  # image
+            else:
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                
                 sent_msg = await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
@@ -2178,6 +2214,9 @@ async def cmd_start(msg: Message):
 
     # Pick one at random
     selected_image = random.choice(image_urls)
+    
+    await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+    
 
     # Send image with caption + buttons
     await msg.answer_photo(
@@ -2193,6 +2232,9 @@ async def cmd_help(msg: Message):
     # Check membership for non-owner users in private chats
     if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
         if not check_membership(msg.from_user.id):
+            
+            await bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING)
+            
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
     
@@ -2241,6 +2283,9 @@ async def send_random_selection(chat_id: int):
         keyboard = create_random_selection_keyboard()
         caption = "🎲 <b>Random Content</b> ✨\n\n💫 What would you like to see?"
         
+        await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+        
+        
         await bot.send_photo(
             chat_id=chat_id,
             photo=post['url'],
@@ -2260,12 +2305,18 @@ async def cmd_random(msg: Message):
     # Check membership for non-owner users in private chats
     if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
         if not check_membership(msg.from_user.id):
+            
+            await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+            
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
     
     logger.info("Random command requested")
     
     try:
+        
+        await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+        
         await send_random_selection(msg.chat.id)
     except Exception as e:
         logger.error(f"Random command error: {e}")
@@ -2426,6 +2477,9 @@ async def handle_live_search(msg: Message):
         
         # Check if it matches any of our existing anime commands
         if search_query in ANIME_COMMANDS:
+            
+            await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+            
             # Use existing anime command logic
             await send_media_selection(search_query, msg.chat.id)
             return
@@ -2473,6 +2527,9 @@ async def handle_live_search(msg: Message):
             post = await search_rule34_live(clean_name, "image")
     
     if not post:
+        
+        await bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING)
+        
         # If no results found, show helpful message
         no_results_text = f"""
 🔍 <b>No Results Found</b> 😔
@@ -2503,6 +2560,9 @@ async def handle_live_search(msg: Message):
         
         keyboard = create_search_selection_keyboard(search_text)
         caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_text}</i>\n\n✨ What would you like to see?"
+        
+        await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+        
         
         await bot.send_photo(
             chat_id=msg.chat.id,
@@ -2540,6 +2600,9 @@ async def handle_callbacks(callback: CallbackQuery):
 				)
 
                 if callback.message.content_type == "photo":
+                    
+                    await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                    
                     await bot.edit_message_caption(
                         caption=response_text,
                         chat_id=callback.message.chat.id,
@@ -2547,6 +2610,9 @@ async def handle_callbacks(callback: CallbackQuery):
                         parse_mode="HTML"
                     )
                 else:
+                    
+                    await bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING)
+                    
                     await bot.edit_message_text(
                         text=response_text,
                         chat_id=callback.message.chat.id,
@@ -3177,6 +3243,8 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📖 Minimize", callback_data="minimize_help")
                 ]
             ])
+            
+            await bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING)
         
         await bot.edit_message_text(
             text=help_text,
@@ -3218,6 +3286,9 @@ Type a command to begin! 🌟
                 InlineKeyboardButton(text="📖 Expand Full Guide", callback_data="expand_help")
             ]
         ])
+        
+        
+        await bot.send_chat_action(chat_id=chat_id, action=ChatAction.TYPING)
         
         await bot.edit_message_text(
             text=short_help_text,
@@ -3343,6 +3414,9 @@ Type a command to begin! 🌟
             try:
                 # Handle different content types
                 if anime_name == "random":
+                    
+                    await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+                    
                     await send_random_media(
                         chat_id=callback.message.chat.id,
                         edit_mode=False,
@@ -3400,6 +3474,9 @@ Type a command to begin! 🌟
         ])
         
         try:
+            
+            await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
+            
             await bot.edit_message_text(
                 text=welcome_text,
                 chat_id=callback.message.chat.id,
@@ -3436,6 +3513,9 @@ Type a command to begin! 🌟
                 search_query = target.replace("_", " ")
                 keyboard = create_search_selection_keyboard(search_query)
                 caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_query}</i>\n\n✨ What would you like to see?"
+                
+                
+                await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
             
             await bot.edit_message_caption(
                 chat_id=callback.message.chat.id,
