@@ -3264,7 +3264,7 @@ Type a command to begin! 🌟
         # Handle different target types
         if target == "random":
             # Random content selection
-            await callback.answer(f"🎲 Loading random {media_type}...")
+            await callback.answer(f"💞 Loading random {media_type}...")
             try:
                 await send_random_media(
                     chat_id=callback.message.chat.id,
@@ -3279,7 +3279,7 @@ Type a command to begin! 🌟
                 await callback.answer("Failed to load random content", show_alert=True)
         elif target in ANIME_COMMANDS:
             # Anime command selection
-            await callback.answer(f"Loading {media_type}...")
+            await callback.answer(f"💞 Loading {media_type}...")
             try:
                 await send_anime_media(
                     anime_name=target,
@@ -3296,7 +3296,7 @@ Type a command to begin! 🌟
         else:
             # Search query selection (decode the search query)
             search_query = target.replace("_", " ")
-            await callback.answer(f"🔍 Loading {media_type} for '{search_query}'...")
+            await callback.answer(f"💞 Loading {media_type} for '{search_query}'...")
             try:
                 await send_search_media(
                     search_query=search_query,
@@ -3357,7 +3357,7 @@ Type a command to begin! 🌟
                 
         elif action == "next":
             logger.info(f"Next button pressed for: {anime_name} ({media_type}, page {page})")
-            await callback.answer("💫 Loading more content...")
+            await callback.answer("💞 Loading more content...")
             
             try:
                 # Handle different content types
