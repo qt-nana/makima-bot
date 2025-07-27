@@ -2119,7 +2119,7 @@ async def cmd_start(msg: Message):
             InlineKeyboardButton(text="Support 💞", url="https://t.me/SoulMeetsHQ")
         ],
         [
-            InlineKeyboardButton(text="💗️ Add Me To Your Group 💗", url=f"https://t.me/{bot_username}?startgroup=true")
+            InlineKeyboardButton(text="💗️ Add Me To Your Group 💗", url=f"https://t.me/{bot_username}?startgroup=true&admin=delete_messages+ban_users+invite_users+pin_messages+manage_chat+manage_video_chats+post_messages+edit_messages+manage_topics+add_admins")
         ]
     ])
 
@@ -3414,7 +3414,7 @@ Type a command to begin! 🌟
                 InlineKeyboardButton(text="Support 💞", url="https://t.me/SoulMeetsHQ")
             ],
             [
-                InlineKeyboardButton(text="💗️ Add Me To Your Group 💗️", url=f"https://t.me/{(await bot.get_me()).username}?startgroup=true")
+                InlineKeyboardButton(text="💗️ Add Me To Your Group 💗️", url=f"https://t.me/{(await bot.get_me()).username}?startgroup=true&admin=delete_messages+ban_users+invite_users+pin_messages+manage_chat+manage_video_chats+post_messages+edit_messages+manage_topics+add_admins")
             ]
         ])
         
