@@ -2580,7 +2580,7 @@ async def handle_callbacks(callback: CallbackQuery):
             except Exception as e:
                 logger.error(f"❌ Failed to edit membership message: {e}")
         else:
-            await callback.answer("💖 You're still not part of our channel and group. Join both so we can begin this journey together and enjoy every moment side by side 💕", show_alert=True)
+            await callback.answer("💘 You're not part of our cozy little family yet. Come join us, we’re waiting with open arms 💅", show_alert=True)
         return
     
     # ===== MEMBERSHIP CHECK FOR ALL OTHER CALLBACKS =====
@@ -2591,7 +2591,7 @@ async def handle_callbacks(callback: CallbackQuery):
             # Check if user is in private chat (groups don't need membership check)
             if callback.message.chat.type == "private":
                 if not check_membership(callback.from_user.id):
-                    await callback.answer("🚫 You need to join our channel and group first to use this feature!", show_alert=True)
+                    await callback.answer("🥀️ You were here, part of our little family. Come back so we can continue this beautiful journey together ❤️‍🩹", show_alert=True)
                     
                     # Send membership reminder instead of continuing with the callback
                     await send_membership_reminder(
