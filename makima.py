@@ -2539,17 +2539,17 @@ async def handle_live_search(msg: Message):
         logger.error(f"Live search send error: {e}")
         pass  # Remove error message
 
-# ─── Callback Query Handlers ─────────────────────────────────────────
+# ─── Callback Query Handlers with Membership Check ─────────────────────────────────────────
 @dp.callback_query()
 async def handle_callbacks(callback: CallbackQuery):
-    """Handle all callback queries for the new media selection workflow"""
+    """Handle all callback queries with membership verification for the new media selection workflow"""
     logger.info(f"Callback received: {callback.data}")
     
     if not callback.data or not callback.message:
         await callback.answer("Invalid button")
         return
     
-    # Handle membership check callback
+    # Handle membership check callback first (before other checks)
     if callback.data == "check_membership":
         user_id = callback.from_user.id
         if check_membership(user_id):
@@ -2582,9 +2582,26 @@ async def handle_callbacks(callback: CallbackQuery):
             await callback.answer("💖 You're still not part of our channel and group. Join both so we can begin this journey together and enjoy every moment side by side 💕", show_alert=True)
         return
     
-    # Handle broadcast target selection
+    # ===== MEMBERSHIP CHECK FOR ALL OTHER CALLBACKS =====
+    # Skip membership check only for owner and broadcast-related callbacks
+    if callback.from_user and callback.from_user.id != OWNER_ID:
+        # Skip membership check for broadcast callbacks (owner only)
+        if not callback.data.startswith('broadcast_'):
+            # Check if user is in private chat (groups don't need membership check)
+            if callback.message.chat.type == "private":
+                if not check_membership(callback.from_user.id):
+                    await callback.answer("🚫 You need to join our channel and group first to use this feature!", show_alert=True)
+                    
+                    # Send membership reminder instead of continuing with the callback
+                    await send_membership_reminder(
+                        chat_id=callback.message.chat.id,
+                        user_id=callback.from_user.id,
+                        user_name=callback.from_user.full_name
+                    )
+                    return
+    
+    # Handle broadcast target selection (owner only)
     if callback.data.startswith('broadcast_'):
-        # Handle broadcast target selection
         if callback.from_user.id != OWNER_ID:
             await callback.answer("⛔ This command is restricted.", show_alert=True)
             return
