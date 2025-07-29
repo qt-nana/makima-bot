@@ -173,7 +173,7 @@ async def send_membership_reminder(chat_id, user_id, user_name):
     user_mention = f'<a href="tg://user?id={user_id}"><b>{user_name}</b></a>'
 
     reminder_message = f"""
-🌺 <b>Hey {user_mention}, Glad to see you!</b>
+🌺 <b><u>Hey {user_mention}, Glad to see you!</u></b>
 
 I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b> 💖
 
@@ -2123,7 +2123,7 @@ async def cmd_start(msg: Message):
     ])
 
     welcome_text = f"""
-💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</b>
+💖 <b><u>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</u></b>
 
 <b>Makima</b> here, to brighten your day! 🌸
 
@@ -2204,7 +2204,7 @@ async def cmd_help(msg: Message):
     
     # Create short help text with expand button
     short_help_text = f"""
-💝 <b>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b><u>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></u></b> 💝
 
 <b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
 
@@ -3229,7 +3229,7 @@ async def handle_callbacks(callback: CallbackQuery):
         user_id = callback.from_user.id if callback.from_user else ""
         
         short_help_text = f"""
-💝 <b>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
+💝 <b><u>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></u></b> 💝
 
 <b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
 
@@ -3413,7 +3413,7 @@ Type a command to begin! 🌟
         user_id = callback.from_user.id if callback.from_user else ""
         
         welcome_text = f"""
-💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</b>
+💖 <b><u>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</u></b>
 
 <b>Makima</b> here, to brighten your day! 🌸
 
