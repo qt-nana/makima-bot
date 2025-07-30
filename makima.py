@@ -2123,7 +2123,7 @@ async def cmd_start(msg: Message):
     ])
 
     welcome_text = f"""
-💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</a>, <b>Welcome!</b>
+💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</b>
 
 <b>Makima</b> here, to brighten your day! 🌸
 
