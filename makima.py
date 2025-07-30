@@ -134,18 +134,19 @@ def extract_user_info(msg: Message):
     )
     return info
 
+# Updated membership check function with better error handling
 def check_membership(user_id):
     """Check if user is a member of required channel and group"""
     try:
         # Check channel membership
         channel_url = f"{TELEGRAM_API_URL}/getChatMember"
         channel_data = {"chat_id": "@WorkGlows", "user_id": user_id}
-        channel_response = requests.post(channel_url, json=channel_data)
+        channel_response = requests.post(channel_url, json=channel_data, timeout=10)
         
         # Check group membership  
         group_url = f"{TELEGRAM_API_URL}/getChatMember"
         group_data = {"chat_id": "-1002186262653", "user_id": user_id}
-        group_response = requests.post(group_url, json=group_data)
+        group_response = requests.post(group_url, json=group_data, timeout=10)
         
         if channel_response.status_code == 200 and group_response.status_code == 200:
             channel_member = channel_response.json().get("result", {})
@@ -2064,11 +2065,11 @@ def create_search_navigation_keyboard(search_query: str, media_type: str = "imag
     ])
     return keyboard
 
-# ─── Create Command Handlers ─────────────────────────────────────────
+# Updated anime handler factory with group membership check
 def make_anime_handler(anime_name):
     async def handler(msg: Message):
-        # Check membership for non-owner users in private chats
-        if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
+        # Check membership for non-owner users in both private chats AND groups
+        if msg.from_user and msg.from_user.id != OWNER_ID:
             if not check_membership(msg.from_user.id):
                 await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
                 return
@@ -2079,7 +2080,7 @@ def make_anime_handler(anime_name):
 for anime_name in ANIME_COMMANDS:
     dp.message.register(make_anime_handler(anime_name), Command(anime_name))
 
-# ─── /start Handler ─────────────────────────────────────────────────
+# Updated /start handler with group membership check
 @dp.message(Command("start"))
 async def cmd_start(msg: Message):
     
@@ -2094,9 +2095,9 @@ async def cmd_start(msg: Message):
             group_ids.add(msg.chat.id)
             logger.info(f"👥 Group tracked for broadcasting: {msg.chat.id}")
 
-    # Skip membership check for owner
+    # Check membership for non-owner users in both private chats AND groups
     if msg.from_user and msg.from_user.id != OWNER_ID:
-        if msg.chat.type == "private" and not check_membership(msg.from_user.id):
+        if not check_membership(msg.from_user.id):
             await send_membership_reminder(
                 chat_id=msg.chat.id,
                 user_id=msg.from_user.id,
@@ -2187,14 +2188,14 @@ async def cmd_start(msg: Message):
         reply_markup=keyboard
     )
 
-# ─── /help Handler ─────────────────────────────────────────────────
+# Updated /help handler with group membership check
 @dp.message(Command("help"))
 async def cmd_help(msg: Message):
     
     await bot.send_chat_action(msg.chat.id, action="typing")
     
-    # Check membership for non-owner users in private chats
-    if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
+    # Check membership for non-owner users in both private chats AND groups
+    if msg.from_user and msg.from_user.id != OWNER_ID:
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
@@ -2260,11 +2261,12 @@ async def send_random_selection(chat_id: int):
         logger.error(f"Random selection send error: {e}")
         return None
 
+# Updated /random handler with group membership check
 @dp.message(Command("random"))
 async def cmd_random(msg: Message):
     """Handle random content command"""
-    # Check membership for non-owner users in private chats
-    if msg.from_user and msg.from_user.id != OWNER_ID and msg.chat.type == "private":
+    # Check membership for non-owner users in both private chats AND groups
+    if msg.from_user and msg.from_user.id != OWNER_ID:
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
@@ -2321,6 +2323,7 @@ async def cmd_broadcast(msg: Message):
     )
     logger.info(f"✅ Broadcast target selection sent, message ID: {response.message_id}")
 
+# Updated /ping handler with group membership check
 @dp.message(F.text == "/ping")
 async def ping_command(msg: Message):
     """Respond with latency after checking membership and track for broadcast"""
@@ -2329,7 +2332,7 @@ async def ping_command(msg: Message):
 
     logger.info(f"📥 /ping received | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat: {info['chat_title']} ({info['chat_type']}) | Chat ID: {info['chat_id']} | Link: {info['chat_link']}")
 
-    # Skip membership check for owner
+    # Check membership for non-owner users in both private chats AND groups
     if user_id != OWNER_ID:
         if not check_membership(user_id):
             await send_membership_reminder(chat_id=msg.chat.id, user_id=user_id, user_name=info['full_name'])
@@ -2362,7 +2365,7 @@ async def ping_command(msg: Message):
     except Exception as e:
         logger.error(f"❌ /ping failed | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat ID: {info['chat_id']} | Error: {str(e)}")
 
-# ─── Live Search Handler for Private Messages ──────────────────────
+# Updated live search handler with group membership check
 @dp.message(F.chat.type == "private")
 async def handle_live_search(msg: Message):
     """Handle live search in private messages and broadcast functionality"""
@@ -2419,7 +2422,7 @@ async def handle_live_search(msg: Message):
         logger.info(f"🔓 Broadcast mode disabled for {msg.from_user.id}")
         return
     
-    # Check membership for non-owner users
+    # Check membership for non-owner users (this is only for private chats)
     if msg.from_user and msg.from_user.id != OWNER_ID:
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
@@ -2536,7 +2539,7 @@ async def handle_live_search(msg: Message):
         logger.error(f"Live search send error: {e}")
         pass  # Remove error message
 
-# ─── Callback Query Handlers with Membership Check ─────────────────────────────────────────
+# Updated callback query handler with group membership check
 @dp.callback_query()
 async def handle_callbacks(callback: CallbackQuery):
     """Handle all callback queries with membership verification for the new media selection workflow"""
@@ -2576,7 +2579,7 @@ async def handle_callbacks(callback: CallbackQuery):
             except Exception as e:
                 logger.error(f"❌ Failed to edit membership message: {e}")
         else:
-            await callback.answer("💘 You're not part of our cozy little family yet. Come join us, we’re waiting with open arms 💅", show_alert=True)
+            await callback.answer("💘 You're not part of our cozy little family yet. Come join us, we're waiting with open arms 💅", show_alert=True)
         return
     
     # ===== MEMBERSHIP CHECK FOR ALL OTHER CALLBACKS =====
@@ -2584,18 +2587,17 @@ async def handle_callbacks(callback: CallbackQuery):
     if callback.from_user and callback.from_user.id != OWNER_ID:
         # Skip membership check for broadcast callbacks (owner only)
         if not callback.data.startswith('broadcast_'):
-            # Check if user is in private chat (groups don't need membership check)
-            if callback.message.chat.type == "private":
-                if not check_membership(callback.from_user.id):
-                    await callback.answer("🥀️ You were here, part of our little family. Come back so we can continue this beautiful journey together ❤️‍🩹", show_alert=True)
-                    
-                    # Send membership reminder instead of continuing with the callback
-                    await send_membership_reminder(
-                        chat_id=callback.message.chat.id,
-                        user_id=callback.from_user.id,
-                        user_name=callback.from_user.full_name
-                    )
-                    return
+            # Check membership for ALL users (both private chats AND groups)
+            if not check_membership(callback.from_user.id):
+                await callback.answer("🥀️ You were here, part of our little family. Come back so we can continue this beautiful journey together ❤️‍🩹", show_alert=True)
+                
+                # Send membership reminder instead of continuing with the callback
+                await send_membership_reminder(
+                    chat_id=callback.message.chat.id,
+                    user_id=callback.from_user.id,
+                    user_name=callback.from_user.full_name
+                )
+                return
     
     # Handle broadcast target selection (owner only)
     if callback.data.startswith('broadcast_'):
