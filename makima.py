@@ -2326,20 +2326,13 @@ async def cmd_broadcast(msg: Message):
 # Updated /ping handler with group membership check
 @dp.message(F.text == "/ping")
 async def ping_command(msg: Message):
-    """Respond with latency after checking membership and track for broadcast"""
+    """Respond with latency - works for everyone, replies in groups, direct message in private"""
     info = extract_user_info(msg)
     user_id = info['user_id']
 
     logger.info(f"📥 /ping received | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat: {info['chat_title']} ({info['chat_type']}) | Chat ID: {info['chat_id']} | Link: {info['chat_link']}")
 
-    # Check membership for non-owner users in both private chats AND groups
-    if user_id != OWNER_ID:
-        if not check_membership(user_id):
-            await send_membership_reminder(chat_id=msg.chat.id, user_id=user_id, user_name=info['full_name'])
-            logger.info(f"🚫 /ping blocked — not a member | Name: {info['full_name']} | User ID: {user_id}")
-            return
-
-    # Broadcast tracking
+    # Broadcast tracking (track everyone who uses the command)
     if msg.from_user:
         if msg.chat.type == "private":
             user_ids.add(user_id)
@@ -2350,7 +2343,15 @@ async def ping_command(msg: Message):
 
     try:
         start = time.perf_counter()
-        response = await msg.answer("🛰️ Pinging...")
+        
+        # Handle private chats vs groups differently
+        if msg.chat.type == "private":
+            # In private chats, send a direct message
+            response = await msg.answer("🛰️ Pinging...")
+        else:
+            # In groups/channels, reply to the user's message
+            response = await msg.reply("🛰️ Pinging...")
+        
         end = time.perf_counter()
         latency_ms = (end - start) * 1000
 
