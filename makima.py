@@ -2083,7 +2083,7 @@ def make_anime_handler(anime_name):
     async def handler(msg: Message):
         # Check membership for non-owner users in both private chats AND groups
         if msg.from_user and should_check_membership(msg.from_user.id):
-		    if not check_membership(msg.from_user.id):
+            if not check_membership(msg.from_user.id):
                 await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
                 return
         await send_media_selection(anime_name, msg.chat.id)
