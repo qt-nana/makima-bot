@@ -21,6 +21,8 @@ from aiogram.types import (
 from aiogram.client.default import DefaultBotProperties
 import aiogram.types as types
 
+privacy_mode = "normal"
+
 class ColoredFormatter(logging.Formatter):
     """Custom formatter with colors and emojis for better readability"""
     def __init__(self, *args, **kwargs):
@@ -170,6 +172,8 @@ def check_membership(user_id):
 
 def should_check_membership(user_id):
     """Check if membership verification is required based on privacy mode"""
+    global privacy_mode  # Add this line at the beginning
+    
     # Always allow owner
     if user_id == OWNER_ID:
         return False
@@ -273,7 +277,6 @@ broadcast_target = {}  # User broadcast targets
 user_ids = set()  # Track user IDs for broadcasting
 group_ids = set()  # Track group IDs for broadcasting
 help_page_states = {}  # Store help page states for users
-privacy_mode = "normal"
 
 # ─── Rule34 API Configuration ────────────────────────────────────────
 RULE34_API_BASE = "https://api.rule34.xxx/index.php"
@@ -2339,6 +2342,8 @@ async def cmd_broadcast(msg: Message):
 @dp.message(Command("privacy"))
 async def cmd_privacy(msg: Message):
     """Handle privacy mode command (owner only)"""
+    global privacy_mode  # Declare global at the beginning
+    
     if not msg.from_user:
         return
 
@@ -2745,6 +2750,81 @@ async def handle_callbacks(callback: CallbackQuery):
                 logger.error(f"❌ Failed to edit membership message: {e}")
         else:
             await callback.answer("💘 You're not part of our cozy little family yet. Come join us, we're waiting with open arms 💅", show_alert=True)
+        return
+    
+    # Handle privacy mode callbacks (owner only) - ADD THIS SECTION
+    if callback.data.startswith('privacy_'):
+        global privacy_mode  # Declare global at the beginning
+        
+        if callback.from_user.id != OWNER_ID:
+            await callback.answer("⛔ This command is restricted.", show_alert=True)
+            return
+
+        if callback.data == "privacy_public":
+            privacy_mode = "public"
+            await callback.answer("🔓 Bot set to Public Mode - Everyone can use it now!", show_alert=True)
+            logger.info(f"👑 Owner set bot to PUBLIC mode")
+            
+        elif callback.data == "privacy_normal":
+            privacy_mode = "normal"
+            await callback.answer("🔒 Bot set to Normal Mode - Membership required!", show_alert=True)
+            logger.info(f"👑 Owner set bot to NORMAL mode")
+            
+        elif callback.data == "privacy_status":
+            mode_text = "Public (Everyone)" if privacy_mode == "public" else "Normal (Membership Required)"
+            await callback.answer(f"📊 Current mode: {mode_text}", show_alert=True)
+            return
+
+        # Update the message with new status
+        current_mode = privacy_mode
+        mode_emoji = "🔓" if current_mode == "public" else "🔒"
+        mode_text = "Public" if current_mode == "public" else "Normal (Membership Required)"
+        
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🔓 Set Public Mode" if current_mode == "normal" else "🔓 Public Mode ✓", 
+                    callback_data="privacy_public"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔒 Set Normal Mode" if current_mode == "public" else "🔒 Normal Mode ✓", 
+                    callback_data="privacy_normal"
+                )
+            ],
+            [
+                InlineKeyboardButton(text="📊 View Status", callback_data="privacy_status")
+            ]
+        ])
+
+        privacy_text = f"""
+🔐 <b>Privacy Mode Settings</b>
+
+<b>Current Mode:</b> {mode_emoji} <b>{mode_text}</b>
+
+<blockquote>╭─<b> 🔓 Public Mode</b>
+├─ Everyone can use the bot
+├─ No membership requirements
+╰─ Works in groups and private chats</blockquote>
+
+<blockquote>╭─<b> 🔒 Normal Mode</b>
+├─ Membership verification required
+├─ Users must join channel & group
+╰─ Default secure behavior</blockquote>
+
+<b>👑 Owner always has full access regardless of mode</b>
+"""
+
+        try:
+            await bot.edit_message_text(
+                text=privacy_text,
+                chat_id=callback.message.chat.id,
+                message_id=callback.message.message_id,
+                reply_markup=keyboard
+            )
+        except Exception as e:
+            logger.error(f"❌ Failed to edit privacy message: {e}")
         return
     
     # ===== MEMBERSHIP CHECK FOR ALL OTHER CALLBACKS =====
