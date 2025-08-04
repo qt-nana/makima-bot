@@ -168,6 +168,19 @@ def check_membership(user_id):
         logger.error(f"❌ Error checking membership: {e}")
         return False
 
+def should_check_membership(user_id):
+    """Check if membership verification is required based on privacy mode"""
+    # Always allow owner
+    if user_id == OWNER_ID:
+        return False
+    
+    # If public mode, no membership check needed
+    if privacy_mode == "public":
+        return False
+    
+    # If normal mode, check membership for everyone except owner
+    return True
+
 async def send_membership_reminder(chat_id, user_id, user_name):
     """Send cute reminder about joining required channel and group"""
 
@@ -260,6 +273,7 @@ broadcast_target = {}  # User broadcast targets
 user_ids = set()  # Track user IDs for broadcasting
 group_ids = set()  # Track group IDs for broadcasting
 help_page_states = {}  # Store help page states for users
+privacy_mode = "normal"
 
 # ─── Rule34 API Configuration ────────────────────────────────────────
 RULE34_API_BASE = "https://api.rule34.xxx/index.php"
@@ -268,7 +282,6 @@ RULE34_API_BASE = "https://api.rule34.xxx/index.php"
 sent_content_ids = set()  # Track sent content IDs to prevent duplicates
 user_offsets = {}  # Track pagination offset per user per character
 MAX_CONTENT_CACHE = 10000  # Limit cache size to prevent memory issues
-
 # Rate limiting for API requests
 api_request_times = []
 MAX_REQUESTS_PER_MINUTE = 60
@@ -2069,8 +2082,8 @@ def create_search_navigation_keyboard(search_query: str, media_type: str = "imag
 def make_anime_handler(anime_name):
     async def handler(msg: Message):
         # Check membership for non-owner users in both private chats AND groups
-        if msg.from_user and msg.from_user.id != OWNER_ID:
-            if not check_membership(msg.from_user.id):
+        if msg.from_user and should_check_membership(msg.from_user.id):
+		    if not check_membership(msg.from_user.id):
                 await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
                 return
         await send_media_selection(anime_name, msg.chat.id)
@@ -2096,7 +2109,7 @@ async def cmd_start(msg: Message):
             logger.info(f"👥 Group tracked for broadcasting: {msg.chat.id}")
 
     # Check membership for non-owner users in both private chats AND groups
-    if msg.from_user and msg.from_user.id != OWNER_ID:
+    if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(
                 chat_id=msg.chat.id,
@@ -2195,7 +2208,7 @@ async def cmd_help(msg: Message):
     await bot.send_chat_action(msg.chat.id, action="typing")
     
     # Check membership for non-owner users in both private chats AND groups
-    if msg.from_user and msg.from_user.id != OWNER_ID:
+    if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
@@ -2266,7 +2279,7 @@ async def send_random_selection(chat_id: int):
 async def cmd_random(msg: Message):
     """Handle random content command"""
     # Check membership for non-owner users in both private chats AND groups
-    if msg.from_user and msg.from_user.id != OWNER_ID:
+    if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
@@ -2322,6 +2335,157 @@ async def cmd_broadcast(msg: Message):
         reply_markup=keyboard
     )
     logger.info(f"✅ Broadcast target selection sent, message ID: {response.message_id}")
+
+@dp.message(Command("privacy"))
+async def cmd_privacy(msg: Message):
+    """Handle privacy mode command (owner only)"""
+    if not msg.from_user:
+        return
+
+    user_id = msg.from_user.id
+    info = extract_user_info(msg)
+
+    logger.info(f"🔒 Privacy command attempted by {info['full_name']}")
+
+    # Only owner can access this command
+    if user_id != OWNER_ID:
+        logger.info(f"🚫 Non-owner attempted privacy command | User ID: {user_id}")
+        return  # Silently ignore non-owner attempts
+
+    await bot.send_chat_action(msg.chat.id, ChatAction.TYPING)
+
+    # Get current mode status
+    current_mode = privacy_mode
+    mode_emoji = "🔓" if current_mode == "public" else "🔒"
+    mode_text = "Public" if current_mode == "public" else "Normal (Membership Required)"
+    
+    # Create inline keyboard for privacy settings
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [
+            InlineKeyboardButton(
+                text="🔓 Set Public Mode" if current_mode == "normal" else "🔓 Public Mode ✓", 
+                callback_data="privacy_public"
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                text="🔒 Set Normal Mode" if current_mode == "public" else "🔒 Normal Mode ✓", 
+                callback_data="privacy_normal"
+            )
+        ],
+        [
+            InlineKeyboardButton(text="📊 View Status", callback_data="privacy_status")
+        ]
+    ])
+
+    privacy_text = f"""
+🔐 <b>Privacy Mode Settings</b>
+
+<b>Current Mode:</b> {mode_emoji} <b>{mode_text}</b>
+
+<blockquote>╭─<b> 🔓 Public Mode</b>
+├─ Everyone can use the bot
+├─ No membership requirements
+╰─ Works in groups and private chats</blockquote>
+
+<blockquote>╭─<b> 🔒 Normal Mode</b>
+├─ Membership verification required
+├─ Users must join channel & group
+╰─ Default secure behavior</blockquote>
+
+<b>👑 Owner always has full access regardless of mode</b>
+"""
+
+    await msg.answer(privacy_text, reply_markup=keyboard)
+    logger.info(f"✅ Privacy settings sent to owner")
+
+# Update all membership check calls throughout the code
+# Replace all instances of:
+# if msg.from_user and msg.from_user.id != OWNER_ID:
+#     if not check_membership(msg.from_user.id):
+# 
+# With:
+# if msg.from_user and should_check_membership(msg.from_user.id):
+#     if not check_membership(msg.from_user.id):
+
+# Add privacy callback handling to the handle_callbacks function (around line 1400)
+# Add this section in the handle_callbacks function after the membership check callback:
+
+    # Handle privacy mode callbacks (owner only)
+    if callback.data.startswith('privacy_'):
+        if callback.from_user.id != OWNER_ID:
+            await callback.answer("⛔ This command is restricted.", show_alert=True)
+            return
+
+        global privacy_mode
+        
+        if callback.data == "privacy_public":
+            privacy_mode = "public"
+            await callback.answer("🔓 Bot set to Public Mode - Everyone can use it now!", show_alert=True)
+            logger.info(f"👑 Owner set bot to PUBLIC mode")
+            
+        elif callback.data == "privacy_normal":
+            privacy_mode = "normal"
+            await callback.answer("🔒 Bot set to Normal Mode - Membership required!", show_alert=True)
+            logger.info(f"👑 Owner set bot to NORMAL mode")
+            
+        elif callback.data == "privacy_status":
+            mode_text = "Public (Everyone)" if privacy_mode == "public" else "Normal (Membership Required)"
+            await callback.answer(f"📊 Current mode: {mode_text}", show_alert=True)
+            return
+
+        # Update the message with new status
+        current_mode = privacy_mode
+        mode_emoji = "🔓" if current_mode == "public" else "🔒"
+        mode_text = "Public" if current_mode == "public" else "Normal (Membership Required)"
+        
+        keyboard = InlineKeyboardMarkup(inline_keyboard=[
+            [
+                InlineKeyboardButton(
+                    text="🔓 Set Public Mode" if current_mode == "normal" else "🔓 Public Mode ✓", 
+                    callback_data="privacy_public"
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="🔒 Set Normal Mode" if current_mode == "public" else "🔒 Normal Mode ✓", 
+                    callback_data="privacy_normal"
+                )
+            ],
+            [
+                InlineKeyboardButton(text="📊 View Status", callback_data="privacy_status")
+            ]
+        ])
+
+        privacy_text = f"""
+🔐 <b>Privacy Mode Settings</b>
+
+<b>Current Mode:</b> {mode_emoji} <b>{mode_text}</b>
+
+<blockquote>╭─<b> 🔓 Public Mode</b>
+├─ Everyone can use the bot
+├─ No membership requirements
+╰─ Works in groups and private chats</blockquote>
+
+<blockquote>╭─<b> 🔒 Normal Mode</b>
+├─ Membership verification required
+├─ Users must join channel & group
+╰─ Default secure behavior</blockquote>
+
+<b>👑 Owner always has full access regardless of mode</b>
+"""
+
+        try:
+            await bot.edit_message_text(
+                text=privacy_text,
+                chat_id=callback.message.chat.id,
+                message_id=callback.message.message_id,
+                reply_markup=keyboard
+            )
+        except Exception as e:
+            logger.error(f"❌ Failed to edit privacy message: {e}")
+        return
+
 
 # Updated /ping handler with group membership check
 @dp.message(F.text == "/ping")
@@ -2424,7 +2588,7 @@ async def handle_live_search(msg: Message):
         return
     
     # Check membership for non-owner users (this is only for private chats)
-    if msg.from_user and msg.from_user.id != OWNER_ID:
+    if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
@@ -2585,14 +2749,11 @@ async def handle_callbacks(callback: CallbackQuery):
     
     # ===== MEMBERSHIP CHECK FOR ALL OTHER CALLBACKS =====
     # Skip membership check only for owner and broadcast-related callbacks
-    if callback.from_user and callback.from_user.id != OWNER_ID:
-        # Skip membership check for broadcast callbacks (owner only)
+    if callback.from_user and should_check_membership(callback.from_user.id):
         if not callback.data.startswith('broadcast_'):
-            # Check membership for ALL users (both private chats AND groups)
             if not check_membership(callback.from_user.id):
                 await callback.answer("🥀️ You were here, part of our little family. Come back so we can continue this beautiful journey together ❤️‍🩹", show_alert=True)
                 
-                # Send membership reminder instead of continuing with the callback
                 await send_membership_reminder(
                     chat_id=callback.message.chat.id,
                     user_id=callback.from_user.id,
