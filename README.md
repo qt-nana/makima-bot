@@ -1,5 +1,5 @@
 # 🌼 Makima — Anime Companion  
-[![Telegram Bot](https://img.shields.io/badge/Chat%20Now-@HornyMakimaBot-fd79a8?logo=telegram&style=for-the-badge)](https://t.me/HornyMakimaBot)
+[![Telegram Bot](https://img.shields.io/badge/Start%20Now-@HornyMakimaBot-fd79a8?logo=telegram&style=for-the-badge)](https://t.me/HornyMakimaBot)
 
 **Makima Bot** is your ultimate anime companion featuring 150+ commands across 22+ anime series.  
 From character-specific content to live search functionality — Makima's got your anime needs covered.
