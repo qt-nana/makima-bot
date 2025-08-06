@@ -1,5 +1,5 @@
-# 🌸 Makima Bot — Telegram Anime Companion  
-[![Telegram Bot](https://img.shields.io/badge/Chat%20Now-@YourBotUsername-fd79a8?logo=telegram&style=for-the-badge)](https://t.me/YourBotUsername)
+# 🌼 Makima — Anime Companion  
+[![Telegram Bot](https://img.shields.io/badge/Chat%20Now-@HornyMakimaBot-fd79a8?logo=telegram&style=for-the-badge)](https://t.me/HornyMakimaBot)
 
 **Makima Bot** is your ultimate anime companion featuring 150+ commands across 22+ anime series.  
 From character-specific content to live search functionality — Makima's got your anime needs covered.
@@ -41,7 +41,7 @@ Whether you're looking to:
 ### Core Commands
 | Command      | Description                                   |
 |--------------|-----------------------------------------------|
-| `/start`     | 🌸 Meet Makima and explore features           |
+| `/start`     | 🌼 Meet Makima and explore features           |
 | `/help`      | 💝 Interactive 20-page complete guide        |
 | `/random`    | 🎲 Surprise content from random sources      |
 | `/ping`      | 🏓 Check bot response time                    |
@@ -89,95 +89,7 @@ Whether you're looking to:
 - **API Integration:** Rule34 API for content fetching
 - **Environment:** python-dotenv for configuration
 - **Deployment:** HTTP server for cloud hosting (Render, Heroku, Railway compatible)
-- **Database:** Stateless (in-memory caching and user tracking)
-
----
-
-## 🚀 Installation & Setup
-
-### Prerequisites
-- Python 3.8 or higher
-- Telegram Bot Token (from [@BotFather](https://t.me/BotFather))
-
-### 1. Clone the Repository
-```bash
-git clone https://github.com/yourusername/makima-bot.git
-cd makima-bot
-```
-
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
-
-### 3. Environment Configuration
-Create a `.env` file with your bot token:
-```env
-BOT_TOKEN=your_telegram_bot_token_here
-```
-
-### 4. Configure Bot Settings
-Edit the following variables in `makimav7.py`:
-```python
-OWNER_ID = your_telegram_user_id  # Replace with your Telegram user ID
-```
-
-### 5. Run the Bot
-```bash
-python makimav7.py
-```
-
----
-
-## 📋 Requirements.txt
-```txt
-aiogram>=3.0.0
-aiohttp>=3.8.0
-python-dotenv>=0.19.0
-requests>=2.28.0
-```
-
----
-
-## 🔧 Configuration Options
-
-### Privacy Modes
-- **Normal Mode (Default):** Requires channel and group membership
-- **Public Mode:** Open access for all users
-
-### Membership Requirements
-- **Channel:** [@WorkGlows](https://t.me/WorkGlows)
-- **Group:** [SoulMeetsHQ](https://t.me/SoulMeetsHQ)
-
-### Content Settings
-- **Rate Limiting:** 60 requests per minute
-- **Cache Management:** 10,000 content items max
-- **Media Types:** Images (.jpg, .png, .webp), Videos (.mp4, .webm), GIFs (.gif)
-
----
-
-## 🎯 Key Features Breakdown
-
-### Smart Content Delivery System
-- **Anti-Duplicate Engine:** Tracks sent content to ensure fresh results
-- **Quality Scoring:** Prioritizes high-rated content
-- **Pagination System:** User-specific offsets for varied content
-- **Fallback Strategy:** Multiple search attempts with different tag combinations
-
-### Live Search Engine
-- **Intelligent Tag Conversion:** Automatically converts common phrases to proper tags
-- **Character Name Detection:** Smart handling of anime character names
-- **Multi-Strategy Search:** Attempts various search patterns for best results
-
-### Interactive Navigation
-- **Media Type Selection:** Choose between Images, Videos, and GIFs
-- **Refresh System:** Get new content with a single button press
-- **Back Navigation:** Easy return to selection menus
-
-### Performance Optimization
-- **Async Operations:** Non-blocking API requests and message handling
-- **Memory Management:** Automatic cache cleanup and size limits
-- **Rate Limiting:** Prevents API abuse and ensures stable performance
+- **Database:** In-memory caching and user tracking
 
 ---
 
@@ -225,32 +137,6 @@ Simply type any character or anime name in private chat:
 
 ---
 
-## 📊 Performance Monitoring
-
-The bot includes built-in performance monitoring:
-- Content cache size tracking
-- User offset management
-- API request rate monitoring
-- Memory usage optimization
-
----
-
-## 🔄 Deployment
-
-### Cloud Platforms
-- **Render:** Automatic deployment with HTTP server
-- **Heroku:** Compatible with Procfile
-- **Railway:** Direct Python deployment
-- **VPS:** Manual setup with systemd service
-
-### Environment Variables
-```env
-BOT_TOKEN=your_bot_token
-PORT=10000  # For cloud deployment
-```
-
----
-
 ## 👤 Creator
 
 **Developed with ❤️ by Asadul Islam (Asad)**
@@ -279,26 +165,5 @@ This project is open source and available under the MIT License.
 
 ---
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## ⭐ Support
-
-If you found this project helpful, please consider:
-- ⭐ Starring the repository
-- 📢 Sharing with anime enthusiasts
-- 💬 Joining our [support group](https://t.me/SoulMeetsHQ)
-
----
-
 > **Makima Bot** — *Your Personal Anime Companion*  
-[Start now → @YourBotUsername](https://t.me/YourBotUsername)
+[Start now → @HornyMakimaBot](https://t.me/HornyMakimaBot)
