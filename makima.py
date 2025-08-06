@@ -1,23 +1,47 @@
-import asyncio
 import os
-import random
-import logging
-import aiohttp
-import time
-import threading
-import requests
 import json
-from http.server import BaseHTTPRequestHandler, HTTPServer
+import time
+import aiohttp
+import random
+import asyncio
+import logging
+import requests
+import threading
 
-from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, F
-from aiogram.enums import ParseMode, ChatAction
-from aiogram.filters import Command
-from aiogram.types import (
-    Message, BotCommand, InlineKeyboardMarkup, InlineKeyboardButton, 
-    CallbackQuery, InputMediaPhoto, InputMediaVideo, InputMediaAnimation
+from http.server import (
+    HTTPServer,
+    BaseHTTPRequestHandler
 )
-from aiogram.client.default import DefaultBotProperties
+
+from dotenv import (
+    load_dotenv
+)
+
+from aiogram import (
+    F,
+    Bot,
+    Dispatcher
+)
+from aiogram.enums import (
+    ParseMode,
+    ChatAction
+)
+from aiogram.filters import (
+    Command
+)
+from aiogram.types import (
+    Message,
+    BotCommand,
+    CallbackQuery,
+    InlineKeyboardButton,
+    InlineKeyboardMarkup,
+    InputMediaPhoto,
+    InputMediaVideo,
+    InputMediaAnimation
+)
+from aiogram.client.default import (
+    DefaultBotProperties
+)
 import aiogram.types as types
 
 privacy_mode = "normal"
