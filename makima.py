@@ -7,9 +7,11 @@ import asyncio
 import requests
 import logging
 import threading
-import aiogram.types as types
 import xml.etree.ElementTree as ET
+import aiogram.types as types
 from typing import Dict, Any
+from http.server import BaseHTTPRequestHandler, HTTPServer
+
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, F
 from aiogram.filters import Command
@@ -25,130 +27,15 @@ from aiogram.types import (
     InputMediaAnimation
 )
 from aiogram.client.default import DefaultBotProperties
-from http.server import BaseHTTPRequestHandler, HTTPServer
 
 load_dotenv()
 
-# LOGGING SETUP
-# Color codes for logging
-class Colors:
-    BLUE = '\033[94m'      # INFO/WARNING
-    GREEN = '\033[92m'     # DEBUG
-    YELLOW = '\033[93m'    # INFO
-    RED = '\033[91m'       # ERROR
-    RESET = '\033[0m'      # Reset color
-    BOLD = '\033[1m'       # Bold text
-
-class ColoredFormatter(logging.Formatter):
-    """Custom formatter to add colors to entire log messages"""
-
-    COLORS = {
-        'DEBUG': Colors.GREEN,
-        'INFO': Colors.YELLOW,
-        'WARNING': Colors.BLUE,
-        'ERROR': Colors.RED,
-    }
-
-    def format(self, record):
-        # Get the original formatted message
-        original_format = super().format(record)
-
-        # Get color based on log level
-        color = self.COLORS.get(record.levelname, Colors.RESET)
-
-        # Apply color to the entire message
-        colored_format = f"{color}{original_format}{Colors.RESET}"
-
-        return colored_format
-
-# Configure logging with colors
-def setup_colored_logging():
-    """Setup colored logging configuration"""
-    logger = logging.getLogger("MAKIMA 🌸")
-    logger.setLevel(logging.INFO)
-
-    # Remove existing handlers
-    for handler in logger.handlers[:]:
-        logger.removeHandler(handler)
-
-    # Create console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-
-    # Create colored formatter with enhanced format
-    formatter = ColoredFormatter(
-        fmt='%(asctime)s - %(name)s - [%(levelname)s] - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    console_handler.setFormatter(formatter)
-
-    # Add handler to logger
-    logger.addHandler(console_handler)
-
-    return logger
-
-# Initialize logger
-logger = setup_colored_logging()
-
-# UTILITY FUNCTIONS
-def extract_user_info(msg: Message) -> Dict[str, Any]:
-    """Extract user and chat information from message"""
-    logger.debug("🔍 Extracting user information from message")
-
-    if not msg.from_user:
-        return {
-            "user_id": 0,
-            "username": "Anonymous",
-            "full_name": "Anonymous User",
-            "first_name": "Anonymous",
-            "last_name": "",
-            "chat_id": msg.chat.id if msg.chat else 0,
-            "chat_type": msg.chat.type if msg.chat else "unknown",
-            "chat_title": msg.chat.title or msg.chat.first_name or "Unknown Chat",
-            "chat_username": f"@{msg.chat.username}" if msg.chat and msg.chat.username else "No Username",
-            "chat_link": f"https://t.me/{msg.chat.username}" if msg.chat and msg.chat.username else "No Link",
-        }
-
-    u = msg.from_user
-    c = msg.chat
-    info = {
-        "user_id": u.id,
-        "username": u.username or "No Username",
-        "full_name": u.full_name,
-        "first_name": u.first_name,
-        "last_name": u.last_name or "",
-        "chat_id": c.id,
-        "chat_type": c.type,
-        "chat_title": c.title or c.first_name or "",
-        "chat_username": f"@{c.username}" if c.username else "No Username",
-        "chat_link": f"https://t.me/{c.username}" if c.username else "No Link",
-    }
-    logger.info(
-        f"📑 User info extracted: {info['full_name']} (@{info['username']}) "
-        f"[ID: {info['user_id']}] in {info['chat_title']} [{info['chat_id']}] {info['chat_link']}"
-    )
-    return info
-
-def log_with_user_info(level: str, message: str, user_info: Dict[str, Any]) -> None:
-    """Log message with user information"""
-    user_detail = (
-        f"👤 {user_info.get('full_name', 'N/A')} (@{user_info.get('username', 'N/A')}) "
-        f"[ID: {user_info.get('user_id', 'N/A')}] | "
-        f"💬 {user_info.get('chat_title', 'N/A')} [{user_info.get('chat_id', 'N/A')}] "
-        f"({user_info.get('chat_type', 'N/A')}) {user_info.get('chat_link', 'N/A')}"
-    )
-    full_message = f"{message} | {user_detail}"
-
-    if level.upper() == "INFO":
-        logger.info(full_message)
-    elif level.upper() == "DEBUG":
-        logger.debug(full_message)
-    elif level.upper() == "WARNING":
-        logger.warning(full_message)
-    elif level.upper() == "ERROR":
-        logger.error(full_message)
-    else:
-        logger.info(full_message)
+# Initialize a basic logger early (will be properly configured later)
+logger = logging.getLogger("MAKIMA 🌸")
+logger.setLevel(logging.INFO)
+console_handler = logging.StreamHandler()
+console_handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - [%(levelname)s] - %(message)s'))
+logger.addHandler(console_handler)
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
@@ -168,20 +55,6 @@ api_request_times = []
 MAX_REQUESTS_PER_MINUTE = 60
 
 privacy_mode = "normal"
-
-if not BOT_TOKEN:
-    logger.error("❌ BOT_TOKEN environment variable is required")
-    raise ValueError("BOT_TOKEN environment variable is required")
-
-if not R34_API_KEY:
-    logger.error("❌ R34_API_KEY environment variable is required")
-    raise ValueError("R34_API_KEY environment variable is required")
-
-if not R34_USER_ID:
-    logger.error("❌ R34_USER_ID environment variable is required")
-    raise ValueError("R34_USER_ID environment variable is required")
-
-logger.info("✅ All environment variables loaded successfully")
 
 # Bot Messages Dictionary
 BOT_MESSAGES = {
@@ -358,6 +231,140 @@ URLS = {
     "group": "https://t.me/SoulMeetsHQ"
 }
 
+# Environment Variable Validation
+if not BOT_TOKEN:
+    logger.error("❌ BOT_TOKEN environment variable is required")
+    raise ValueError("BOT_TOKEN environment variable is required")
+
+if not R34_API_KEY:
+    logger.error("❌ R34_API_KEY environment variable is required")
+    raise ValueError("R34_API_KEY environment variable is required")
+
+if not R34_USER_ID:
+    logger.error("❌ R34_USER_ID environment variable is required")
+    raise ValueError("R34_USER_ID environment variable is required")
+
+logger.info("✅ All environment variables loaded successfully")
+
+# LOGGING SETUP - Color classes and formatter functions
+class Colors:
+    BLUE = '\033[94m'      # INFO/WARNING
+    GREEN = '\033[92m'     # DEBUG
+    YELLOW = '\033[93m'    # INFO
+    RED = '\033[91m'       # ERROR
+    RESET = '\033[0m'      # Reset color
+    BOLD = '\033[1m'       # Bold text
+
+class ColoredFormatter(logging.Formatter):
+    """Custom formatter to add colors to entire log messages"""
+
+    COLORS = {
+        'DEBUG': Colors.GREEN,
+        'INFO': Colors.YELLOW,
+        'WARNING': Colors.BLUE,
+        'ERROR': Colors.RED,
+    }
+
+    def format(self, record):
+        # Get the original formatted message
+        original_format = super().format(record)
+
+        # Get color based on log level
+        color = self.COLORS.get(record.levelname, Colors.RESET)
+
+        # Apply color to the entire message
+        colored_format = f"{color}{original_format}{Colors.RESET}"
+
+        return colored_format
+
+def setup_colored_logging():
+    """Setup colored logging configuration"""
+    logger = logging.getLogger("MAKIMA 🌸")
+    logger.setLevel(logging.INFO)
+
+    # Remove existing handlers
+    for handler in logger.handlers[:]:
+        logger.removeHandler(handler)
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+
+    # Create colored formatter with enhanced format
+    formatter = ColoredFormatter(
+        fmt='%(asctime)s - %(name)s - [%(levelname)s] - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+    console_handler.setFormatter(formatter)
+
+    # Add handler to logger
+    logger.addHandler(console_handler)
+
+    return logger
+
+# Now properly configure the logger with colors
+logger = setup_colored_logging()
+
+# UTILITY FUNCTIONS
+def extract_user_info(msg: Message) -> Dict[str, Any]:
+    """Extract user and chat information from message"""
+    logger.debug("🔍 Extracting user information from message")
+
+    if not msg.from_user:
+        return {
+            "user_id": 0,
+            "username": "Anonymous",
+            "full_name": "Anonymous User",
+            "first_name": "Anonymous",
+            "last_name": "",
+            "chat_id": msg.chat.id if msg.chat else 0,
+            "chat_type": msg.chat.type if msg.chat else "unknown",
+            "chat_title": msg.chat.title or msg.chat.first_name or "Unknown Chat",
+            "chat_username": f"@{msg.chat.username}" if msg.chat and msg.chat.username else "No Username",
+            "chat_link": f"https://t.me/{msg.chat.username}" if msg.chat and msg.chat.username else "No Link",
+        }
+
+    u = msg.from_user
+    c = msg.chat
+    info = {
+        "user_id": u.id,
+        "username": u.username or "No Username",
+        "full_name": u.full_name,
+        "first_name": u.first_name,
+        "last_name": u.last_name or "",
+        "chat_id": c.id,
+        "chat_type": c.type,
+        "chat_title": c.title or c.first_name or "",
+        "chat_username": f"@{c.username}" if c.username else "No Username",
+        "chat_link": f"https://t.me/{c.username}" if c.username else "No Link",
+    }
+    logger.info(
+        f"📑 User info extracted: {info['full_name']} (@{info['username']}) "
+        f"[ID: {info['user_id']}] in {info['chat_title']} [{info['chat_id']}] {info['chat_link']}"
+    )
+    return info
+
+def log_with_user_info(level: str, message: str, user_info: Dict[str, Any]) -> None:
+    """Log message with user information"""
+    user_detail = (
+        f"👤 {user_info.get('full_name', 'N/A')} (@{user_info.get('username', 'N/A')}) "
+        f"[ID: {user_info.get('user_id', 'N/A')}] | "
+        f"💬 {user_info.get('chat_title', 'N/A')} [{user_info.get('chat_id', 'N/A')}] "
+        f"({user_info.get('chat_type', 'N/A')}) {user_info.get('chat_link', 'N/A')}"
+    )
+    full_message = f"{message} | {user_detail}"
+
+    if level.upper() == "INFO":
+        logger.info(full_message)
+    elif level.upper() == "DEBUG":
+        logger.debug(full_message)
+    elif level.upper() == "WARNING":
+        logger.warning(full_message)
+    elif level.upper() == "ERROR":
+        logger.error(full_message)
+    else:
+        logger.info(full_message)
+
 bot = Bot(token=str(BOT_TOKEN), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher()
 
@@ -366,10 +373,16 @@ class DummyHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self.end_headers()
         self.wfile.write(b"Bot is alive!")
+        logger.debug(f"🌐 HTTP GET request received from {self.client_address[0]}")
 
     def do_HEAD(self):
         self.send_response(200)
         self.end_headers()
+        logger.debug(f"🌐 HTTP HEAD request received from {self.client_address[0]}")
+
+    def log_message(self, format, *args):
+        # Override default HTTP logging to use our colored logger
+        logger.debug(f"🌐 HTTP {format % args}")
 
 def check_membership(user_id):
     """Check if user is a member of required channel and group"""
@@ -557,8 +570,13 @@ def start_dummy_server():
     port = int(os.environ.get("PORT", 10000))
     logger.info(f"🚀 Starting dummy server on port {port}")
     logger.info("⚙️ Dummy HTTP server thread started.")
-    server = HTTPServer(("0.0.0.0", port), DummyHandler)
-    server.serve_forever()
+    try:
+        server = HTTPServer(("0.0.0.0", port), DummyHandler)
+        logger.info(f"✅ HTTP server successfully bound to 0.0.0.0:{port}")
+        server.serve_forever()
+    except Exception as e:
+        logger.error(f"❌ Failed to start HTTP server: {str(e)}")
+        raise
 
 ANIME_COMMANDS = {
     "naruto": {
@@ -2927,8 +2945,10 @@ async def handle_callbacks(callback: CallbackQuery):
 
 async def main():
     logger.info("🚀 Starting bot...")
+    logger.debug("🔧 Initializing HTTP server thread...")
 
     threading.Thread(target=start_dummy_server, daemon=True).start()
+    logger.debug("✅ HTTP server thread started successfully")
 
     try:
         await bot.set_my_commands(BOT_COMMANDS)
@@ -2942,4 +2962,5 @@ async def main():
 
 if __name__ == "__main__":
     logger.info("🌸 Makima Bot initializing...")
+    logger.debug("🔄 Starting asyncio event loop...")
     asyncio.run(main())
