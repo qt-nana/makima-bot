@@ -167,28 +167,28 @@ def check_membership(user_id):
         channel_url = f"{TELEGRAM_API_URL}/getChatMember"
         channel_data = {"chat_id": "@WorkGlows", "user_id": user_id}
         channel_response = requests.post(channel_url, json=channel_data, timeout=10)
-        
+
         # Check group membership  
         group_url = f"{TELEGRAM_API_URL}/getChatMember"
         group_data = {"chat_id": "-1002186262653", "user_id": user_id}
         group_response = requests.post(group_url, json=group_data, timeout=10)
-        
+
         if channel_response.status_code == 200 and group_response.status_code == 200:
             channel_member = channel_response.json().get("result", {})
             group_member = group_response.json().get("result", {})
-            
+
             # Valid membership statuses
             valid_statuses = ["member", "administrator", "creator"]
-            
+
             channel_joined = channel_member.get("status") in valid_statuses
             group_joined = group_member.get("status") in valid_statuses
-            
+
             logger.debug(f"💖 Membership check for {user_id}: Channel={channel_joined}, Group={group_joined}")
             return channel_joined and group_joined
         else:
             logger.warning(f"⚠️ Failed to check membership for user {user_id}")
             return False
-            
+
     except Exception as e:
         logger.error(f"❌ Error checking membership: {e}")
         return False
@@ -196,15 +196,15 @@ def check_membership(user_id):
 def should_check_membership(user_id):
     """Check if membership verification is required based on privacy mode"""
     global privacy_mode  # Add this line at the beginning
-    
+
     # Always allow owner
     if user_id == OWNER_ID:
         return False
-    
+
     # If public mode, no membership check needed
     if privacy_mode == "public":
         return False
-    
+
     # If normal mode, check membership for everyone except owner
     return True
 
@@ -272,7 +272,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b>
     "https://ik.imagekit.io/asadofc/Images38.png",
     "https://ik.imagekit.io/asadofc/Images39.png",
     "https://ik.imagekit.io/asadofc/Images40.png"
-	]
+  ]
 
     selected_image = random.choice(image_urls)
 
@@ -292,6 +292,10 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b>
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+
+# ─── Rule34 API Credentials ─────────────────────────────────────────
+R34_API_KEY = "a9037ff1e1a2b4bf3b9e8592871d213f56d7493e11b93cda9c3a68a6a315edcf76725c80f1811f3c1cd2ee7ee9dd5a1ea4b002bf1896b2f00f84dc7312956f1a"
+R34_USER_ID = 5281126
 
 # ─── Owner and Broadcasting Configuration ──────────────────────────
 OWNER_ID = 5290407067  # Hardcoded owner ID
@@ -337,10 +341,10 @@ def check_rate_limit():
     # Remove requests older than 1 minute
     global api_request_times
     api_request_times = [t for t in api_request_times if current_time - t < 60]
-    
+
     if len(api_request_times) >= MAX_REQUESTS_PER_MINUTE:
         return False
-    
+
     api_request_times.append(current_time)
     return True
 
@@ -1242,21 +1246,21 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
     if not anime_data:
         logger.error(f"Anime {anime_name} not found in database")
         return None
-    
+
     tags = anime_data["tags"]
     user_key = f"{user_id}_{anime_name}" if user_id else anime_name
-    
+
     # Initialize user offset if not exists
     if user_key not in user_offsets:
         user_offsets[user_key] = 0
-    
+
     # Keep retrying until we find fresh content
     for retry in range(max_retries):
         try:
             # For character-specific searches, prioritize character name tags
             character_specific_tags = []
             generic_tags = []
-            
+
             # Separate character-specific tags from generic anime tags
             character_name = anime_data["title"].lower().replace(" ", "_")
             for tag in tags:
@@ -1264,7 +1268,7 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                     character_specific_tags.append(tag)
                 else:
                     generic_tags.append(tag)
-            
+
             # Prioritize character-specific tags first
             if retry < len(character_specific_tags):
                 selected_tags = [character_specific_tags[retry]]
@@ -1285,53 +1289,55 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                     # Fallback to generic tags if no character-specific ones
                     tag_count = min(random.randint(1, 2), len(generic_tags))
                     selected_tags = random.sample(generic_tags, tag_count)
-            
+
             tag_string = "+".join(selected_tags)
-            
+
             # Use pagination to get different content each time
             page_offset = user_offsets[user_key] + retry
-            
+
             logger.info(f"Attempt {retry + 1}: Searching Rule34 for {anime_name} with tags: {selected_tags}, page: {page_offset}")
-            
+
             # Check rate limit before making API request
             if not check_rate_limit():
                 logger.warning("Rate limit reached, waiting 10 seconds...")
                 await asyncio.sleep(10)
                 continue
-            
+
             # Manage content cache size
             manage_content_cache()
-            
+
             async with aiohttp.ClientSession() as session:
-                # Rule34 API call with pagination
+                # Rule34 API call with pagination and authentication
                 params = {
                     "page": "dapi",
                     "s": "post",
                     "q": "index",
                     "tags": tag_string,
                     "limit": 100,  # Increased limit for more options
-                    "pid": page_offset
+                    "pid": page_offset,
+                    "api_key": R34_API_KEY,
+                    "user_id": R34_USER_ID
                 }
-                
+
                 async with session.get(RULE34_API_BASE, params=params) as response:
                     if response.status == 200:
                         xml_content = await response.text()
-                        
+
                         # Parse XML response
                         import xml.etree.ElementTree as ET
                         try:
                             root = ET.fromstring(xml_content)
-                            
+
                             # Extract media URLs based on type
                             posts = []
                             for post in root.findall('.//post'):
                                 post_id = post.get('id')
                                 file_url = post.get('file_url')
-                                
+
                                 # Skip if already sent this content
                                 if post_id in sent_content_ids:
                                     continue
-                                    
+
                                 if file_url and file_url.startswith(('http://', 'https://')):
                                     # Filter by requested media type
                                     if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
@@ -1358,41 +1364,41 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                                             'score': int(post.get('score', 0)),
                                             'type': 'video'
                                         })
-                            
+
                             if posts:
                                 # Sort by score and pick from top results
                                 posts.sort(key=lambda x: x['score'], reverse=True)
                                 top_posts = posts[:50]  # Larger pool for variety
                                 selected = random.choice(top_posts)
-                                
+
                                 # Mark this content as sent
                                 sent_content_ids.add(selected['id'])
-                                
+
                                 # Update user offset for next request
                                 user_offsets[user_key] += 1
-                                
+
                                 logger.info(f"Found fresh {anime_name} content: score {selected['score']}, ID: {selected['id']}")
                                 return selected
                         except ET.ParseError as e:
                             logger.warning(f"XML parse error on attempt {retry + 1}: {e}")
                             continue
-                    
+
         except Exception as e:
             logger.warning(f"Attempt {retry + 1} failed for {anime_name}: {e}")
             continue
-    
+
     # Advanced fallback system with broader searches
     logger.info(f"Trying advanced fallback for {anime_name}")
-    
+
     # Try broader character name searches
     character_name = anime_data["title"].lower().replace(" ", "_")
     fallback_tags = list(tags) + [character_name]
-    
+
     for tag in fallback_tags:
         try:
             # Use different page offsets for fallback
             page_offset = random.randint(0, 10)
-            
+
             async with aiohttp.ClientSession() as session:
                 params = {
                     "page": "dapi",
@@ -1400,9 +1406,11 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                     "q": "index",
                     "tags": tag,
                     "limit": 100,
-                    "pid": page_offset
+                    "pid": page_offset,
+                    "api_key": R34_API_KEY,
+                    "user_id": R34_USER_ID
                 }
-                
+
                 async with session.get(RULE34_API_BASE, params=params) as response:
                     if response.status == 200:
                         xml_content = await response.text()
@@ -1413,11 +1421,11 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                             for post in root.findall('.//post'):
                                 post_id = post.get('id')
                                 file_url = post.get('file_url')
-                                
+
                                 # Skip duplicates
                                 if post_id in sent_content_ids:
                                     continue
-                                    
+
                                 if file_url and file_url.startswith(('http://', 'https://')):
                                     # Filter by media type for fallback search
                                     if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
@@ -1444,14 +1452,14 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                                             'score': int(post.get('score', 0)),
                                             'type': 'video'
                                         })
-                            
+
                             if posts:
                                 posts.sort(key=lambda x: x['score'], reverse=True)
                                 selected = random.choice(posts[:30])
-                                
+
                                 # Mark as sent
                                 sent_content_ids.add(selected['id'])
-                                
+
                                 logger.info(f"Found fallback content for {anime_name} with tag {tag}, ID: {selected['id']}")
                                 return selected
                         except ET.ParseError as e:
@@ -1460,7 +1468,7 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
         except Exception as e:
             logger.warning(f"Fallback failed for tag {tag}: {e}")
             continue
-    
+
     logger.error(f"All attempts failed for {anime_name}")
     return None
 
@@ -1498,21 +1506,21 @@ async def send_media_selection(anime_name: str, chat_id: int):
     anime_data = ANIME_COMMANDS.get(anime_name)
     if not anime_data:
         return None
-        
+
     title = anime_data["title"]
     logger.info(f"Sending media selection for {title}")
-    
+
     # Get a sample image first
     post = await fetch_rule34_media(anime_name, "image", chat_id)
     if not post:
         return None
-    
+
     try:
         keyboard = create_media_selection_keyboard(anime_name)
         caption = f"💖 {title}\n\n✨ What would you like to see?"
-        
+
         await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
-        
+
         sent_msg = await bot.send_photo(
             chat_id=chat_id,
             photo=post['url'],
@@ -1532,22 +1540,22 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
         # Force truly new content on each call by using multiple attempts
         attempts = 0
         post = None
-        
+
         while attempts < 3 and not post:
             # Add microsecond delay to ensure different random seeds
             await asyncio.sleep(0.001)
             post = await fetch_random_content(media_type)
             attempts += 1
-            
+
         if not post:
             # Try again with different media type if failed
             post = await fetch_random_content("image")
         if not post:
             return None
-            
+
         keyboard = create_random_navigation_keyboard(media_type, page)
         caption = f"🎲 <b>Random {media_type.title()}</b> ✨\n\n💫 Enjoy this surprise!"
-        
+
         if edit_mode and message_id:
             if media_type == "video":
                 await bot.edit_message_media(
@@ -1618,7 +1626,7 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
                     has_spoiler=True
                 )
             logger.info(f"Successfully sent random {media_type}")
-            
+
         return True
     except Exception as e:
         logger.error(f"Random media send error: {e}")
@@ -1630,10 +1638,10 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
         post = await search_rule34_live(search_query, media_type)
         if not post:
             return None
-            
+
         keyboard = create_search_navigation_keyboard(search_query, media_type, page)
         caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_query}</i>"
-        
+
         if edit_mode and message_id:
             if media_type == "video":
                 await bot.edit_message_media(
@@ -1704,7 +1712,7 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
                     has_spoiler=True
                 )
             logger.info(f"Successfully sent search {media_type} for '{search_query}'")
-            
+
         return True
     except Exception as e:
         logger.error(f"Search media send error: {e}")
@@ -1715,36 +1723,36 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
     anime_data = ANIME_COMMANDS.get(anime_name)
     if not anime_data:
         return None
-        
+
     title = anime_data["title"]
     media_emoji = {"image": "🖼️", "video": "🎬", "gif": "🎨"}
     logger.info(f"Fetching {title} {media_type} content using API")
-    
+
     # Try to get media with fallback system
     post = None
     for attempt in range(15):
         post = await fetch_rule34_media(anime_name, media_type, chat_id)
         if post:
             break
-        
+
         # If no videos/gifs found after 10 attempts, fallback to images
         if attempt >= 10 and media_type in ["video", "gif"]:
             logger.info(f"No {media_type} found for {anime_name}, falling back to images")
             post = await fetch_rule34_media(anime_name, "image", chat_id)
             if post:
                 break
-    
+
     if not post:
         logger.error(f"Failed to fetch any media for {anime_name}")
         return None
-    
+
     try:
         keyboard = create_media_navigation_keyboard(anime_name, media_type, page)
         caption = f"💖 {title} {media_emoji.get(media_type, '')} ✨"
-        
+
         # Log media details for debugging
         logger.info(f"Sending {media_type} for {anime_name}: {post['url'][-50:]}")
-        
+
         if edit_mode and message_id is not None:
             # Edit existing message based on media type
             if media_type == "video":
@@ -1818,7 +1826,7 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     has_spoiler=True
                 )
             return sent_msg
-            
+
     except Exception as e:
         logger.warning(f"Send error: {e}")
         return None
@@ -1835,18 +1843,20 @@ async def fetch_random_content(media_type: str = "image"):
                 "q": "index",
                 "tags": "",  # No tags for truly random content
                 "limit": 50,
-                "pid": random.randint(0, 100) + int(time.time()) % 100  # Reduced range for faster response
+                "pid": random.randint(0, 100) + int(time.time()) % 100,  # Reduced range for faster response
+                "api_key": R34_API_KEY,
+                "user_id": R34_USER_ID
             }
-            
+
             async with session.get(RULE34_API_BASE, params=params) as response:
                 if response.status == 200:
                     xml_content = await response.text()
-                    
+
                     import xml.etree.ElementTree as ET
                     try:
                         root = ET.fromstring(xml_content)
                         posts = []
-                        
+
                         for post in root.findall('.//post'):
                             file_url = post.get('file_url')
                             if file_url and file_url.startswith(('http://', 'https://')):
@@ -1876,11 +1886,11 @@ async def fetch_random_content(media_type: str = "image"):
                                             'score': score,
                                             'type': 'video'
                                         })
-                        
+
                         if posts:
                             # Use timestamp and randomization for truly unique selection
                             random.seed(int(time.time() * 1000000) % 1000000)  # Microsecond-based seed
-                            
+
                             # Sort by score and pick randomly from top results
                             posts.sort(key=lambda x: x['score'], reverse=True)
                             top_posts = posts[:50]  # Larger pool for more variety
@@ -1891,7 +1901,7 @@ async def fetch_random_content(media_type: str = "image"):
                         logger.warning(f"Random content XML parse error: {e}")
     except Exception as e:
         logger.error(f"Random content fetch error: {e}")
-    
+
     return None
 
 # ─── Live Search Function ──────────────────────────────────────────────
@@ -1900,7 +1910,7 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
     try:
         # Clean and format search query for Rule34
         clean_query = search_query.lower().strip()
-        
+
         # Smart tag conversion for common anime terms and character names
         tag_conversions = {
             # Character name conversions
@@ -1968,18 +1978,18 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
             "red eyes": "red_eyes",
             "purple eyes": "purple_eyes"
         }
-        
+
         # Apply conversions
         formatted_query = clean_query
         for original, converted in tag_conversions.items():
             if original in formatted_query:
                 formatted_query = formatted_query.replace(original, converted)
-        
+
         # Replace remaining spaces with underscores
         formatted_query = formatted_query.replace(" ", "_")
-        
+
         logger.info(f"Live searching Rule34 for: '{formatted_query}' (original: '{clean_query}')")
-        
+
         async with aiohttp.ClientSession() as session:
             params = {
                 "page": "dapi",
@@ -1987,18 +1997,20 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
                 "q": "index",
                 "tags": formatted_query,
                 "limit": 100,
-                "pid": random.randint(0, 100) + int(time.time()) % 100  # Better randomization for pagination
+                "pid": random.randint(0, 100) + int(time.time()) % 100,  # Better randomization for pagination
+                "api_key": R34_API_KEY,
+                "user_id": R34_USER_ID
             }
-            
+
             async with session.get(RULE34_API_BASE, params=params) as response:
                 if response.status == 200:
                     xml_content = await response.text()
-                    
+
                     import xml.etree.ElementTree as ET
                     try:
                         root = ET.fromstring(xml_content)
                         posts = []
-                        
+
                         for post in root.findall('.//post'):
                             file_url = post.get('file_url')
                             if file_url and file_url.startswith(('http://', 'https://')):
@@ -2026,11 +2038,11 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
                                         'score': int(post.get('score', 0)),
                                         'type': 'video'
                                     })
-                        
+
                         if posts:
                             # Use timestamp-based randomization for truly different results each time
                             random.seed(int(time.time() * 1000000) % 1000000)
-                            
+
                             # Sort by score and pick randomly from results
                             posts.sort(key=lambda x: x['score'], reverse=True)
                             top_posts = posts[:50]  # Larger pool for more variety
@@ -2041,7 +2053,7 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
                         logger.warning(f"Search XML parse error: {e}")
     except Exception as e:
         logger.error(f"Live search error: {e}")
-    
+
     return None
 
 # ─── Create Random Media Navigation Keyboard ──────────────────────────
@@ -2076,7 +2088,7 @@ def create_search_selection_keyboard(search_query: str):
     """Create media type selection keyboard for search results (like anime commands)"""
     # Encode search query for callback data
     encoded_query = search_query.replace(" ", "_")[:20]  # Limit length for callback data
-    
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="🎬 Videos", callback_data=f"select_video_{encoded_query}"),
@@ -2092,7 +2104,7 @@ def create_search_navigation_keyboard(search_query: str, media_type: str = "imag
     """Create navigation keyboard for search results (matching anime command style)"""
     # Encode search query for callback data
     encoded_query = search_query.replace(" ", "_")[:20]  # Limit length for callback data
-    
+
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="💞 Refresh", callback_data=f"update_{encoded_query}_{media_type}_{page}"),
@@ -2122,9 +2134,9 @@ for anime_name in ANIME_COMMANDS:
 # Updated /start handler with group membership check
 @dp.message(Command("start"))
 async def cmd_start(msg: Message):
-    
+
     await bot.send_chat_action(msg.chat.id, action="upload_photo")
-    
+
     # Track user/group for broadcasting
     if msg.from_user:
         if msg.chat.type == "private":
@@ -2214,7 +2226,7 @@ async def cmd_start(msg: Message):
     "https://ik.imagekit.io/asadofc/Images38.png",
     "https://ik.imagekit.io/asadofc/Images39.png",
     "https://ik.imagekit.io/asadofc/Images40.png"
-	]
+  ]
 
     # Pick one at random
     selected_image = random.choice(image_urls)
@@ -2230,18 +2242,18 @@ async def cmd_start(msg: Message):
 # Updated /help handler with group membership check
 @dp.message(Command("help"))
 async def cmd_help(msg: Message):
-    
+
     await bot.send_chat_action(msg.chat.id, action="typing")
-    
+
     # Check membership for non-owner users in both private chats AND groups
     if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
-    
+
     user_name = msg.from_user.full_name if msg.from_user else "User"
     user_id = msg.from_user.id if msg.from_user else ""
-    
+
     # Create short help text with expand button
     short_help_text = f"""
 💝 <b>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
@@ -2260,14 +2272,14 @@ async def cmd_help(msg: Message):
 
 Type a command to begin! 🌟
 """
-    
+
     # Create keyboard with expand button
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="📖 Expand Full Guide", callback_data="expand_help")
         ]
     ])
-    
+
     await msg.answer(short_help_text, reply_markup=keyboard)
 
 # ─── /random Handler ───────────────────────────────────────────────
@@ -2277,16 +2289,16 @@ async def send_random_selection(chat_id: int):
 
     # 👇 Show photo sending indicator
     await bot.send_chat_action(chat_id, action="upload_photo")
-    
+
     # Get a sample image first
     post = await fetch_random_content("image")
     if not post:
         return None
-    
+
     try:
         keyboard = create_random_selection_keyboard()
         caption = "🎲 <b>Random Content</b> ✨\n\n💫 What would you like to see?"
-        
+
         await bot.send_photo(
             chat_id=chat_id,
             photo=post['url'],
@@ -2309,12 +2321,12 @@ async def cmd_random(msg: Message):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
-    
+
     logger.info("Random command requested")
 
     # 👇 Show "sending photo..." indicator
     await bot.send_chat_action(msg.chat.id, action="upload_photo")
-    
+
     try:
         await send_random_selection(msg.chat.id)
     except Exception as e:
@@ -2366,7 +2378,7 @@ async def cmd_broadcast(msg: Message):
 async def cmd_privacy(msg: Message):
     """Handle privacy mode command (owner only)"""
     global privacy_mode  # Declare global at the beginning
-    
+
     if not msg.from_user:
         return
 
@@ -2386,7 +2398,7 @@ async def cmd_privacy(msg: Message):
     current_mode = privacy_mode
     mode_emoji = "🔓" if current_mode == "public" else "🔒"
     mode_text = "Public" if current_mode == "public" else "Normal (Membership Required)"
-    
+
     # Create inline keyboard for privacy settings
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -2447,7 +2459,7 @@ async def ping_command(msg: Message):
 
     try:
         start = time.perf_counter()
-        
+
         # Handle private chats vs groups differently
         if msg.chat.type == "private":
             # In private chats, send a direct message
@@ -2455,7 +2467,7 @@ async def ping_command(msg: Message):
         else:
             # In groups/channels, reply to the user's message
             response = await msg.reply("🛰️ Pinging...")
-        
+
         end = time.perf_counter()
         latency_ms = (end - start) * 1000
 
@@ -2477,15 +2489,15 @@ async def handle_live_search(msg: Message):
     # Check for broadcast mode first (owner bypass)
     if msg.from_user and msg.from_user.id in broadcast_mode:
         logger.info(f"📢 Broadcasting message from owner {msg.from_user.id}")
-        
+
         target = broadcast_target.get(msg.from_user.id, "users")
         target_list = user_ids if target == "users" else group_ids
-        
+
         success_count = 0
         failed_count = 0
 
         is_forwarded = hasattr(msg, "forward_from") or hasattr(msg, "forward_from_chat")
-        
+
         for target_id in target_list:
             try:
                 if is_forwarded:
@@ -2509,7 +2521,7 @@ async def handle_live_search(msg: Message):
             except Exception as e:
                 failed_count += 1
                 logger.warning(f"❌ Failed to send to {target_id}: {e}")
-        
+
         # Send broadcast summary
         await msg.answer(
             f"📊 <b>Broadcast Summary:</b>\n\n"
@@ -2518,44 +2530,44 @@ async def handle_live_search(msg: Message):
             f"🎯 <b>Target:</b> {target}\n\n"
             "Broadcast mode is still active. Send another message or use /start to disable."
         )
-        
+
         # Remove from broadcast mode after sending
         broadcast_mode.discard(msg.from_user.id)
         if msg.from_user.id in broadcast_target:
             del broadcast_target[msg.from_user.id]
-        
+
         logger.info(f"🔓 Broadcast mode disabled for {msg.from_user.id}")
         return
-    
+
     # Check membership for non-owner users (this is only for private chats)
     if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
-    
+
     if not msg.text:
         return
-    
+
     # Skip if it's a command that starts with /
     if msg.text.startswith('/'):
         return
-    
+
     # Skip if it's already handled by other commands
     search_text = msg.text.strip()
     if not search_text:
         return
-    
+
     # Check if it's a one-word search (likely a character name)
     words = search_text.split()
     if len(words) == 1:
         search_query = words[0].lower()
-        
+
         # Check if it matches any of our existing anime commands
         if search_query in ANIME_COMMANDS:
             # Use existing anime command logic
             await send_media_selection(search_query, msg.chat.id)
             return
-    
+
     # Show search guidance message first
     guidance_text = f"""
 🔍 <b>Live Search Mode</b> 💫
@@ -2575,29 +2587,29 @@ async def handle_live_search(msg: Message):
 
 ⏳ <i>Searching live from internet...</i>
 """
-    
+
     guidance_msg = await msg.answer(guidance_text)
-    
+
     # Perform live search with fallback strategy
     post = await search_rule34_live(search_text, "image")
-    
+
     # If no results, try alternative search strategies
     if not post and " " in search_text:
         # Try with underscores
         alt_search = search_text.replace(" ", "_")
         post = await search_rule34_live(alt_search, "image")
-        
+
     if not post and len(search_text.split()) > 1:
         # Try with just the first word (character name)
         first_word = search_text.split()[0]
         post = await search_rule34_live(first_word, "image")
-        
+
     if not post:
         # Try removing common suffixes
         clean_name = search_text.replace(" uzumaki", "").replace(" uchiha", "").replace(" hyuga", "")
         if clean_name != search_text:
             post = await search_rule34_live(clean_name, "image")
-    
+
     if not post:
         # If no results found, show helpful message
         no_results_text = f"""
@@ -2622,16 +2634,16 @@ async def handle_live_search(msg: Message):
             message_id=guidance_msg.message_id
         )
         return
-    
+
     try:
         # Delete guidance message and send result with media selection (like anime commands)
         await bot.delete_message(msg.chat.id, guidance_msg.message_id)
-        
+
         keyboard = create_search_selection_keyboard(search_text)
         caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_text}</i>\n\n✨ What would you like to see?"
-        
+
         await bot.send_chat_action(msg.chat.id, action="upload_photo")
-        
+
         await bot.send_photo(
             chat_id=msg.chat.id,
             photo=post['url'],
@@ -2649,11 +2661,11 @@ async def handle_live_search(msg: Message):
 async def handle_callbacks(callback: CallbackQuery):
     """Handle all callback queries with membership verification for the new media selection workflow"""
     logger.info(f"Callback received: {callback.data}")
-    
+
     if not callback.data or not callback.message:
         await callback.answer("Invalid button")
         return
-    
+
     # Handle membership check callback first (before other checks)
     if callback.data == "check_membership":
         user_id = callback.from_user.id
@@ -2665,7 +2677,7 @@ async def handle_callbacks(callback: CallbackQuery):
     "🥰 I'm really happy to have you here. You can now enjoy all the special features and content waiting for you.\n\n"
     "<blockquote><b><i>I can't wait to share my favorite anime moments with you, sweetheart 🌺</i></b></blockquote>\n\n"
     "✨ Type <b>/start</b> to begin your journey with me! 🎀"
-				)
+        )
 
                 if callback.message.content_type == "photo":
                     await bot.edit_message_caption(
@@ -2686,11 +2698,11 @@ async def handle_callbacks(callback: CallbackQuery):
         else:
             await callback.answer("💘 You're not part of our cozy little family yet. Come join us, we're waiting with open arms 💅", show_alert=True)
         return
-    
+
     # Handle privacy mode callbacks (owner only) - ADD THIS SECTION
     if callback.data.startswith('privacy_'):
         global privacy_mode  # Declare global at the beginning
-        
+
         if callback.from_user.id != OWNER_ID:
             await callback.answer("⛔ This command is restricted.", show_alert=True)
             return
@@ -2699,12 +2711,12 @@ async def handle_callbacks(callback: CallbackQuery):
             privacy_mode = "public"
             await callback.answer("🔓 Bot set to Public Mode - Everyone can use it now!", show_alert=True)
             logger.info(f"👑 Owner set bot to PUBLIC mode")
-            
+
         elif callback.data == "privacy_normal":
             privacy_mode = "normal"
             await callback.answer("🔒 Bot set to Normal Mode - Membership required!", show_alert=True)
             logger.info(f"👑 Owner set bot to NORMAL mode")
-            
+
         elif callback.data == "privacy_status":
             mode_text = "Public (Everyone)" if privacy_mode == "public" else "Normal (Membership Required)"
             await callback.answer(f"📊 Current mode: {mode_text}", show_alert=True)
@@ -2714,7 +2726,7 @@ async def handle_callbacks(callback: CallbackQuery):
         current_mode = privacy_mode
         mode_emoji = "🔓" if current_mode == "public" else "🔒"
         mode_text = "Public" if current_mode == "public" else "Normal (Membership Required)"
-        
+
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [
                 InlineKeyboardButton(
@@ -2761,21 +2773,21 @@ async def handle_callbacks(callback: CallbackQuery):
         except Exception as e:
             logger.error(f"❌ Failed to edit privacy message: {e}")
         return
-    
+
     # ===== MEMBERSHIP CHECK FOR ALL OTHER CALLBACKS =====
     # Skip membership check only for owner and broadcast-related callbacks
     if callback.from_user and should_check_membership(callback.from_user.id):
         if not callback.data.startswith('broadcast_'):
             if not check_membership(callback.from_user.id):
                 await callback.answer("🥀️ You were here, part of our little family. Come back so we can continue this beautiful journey together ❤️‍🩹", show_alert=True)
-                
+
                 await send_membership_reminder(
                     chat_id=callback.message.chat.id,
                     user_id=callback.from_user.id,
                     user_name=callback.from_user.full_name
                 )
                 return
-    
+
     # Handle broadcast target selection (owner only)
     if callback.data.startswith('broadcast_'):
         if callback.from_user.id != OWNER_ID:
@@ -2802,18 +2814,18 @@ async def handle_callbacks(callback: CallbackQuery):
         except Exception as e:
             logger.error(f"❌ Failed to edit broadcast message: {e}")
         return
-    
+
     # Handle expand/minimize help functionality with pagination
     if callback.data == "expand_help" or callback.data.startswith("help_page_"):
         user_name = callback.from_user.full_name if callback.from_user else "User"
         user_id = callback.from_user.id if callback.from_user else ""
-        
+
         # Determine current page
         if callback.data == "expand_help":
             page = 1
         else:
             page = int(callback.data.split("_")[-1])
-        
+
         # Page 1: Welcome + Main Anime Series
         if page == 1:
             help_text = f"""
@@ -2851,7 +2863,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 2: Naruto Characters Part 1
         elif page == 2:
             help_text = f"""
@@ -2878,7 +2890,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 3: Naruto Characters Part 2
         elif page == 3:
             help_text = f"""
@@ -2959,7 +2971,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 6: One Piece + Jujutsu Kaisen Part 1
         elif page == 6:
             help_text = f"""
@@ -2987,7 +2999,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 7: Jujutsu Kaisen Part 2 + Attack on Titan Part 1
         elif page == 7:
             help_text = f"""
@@ -3016,7 +3028,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 8: Attack on Titan Part 2 + Demon Slayer Part 1
         elif page == 8:
             help_text = f"""
@@ -3047,7 +3059,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 9: Demon Slayer Part 2
         elif page == 9:
             help_text = f"""
@@ -3071,7 +3083,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 10: My Hero Academia Characters
         elif page == 10:
             help_text = f"""
@@ -3100,7 +3112,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 11: Chainsaw Man Characters
         elif page == 11:
             help_text = f"""
@@ -3126,7 +3138,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 12: One Punch Man + Spy x Family + Hunter x Hunter
         elif page == 12:
             help_text = f"""
@@ -3156,7 +3168,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 13: Fullmetal Alchemist Characters
         elif page == 13:
             help_text = f"""
@@ -3185,7 +3197,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 14: Death Note + Tokyo Ghoul Part 1
         elif page == 14:
             help_text = f"""
@@ -3214,7 +3226,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 15: Tokyo Ghoul Part 2 + Other Series
         elif page == 15:
             help_text = f"""
@@ -3249,7 +3261,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 16: Dandadan Characters
         elif page == 16:
             help_text = f"""
@@ -3273,7 +3285,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 17: Dr Stone Characters
         elif page == 17:
             help_text = f"""
@@ -3297,7 +3309,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 18: Overflow + Sakamoto Days
         elif page == 18:
             help_text = f"""
@@ -3321,7 +3333,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 19: How to Enjoy Guide
         elif page == 19:
             help_text = f"""
@@ -3350,7 +3362,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Page 20: Final Page
         elif page == 20:
             help_text = f"""
@@ -3373,7 +3385,7 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         # Default fallback for invalid pages
         else:
             help_text = f"""
@@ -3389,24 +3401,24 @@ async def handle_callbacks(callback: CallbackQuery):
                     InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
                 ]
             ])
-        
+
         await bot.edit_message_text(
             text=help_text,
             chat_id=callback.message.chat.id,
             message_id=callback.message.message_id,
             reply_markup=keyboard
         )
-        
+
         if callback.data == "expand_help":
             await callback.answer("📖 Full guide expanded! Use Next/Previous to navigate")
         else:
             await callback.answer(f"📖 Page {page} loaded")
         return
-        
+
     elif callback.data == "minimize_help":
         user_name = callback.from_user.full_name if callback.from_user else "User"
         user_id = callback.from_user.id if callback.from_user else ""
-        
+
         short_help_text = f"""
 💝 <b>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
 
@@ -3424,13 +3436,13 @@ async def handle_callbacks(callback: CallbackQuery):
 
 Type a command to begin! 🌟
 """
-        
+
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [
                 InlineKeyboardButton(text="📖 Expand Full Guide", callback_data="expand_help")
             ]
         ])
-        
+
         await bot.edit_message_text(
             text=short_help_text,
             chat_id=callback.message.chat.id,
@@ -3439,21 +3451,21 @@ Type a command to begin! 🌟
         )
         await callback.answer("📖 Guide minimized!")
         return
-    
+
     data_parts = callback.data.split("_")
     action = data_parts[0]
-    
+
     if len(data_parts) < 2:
         await callback.answer("Invalid button format")
         return
-    
+
     # Handle media type selection
     if action == "select":
         media_type = data_parts[1]  # video, image, or gif
         target = data_parts[2]  # anime_name, random, or search_query
-        
+
         logger.info(f"Media type {media_type} selected for: {target}")
-        
+
         # Handle different target types
         if target == "random":
             # Random content selection
@@ -3503,17 +3515,17 @@ Type a command to begin! 🌟
             except Exception as e:
                 logger.error(f"Search selection error: {e}")
                 await callback.answer(f"Failed to load search content", show_alert=True)
-    
+
     # Handle navigation buttons (update, next)
     elif action in ["update", "next"]:
         anime_name = data_parts[1]
         media_type = data_parts[2] if len(data_parts) > 2 else "image"
         page = int(data_parts[3]) if len(data_parts) > 3 else 1
-        
+
         if action == "update":
             logger.info(f"Update button pressed for: {anime_name} ({media_type}, page {page})")
             await callback.answer("✨ Getting fresh content...")
-            
+
             try:
                 # Handle different content types
                 if anime_name == "random":
@@ -3547,11 +3559,11 @@ Type a command to begin! 🌟
                 logger.info(f"Successfully updated {media_type} for {anime_name}")
             except Exception as e:
                 logger.error(f"Update callback error: {e}")
-                
+
         elif action == "next":
             logger.info(f"Next button pressed for: {anime_name} ({media_type}, page {page})")
             await callback.answer("💞 Loading more content...")
-            
+
             try:
                 # Handle different content types
                 if anime_name == "random":
@@ -3582,15 +3594,15 @@ Type a command to begin! 🌟
                 logger.info(f"Successfully sent next {media_type} for {anime_name}")
             except Exception as e:
                 logger.error(f"Next callback error: {e}")
-    
+
     # Handle back to menu button
     elif callback.data == "back_to_menu":
         logger.info("Back to menu button pressed")
         await callback.answer("💕 Returning to main menu...")
-        
+
         user_name = callback.from_user.full_name if callback.from_user else "User"
         user_id = callback.from_user.id if callback.from_user else ""
-        
+
         welcome_text = f"""
 💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</b>
 
@@ -3600,7 +3612,7 @@ Type a command to begin! 🌟
 
 <blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
 """
-        
+
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [
                 InlineKeyboardButton(text="💟 Updates", url="https://t.me/WorkGlows"),
@@ -3610,7 +3622,7 @@ Type a command to begin! 🌟
                 InlineKeyboardButton(text="💗️ Add Me To Your Group 💗️", url=f"https://t.me/{(await bot.get_me()).username}?startgroup=true&admin=delete_messages+ban_users+invite_users+pin_messages+manage_chat+manage_video_chats+post_messages+edit_messages+manage_topics+add_admins")
             ]
         ])
-        
+
         try:
             await bot.edit_message_text(
                 text=welcome_text,
@@ -3623,13 +3635,13 @@ Type a command to begin! 🌟
             logger.error(f"Back to menu error: {e}")
             await callback.answer("Failed to return to menu", show_alert=True)
         return
-        
+
     # Handle back button - return to media selection
     elif action == "back":
         target = data_parts[1]
         logger.info(f"Back button pressed for: {target}")
         await callback.answer("💕 Going back to selection...")
-        
+
         try:
             if target == "random":
                 # Return to random selection
@@ -3648,7 +3660,7 @@ Type a command to begin! 🌟
                 search_query = target.replace("_", " ")
                 keyboard = create_search_selection_keyboard(search_query)
                 caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_query}</i>\n\n✨ What would you like to see?"
-            
+
             await bot.edit_message_caption(
                 chat_id=callback.message.chat.id,
                 message_id=callback.message.message_id,
@@ -3660,7 +3672,7 @@ Type a command to begin! 🌟
             logger.error(f"Back button error: {e}")
             await callback.answer("Failed to go back", show_alert=True)
 
-            
+
     else:
         await callback.answer("Unknown button")
 
@@ -3675,20 +3687,20 @@ def log_performance_stats():
 # ─── Startup Function ───────────────────────────────────────────────
 async def main():
     # Colored logging is already configured above, no need for basicConfig
-    
+
     # Start HTTP server for deployment compatibility
     threading.Thread(target=start_dummy_server, daemon=True).start()
-    
+
     logger.info("🌸 Starting Makima - Your Anime Companion...")
-    
+
     try:
         await bot.set_my_commands(BOT_COMMANDS)
         logger.info(f"✨ Beautiful commands registered: {len(BOT_COMMANDS)} commands set")
         logger.info("💖 Makima is ready to serve! Press Ctrl+C to stop.")
-        
+
         # Log initial performance stats
         log_performance_stats()
-        
+
         await dp.start_polling(bot)
     except Exception as e:
         logger.error(f"Failed to start bot: {e}")
