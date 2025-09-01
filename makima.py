@@ -44,131 +44,72 @@ from aiogram.client.default import (
 )
 import aiogram.types as types
 
+import xml.etree.ElementTree as ET
+
+load_dotenv()
+BOT_TOKEN = os.getenv("BOT_TOKEN")
+TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
+
+R34_API_KEY = os.getenv("R34_API_KEY")
+R34_USER_ID = int(os.getenv("R34_USER_ID", "0"))
+
+OWNER_ID = 5290407067
+help_page_states = {}
+
+RULE34_API_BASE = "https://api.rule34.xxx/index.php"
+
+sent_content_ids = set()
+user_offsets = {}
+MAX_CONTENT_CACHE = 10000
+api_request_times = []
+MAX_REQUESTS_PER_MINUTE = 60
+
 privacy_mode = "normal"
 
-class ColoredFormatter(logging.Formatter):
-    """Custom formatter with colors and emojis for better readability"""
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Check if we should use colors
-        import os
-        import sys
-        self.use_colors = (
-            hasattr(sys.stderr, "isatty") and sys.stderr.isatty() or
-            os.environ.get('FORCE_COLOR') == '1' or
-            os.environ.get('TERM', '').lower() in ('xterm', 'xterm-color', 'xterm-256color', 'screen', 'screen-256color')
-        )
-
-    COLORS = {
-        'DEBUG': '\x1b[36m',    # Cyan
-        'INFO': '\x1b[32m',     # Green  
-        'WARNING': '\x1b[33m',  # Yellow
-        'ERROR': '\x1b[31m',    # Red
-        'CRITICAL': '\x1b[35m', # Magenta
-        'RESET': '\x1b[0m',     # Reset
-        'BLUE': '\x1b[34m',     # Blue
-        'PURPLE': '\x1b[35m',   # Purple
-        'CYAN': '\x1b[36m',     # Cyan
-        'YELLOW': '\x1b[33m',   # Yellow
-        'GREEN': '\x1b[32m',    # Green
-        'RED': '\x1b[31m',      # Red (alias for ERROR)
-        'BOLD': '\x1b[1m',      # Bold
-        'DIM': '\x1b[2m'        # Dim
-    }
-
-    def format(self, record):
-        if not self.use_colors:
-            return super().format(record)
-
-        # Create a copy to avoid modifying the original
-        formatted_record = logging.makeLogRecord(record.__dict__)
-
-        # Get the basic formatted message
-        message = super().format(formatted_record)
-
-        # Apply colors to the entire message
-        return self.colorize_full_message(message, record.levelname)
-
-    def colorize_full_message(self, message, level):
-        """Apply colors to the entire formatted message"""
-        if not self.use_colors:
-            return message
-
-        # Color based on log level
-        level_color = self.COLORS.get(level, self.COLORS['RESET'])
-
-        # Apply level-based coloring to the entire message
-        if level == 'ERROR' or level == 'CRITICAL':
-            return f"{self.COLORS['ERROR']}{self.COLORS['BOLD']}{message}{self.COLORS['RESET']}"
-        elif level == 'WARNING':
-            return f"{self.COLORS['YELLOW']}{message}{self.COLORS['RESET']}"
-        elif level == 'INFO':
-            # For INFO messages, use subtle coloring
-            if any(word in message for word in ['Bot', 'Quiz', 'startup', 'connected', 'Success']):
-                return f"{self.COLORS['GREEN']}{message}{self.COLORS['RESET']}"
-            elif any(word in message for word in ['API', 'HTTP', 'Fetching']):
-                return f"{self.COLORS['BLUE']}{message}{self.COLORS['RESET']}"
-            elif any(word in message for word in ['User', 'extracted']):
-                return f"{self.COLORS['CYAN']}{message}{self.COLORS['RESET']}"
-            else:
-                return f"{self.COLORS['GREEN']}{message}{self.COLORS['RESET']}"
-        else:
-            return f"{level_color}{message}{self.COLORS['RESET']}"
-
-# Force color support in terminal
-os.environ['FORCE_COLOR'] = '1'
-os.environ['TERM'] = 'xterm-256color'
-
-# Setup colored logging
 logger = logging.getLogger("makimabot")
 logger.setLevel(logging.INFO)
 
-# Remove any existing handlers
 for handler in logger.handlers[:]:
     logger.removeHandler(handler)
 
-# Create and configure console handler with colors
 console_handler = logging.StreamHandler()
 console_handler.setLevel(logging.INFO)
-console_handler.setFormatter(ColoredFormatter("%(asctime)s | %(levelname)s | %(message)s"))
+console_handler.setFormatter(logging.Formatter("%(asctime)s | %(levelname)s | %(message)s"))
 
-# Add handler to logger
 logger.addHandler(console_handler)
 
-# Prevent propagation to root logger to avoid duplicate messages
 logger.propagate = False
 
-def extract_user_info(msg: Message):
-    """Extract user and chat information from message"""
-    logger.debug("🔍 Extracting user information from message")
-    u = msg.from_user
-    c = msg.chat
-    info = {
-        "user_id": u.id if u else 0,
-        "username": u.username if u else "Unknown",
-        "full_name": u.full_name if u else "Unknown User",
-        "chat_id": c.id if c else 0,
-        "chat_type": c.type if c else "unknown",
-        "chat_title": (c.title or c.first_name or "") if c else "",
-        "chat_username": f"@{c.username}" if c and c.username else "No Username",
-        "chat_link": f"https://t.me/{c.username}" if c and c.username else "No Link",
-    }
-    logger.info(
-        f"📑 User info extracted: {info['full_name']} (@{info['username']}) "
-        f"[ID: {info['user_id']}] in {info['chat_title']} [{info['chat_id']}] {info['chat_link']}"
-    )
-    return info
 
-# Updated membership check function with better error handling
+if not BOT_TOKEN:
+    raise ValueError("BOT_TOKEN environment variable is required")
+
+if not R34_API_KEY:
+    raise ValueError("R34_API_KEY environment variable is required")
+
+if not R34_USER_ID:
+    raise ValueError("R34_USER_ID environment variable is required")
+
+bot = Bot(token=str(BOT_TOKEN), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+dp = Dispatcher()
+
+class DummyHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Bot is alive!")
+
+    def do_HEAD(self):
+        self.send_response(200)
+        self.end_headers()
+
 def check_membership(user_id):
     """Check if user is a member of required channel and group"""
     try:
-        # Check channel membership
         channel_url = f"{TELEGRAM_API_URL}/getChatMember"
         channel_data = {"chat_id": "@WorkGlows", "user_id": user_id}
         channel_response = requests.post(channel_url, json=channel_data, timeout=10)
 
-        # Check group membership  
         group_url = f"{TELEGRAM_API_URL}/getChatMember"
         group_data = {"chat_id": "-1002186262653", "user_id": user_id}
         group_response = requests.post(group_url, json=group_data, timeout=10)
@@ -177,7 +118,6 @@ def check_membership(user_id):
             channel_member = channel_response.json().get("result", {})
             group_member = group_response.json().get("result", {})
 
-            # Valid membership statuses
             valid_statuses = ["member", "administrator", "creator"]
 
             channel_joined = channel_member.get("status") in valid_statuses
@@ -195,17 +135,14 @@ def check_membership(user_id):
 
 def should_check_membership(user_id):
     """Check if membership verification is required based on privacy mode"""
-    global privacy_mode  # Add this line at the beginning
+    global privacy_mode
 
-    # Always allow owner
     if user_id == OWNER_ID:
         return False
 
-    # If public mode, no membership check needed
     if privacy_mode == "public":
         return False
 
-    # If normal mode, check membership for everyone except owner
     return True
 
 async def send_membership_reminder(chat_id, user_id, user_name):
@@ -288,57 +225,9 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b>
 
     logger.info(f"💖 Cute membership reminder sent to {chat_id}")
 
-# ─── Load .env ──────────────────────────────────────────────────────
-load_dotenv()
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-TELEGRAM_API_URL = f"https://api.telegram.org/bot{BOT_TOKEN}"
-
-# ─── Rule34 API Credentials ─────────────────────────────────────────
-R34_API_KEY = "a9037ff1e1a2b4bf3b9e8592871d213f56d7493e11b93cda9c3a68a6a315edcf76725c80f1811f3c1cd2ee7ee9dd5a1ea4b002bf1896b2f00f84dc7312956f1a"
-R34_USER_ID = 5281126
-
-# ─── Owner and Broadcasting Configuration ──────────────────────────
-OWNER_ID = 5290407067  # Hardcoded owner ID
-broadcast_mode = set()  # Users in broadcast mode
-broadcast_target = {}  # User broadcast targets
-user_ids = set()  # Track user IDs for broadcasting
-group_ids = set()  # Track group IDs for broadcasting
-help_page_states = {}  # Store help page states for users
-
-# ─── Rule34 API Configuration ────────────────────────────────────────
-RULE34_API_BASE = "https://api.rule34.xxx/index.php"
-
-# ─── Content Tracking System ─────────────────────────────────────────
-sent_content_ids = set()  # Track sent content IDs to prevent duplicates
-user_offsets = {}  # Track pagination offset per user per character
-MAX_CONTENT_CACHE = 10000  # Limit cache size to prevent memory issues
-# Rate limiting for API requests
-api_request_times = []
-MAX_REQUESTS_PER_MINUTE = 60
-
-# ─── Setup Aiogram Bot ──────────────────────────────────────────────
-if not BOT_TOKEN:
-    raise ValueError("BOT_TOKEN environment variable is required")
-
-bot = Bot(token=str(BOT_TOKEN), default=DefaultBotProperties(parse_mode=ParseMode.HTML))
-dp = Dispatcher()
-
-# ─── HTTP Server for Deployment ──────────────────────────────────────────────
-class DummyHandler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b"Bot is alive!")
-
-    def do_HEAD(self):
-        self.send_response(200)
-        self.end_headers()
-
-# ─── Rate Limiting & Cache Management ────────────────────────────────
 def check_rate_limit():
     """Check if we're within API rate limits"""
     current_time = time.time()
-    # Remove requests older than 1 minute
     global api_request_times
     api_request_times = [t for t in api_request_times if current_time - t < 60]
 
@@ -352,25 +241,21 @@ def manage_content_cache():
     """Manage content cache size to prevent memory issues"""
     global sent_content_ids
     if len(sent_content_ids) > MAX_CONTENT_CACHE:
-        # Keep only the most recent half of the cache
         cache_list = list(sent_content_ids)
         sent_content_ids = set(cache_list[len(cache_list)//2:])
         logger.info(f"Content cache cleaned, now has {len(sent_content_ids)} items")
 
 def start_dummy_server():
-    port = int(os.environ.get("PORT", 10000))  # Render injects this
+    port = int(os.environ.get("PORT", 10000))
     server = HTTPServer(("0.0.0.0", port), DummyHandler)
     print(f"Dummy server listening on port {port}")
     server.serve_forever()
 
-# ─── Anime Database with Rule34 Tags ─────────────────────────────────────
 ANIME_COMMANDS = {
-    # 22 specific anime commands with short forms
     "naruto": {
         "title": "Naruto", 
         "tags": ["hinata_hyuga", "sakura_haruno", "tsunade", "ino_yamanaka", "temari", "kushina_uzumaki"]
     },
-    # Naruto character commands
     "kushina": {
         "title": "Kushina Uzumaki",
         "tags": ["kushina_uzumaki", "uzumaki_kushina", "kushina", "nine_tails_jinchuriki"]
@@ -443,7 +328,6 @@ ANIME_COMMANDS = {
         "title": "Bleach", 
         "tags": ["orihime_inoue", "rukia_kuchiki", "yoruichi_shihouin", "rangiku_matsumoto", "nelliel_tu_odelschwanck"]
     },
-    # Bleach character commands
     "rukia": {
         "title": "Rukia Kuchiki",
         "tags": ["rukia_kuchiki", "bleach", "kuchiki_rukia", "soul_reaper", "shinigami", "rukia"]
@@ -508,7 +392,6 @@ ANIME_COMMANDS = {
         "title": "One Piece", 
         "tags": ["nami_(one_piece)", "nico_robin", "nefeltari_vivi", "perona", "boa_hancock"]
     },
-    # One Piece character commands
     "nami": {
         "title": "Nami",
         "tags": ["nami_(one_piece)"]
@@ -521,7 +404,6 @@ ANIME_COMMANDS = {
         "title": "Jujutsu Kaisen", 
         "tags": ["nobara_kugisaki", "maki_zenin", "mei_mei", "utahime_iori"]
     },
-    # Jujutsu Kaisen character commands
     "nobara": {
         "title": "Nobara Kugisaki",
         "tags": ["nobara_kugisaki", "kugisaki_nobara", "nobara", "hammer_and_nails", "blonde_hair", "brown_eyes"]
@@ -558,7 +440,6 @@ ANIME_COMMANDS = {
         "title": "Spy x Family", 
         "tags": ["yor_forger", "spy_x_family", "anya_forger"]
     },
-    # Spy x Family character commands
     "yor": {
         "title": "Yor Forger",
         "tags": ["yor_forger"]
@@ -571,7 +452,6 @@ ANIME_COMMANDS = {
         "title": "Attack on Titan", 
         "tags": ["shingeki_no_kyojin", "mikasa_ackerman", "annie_leonhart", "historia_reiss", "pieck_finger"]
     },
-    # Attack on Titan character commands
     "mikasa": {
         "title": "Mikasa Ackerman",
         "tags": ["mikasa_ackerman"]
@@ -620,7 +500,6 @@ ANIME_COMMANDS = {
         "title": "Demon Slayer", 
         "tags": ["nezuko_kamado", "shinobu_kocho", "mitsuri_kanroji", "kanao_tsuyuri"]
     },
-    # Demon Slayer character commands
     "nezuko": {
         "title": "Nezuko Kamado",
         "tags": ["nezuko_kamado", "demon_slayer", "kimetsu_no_yaiba", "kamado_nezuko", "nezuko", "demon_girl"]
@@ -661,7 +540,6 @@ ANIME_COMMANDS = {
         "title": "Vinland Saga", 
         "tags": ["vinland_saga", "thorfinn", "askeladd"]
     },
-    # Vinland Saga character commands
     "helga": {
         "title": "Helga",
         "tags": ["helga"]
@@ -682,7 +560,6 @@ ANIME_COMMANDS = {
         "title": "Dandadan", 
         "tags": ["dandadan", "momo_ayase", "seiko_ayase"]
     },
-    # Dandadan character commands
     "momoayase": {
         "title": "Momo Ayase",
         "tags": ["momo_ayase"]
@@ -707,7 +584,6 @@ ANIME_COMMANDS = {
         "title": "One Punch Man", 
         "tags": ["fubuki_(one-punch_man)", "tatsumaki"]
     },
-    # One Punch Man character commands
     "tatsumaki": {
         "title": "Tatsumaki",
         "tags": ["tatsumaki"]
@@ -720,7 +596,6 @@ ANIME_COMMANDS = {
         "title": "Chainsaw Man", 
         "tags": ["power_(chainsaw_man)", "makima", "chainsaw_man", "kobeni_higashiyama"]
     },
-    # Chainsaw Man character commands
     "power": {
         "title": "Power",
         "tags": ["power_(chainsaw_man)"]
@@ -753,7 +628,6 @@ ANIME_COMMANDS = {
         "title": "Sakamoto Days", 
         "tags": ["sakamoto_days", "lu_xiaotang"]
     },
-    # Sakamoto Days character commands
     "osaragi": {
         "title": "Osaragi",
         "tags": ["osaragi_(sakamoto_days)"]
@@ -762,7 +636,6 @@ ANIME_COMMANDS = {
         "title": "Dr Stone", 
         "tags": ["dr._stone", "kohaku_(dr._stone)", "ruri_(dr._stone)"]
     },
-    # Dr Stone character commands
     "yuzuriha": {
         "title": "Yuzuriha Ogawa",
         "tags": ["yuzuriha_ogawa"]
@@ -787,7 +660,6 @@ ANIME_COMMANDS = {
         "title": "Overflow", 
         "tags": ["overflow", "kotone_shirakawa", "ayane_shirakawa"]
     },
-    # Overflow character commands
     "kotone": {
         "title": "Kotone Shirakawa",
         "tags": ["kotone_shirakawa"]
@@ -800,7 +672,6 @@ ANIME_COMMANDS = {
         "title": "My Hero Academia", 
         "tags": ["ochako_uraraka", "momo_yaoyorozu", "tsuyu_asui", "kyoka_jiro", "mina_ashido", "boku_no_hero_academia"]
     },
-    # My Hero Academia character commands
     "ochako": {
         "title": "Ochako Uraraka",
         "tags": ["ochako_uraraka", "boku_no_hero_academia"]
@@ -949,7 +820,6 @@ ANIME_COMMANDS = {
         "title": "Hunter x Hunter", 
         "tags": ["hunter_x_hunter", "machi_komacine", "shizuku_murasaki"]
     },
-    # Hunter x Hunter character commands
     "biscuit": {
         "title": "Biscuit Krueger",
         "tags": ["biscuit_krueger", "hunter_x_hunter"]
@@ -966,7 +836,6 @@ ANIME_COMMANDS = {
         "title": "My Hero Academia", 
         "tags": ["ochako_uraraka", "momo_yaoyorozu", "tsuyu_asui", "nejire_hado", "boku_no_hero_academia"]
     },
-    # My Hero Academia character commands
     "ochaco": {
         "title": "Ochaco Uraraka",
         "tags": ["ochako_uraraka", "boku_no_hero_academia"]
@@ -1011,7 +880,6 @@ ANIME_COMMANDS = {
         "title": "Fullmetal Alchemist", 
         "tags": ["fullmetal_alchemist", "winry_rockbell", "riza_hawkeye", "lust_(fma)", "izumi_curtis"]
     },
-    # Fullmetal Alchemist character commands
     "winry": {
         "title": "Winry Rockbell",
         "tags": ["winry_rockbell", "fullmetal_alchemist"]
@@ -1056,7 +924,6 @@ ANIME_COMMANDS = {
         "title": "Death Note", 
         "tags": ["death_note", "misa_amane", "naomi_misora"]
     },
-    # Death Note character commands
     "misa": {
         "title": "Misa Amane",
         "tags": ["misa_amane", "death_note"]
@@ -1073,7 +940,6 @@ ANIME_COMMANDS = {
         "title": "Tokyo Ghoul", 
         "tags": ["tokyo_ghoul", "touka_kirishima", "rize_kamishiro"]
     },
-    # Tokyo Ghoul character commands
     "touka": {
         "title": "Touka Kirishima",
         "tags": ["touka_kirishima", "tokyo_ghoul"]
@@ -1118,7 +984,6 @@ ANIME_COMMANDS = {
         "title": "My Dress-Up Darling", 
         "tags": ["sono_bisque_doll_wa_koi_wo_suru", "marin_kitagawa"]
     },
-    # My Dress-Up Darling character commands
     "marin": {
         "title": "Marin Kitagawa",
         "tags": ["marin_kitagawa"]
@@ -1141,50 +1006,29 @@ ANIME_COMMANDS = {
     }
 }
 
-# ─── Bot Commands for Help Menu ─────────────────────────────────────
-# Register up to 100 commands (Telegram limit) including popular character commands
 PRIORITY_COMMANDS = [
-    # Core commands
-    "start", "help",
-    # Naruto series and characters
+    "start",
     "naruto", "hinata", "sakura", "tsunade", "kushina", "temari", "ino", "konan", "shizune", "sarada", "rin", "tenten", "kurenai", "anko", "hanabi", "kaguya", "mei", "karin",
-    # Bleach series and characters  
     "bleach", "rukia", "orihime", "yoruichi", "rangiku", "nelliel", "soifon", "nemu", "lisa", "hiyori",
-    # One Piece series and characters
     "op", "nami", "hancock",
-    # Jujutsu Kaisen series and characters
     "jjk", "nobara", "maki", "yuki", "meimei", "utahime",
-    # Spy x Family series and characters
     "spyfam", "yor", "anya",
-    # Attack on Titan series and characters
     "aot", "mikasa", "annie", "historia", "sasha", "ymir", "pieck",
-    # Demon Slayer series and characters
     "ds", "nezuko", "shinobu", "mitsuri", "daki", "kanao",
-    # One Punch Man series and characters
     "opm", "tatsumaki", "fubuki",
-    # Chainsaw Man series and characters
     "cm", "power", "makima",
-    # My Hero Academia series and characters
     "mha", "ochaco", "tsuyu", "toga", "momoyaoyorozu", "kyoka", "nejire", "mirko", "mina", "eri",
-    # Fullmetal Alchemist series and characters
     "fma", "winry", "riza", "olivier", "izumi",
-    # Death Note series and characters  
     "dn", "misa",
-    # Tokyo Ghoul series and characters
     "tg", "touka", "rize", "eto", "akira", "hinami",
-    # My Dress-Up Darling series and characters
     "mdd", "marin", "sajuna", "shinju",
-    # Other series
     "vs", "dand", "sd", "drs", "overflow", "hxh", "boruto", "ps"
 ]
 
-# Take only first 100 commands due to Telegram limit
-REGISTERED_COMMANDS = PRIORITY_COMMANDS[:97] + ["random"]  # Leave room for start/help/random
+REGISTERED_COMMANDS = PRIORITY_COMMANDS[:97] + ["random"]
 
-# Create beautiful command descriptions
 COMMAND_DESCRIPTIONS = {
     "start": "💖 Meet Makima",
-    "help": "💝 Complete Guide",
     "random": "🎲 Surprise Me",
     "naruto": "🍃 Ninja World",
     "bleach": "⚔️ Soul Society", 
@@ -1208,7 +1052,6 @@ COMMAND_DESCRIPTIONS = {
     "mdd": "👗 Cosplay Fun",
     "boruto": "🌟 New Era",
     "ps": "🏫 School Prison",
-    # Character commands get cute descriptions
     "hinata": "💜 Shy Princess",
     "sakura": "🌸 Cherry Blossom",
     "tsunade": "👑 Legendary Sannin",
@@ -1227,7 +1070,7 @@ COMMAND_DESCRIPTIONS = {
     "power": "🩸 Blood Fiend",
     "makima": "🐕 Control Devil",
     "nami": "🍊 Navigator",
-    "hancock": "💄 Snake Princess"
+    "hancock": "🐍 Snake Princess"
 }
 
 BOT_COMMANDS = [
@@ -1235,7 +1078,6 @@ BOT_COMMANDS = [
     for cmd in REGISTERED_COMMANDS
 ]
 
-# ─── Rule34 API Media Fetcher ──────────────────────────────────────────
 async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id: int = 0, max_retries: int = 5):
     """
     Fetches anime-specific NSFW content from Rule34 API using tags
@@ -1250,18 +1092,14 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
     tags = anime_data["tags"]
     user_key = f"{user_id}_{anime_name}" if user_id else anime_name
 
-    # Initialize user offset if not exists
     if user_key not in user_offsets:
         user_offsets[user_key] = 0
 
-    # Keep retrying until we find fresh content
     for retry in range(max_retries):
         try:
-            # For character-specific searches, prioritize character name tags
             character_specific_tags = []
             generic_tags = []
 
-            # Separate character-specific tags from generic anime tags
             character_name = anime_data["title"].lower().replace(" ", "_")
             for tag in tags:
                 if any(name_part in tag.lower() for name_part in character_name.split("_")):
@@ -1269,15 +1107,12 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                 else:
                     generic_tags.append(tag)
 
-            # Prioritize character-specific tags first
             if retry < len(character_specific_tags):
                 selected_tags = [character_specific_tags[retry]]
             elif retry < len(character_specific_tags) + len(generic_tags):
-                # Then try generic tags individually
                 generic_index = retry - len(character_specific_tags)
                 selected_tags = [generic_tags[generic_index]]
             else:
-                # Finally try combinations but prioritize character tags
                 if character_specific_tags:
                     primary_tag = random.choice(character_specific_tags)
                     if len(character_specific_tags) > 1:
@@ -1286,34 +1121,29 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                     else:
                         selected_tags = [primary_tag]
                 else:
-                    # Fallback to generic tags if no character-specific ones
                     tag_count = min(random.randint(1, 2), len(generic_tags))
                     selected_tags = random.sample(generic_tags, tag_count)
 
             tag_string = "+".join(selected_tags)
 
-            # Use pagination to get different content each time
             page_offset = user_offsets[user_key] + retry
 
             logger.info(f"Attempt {retry + 1}: Searching Rule34 for {anime_name} with tags: {selected_tags}, page: {page_offset}")
 
-            # Check rate limit before making API request
             if not check_rate_limit():
                 logger.warning("Rate limit reached, waiting 10 seconds...")
                 await asyncio.sleep(10)
                 continue
 
-            # Manage content cache size
             manage_content_cache()
 
             async with aiohttp.ClientSession() as session:
-                # Rule34 API call with pagination and authentication
                 params = {
                     "page": "dapi",
                     "s": "post",
                     "q": "index",
                     "tags": tag_string,
-                    "limit": 100,  # Increased limit for more options
+                    "limit": 100,
                     "pid": page_offset,
                     "api_key": R34_API_KEY,
                     "user_id": R34_USER_ID
@@ -1323,23 +1153,18 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                     if response.status == 200:
                         xml_content = await response.text()
 
-                        # Parse XML response
-                        import xml.etree.ElementTree as ET
                         try:
                             root = ET.fromstring(xml_content)
 
-                            # Extract media URLs based on type
                             posts = []
                             for post in root.findall('.//post'):
                                 post_id = post.get('id')
                                 file_url = post.get('file_url')
 
-                                # Skip if already sent this content
                                 if post_id in sent_content_ids:
                                     continue
 
                                 if file_url and file_url.startswith(('http://', 'https://')):
-                                    # Filter by requested media type
                                     if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
                                         posts.append({
                                             'url': file_url,
@@ -1366,15 +1191,12 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                                         })
 
                             if posts:
-                                # Sort by score and pick from top results
                                 posts.sort(key=lambda x: x['score'], reverse=True)
-                                top_posts = posts[:50]  # Larger pool for variety
+                                top_posts = posts[:50]
                                 selected = random.choice(top_posts)
 
-                                # Mark this content as sent
                                 sent_content_ids.add(selected['id'])
 
-                                # Update user offset for next request
                                 user_offsets[user_key] += 1
 
                                 logger.info(f"Found fresh {anime_name} content: score {selected['score']}, ID: {selected['id']}")
@@ -1387,16 +1209,13 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
             logger.warning(f"Attempt {retry + 1} failed for {anime_name}: {e}")
             continue
 
-    # Advanced fallback system with broader searches
     logger.info(f"Trying advanced fallback for {anime_name}")
 
-    # Try broader character name searches
     character_name = anime_data["title"].lower().replace(" ", "_")
     fallback_tags = list(tags) + [character_name]
 
     for tag in fallback_tags:
         try:
-            # Use different page offsets for fallback
             page_offset = random.randint(0, 10)
 
             async with aiohttp.ClientSession() as session:
@@ -1414,7 +1233,6 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                 async with session.get(RULE34_API_BASE, params=params) as response:
                     if response.status == 200:
                         xml_content = await response.text()
-                        import xml.etree.ElementTree as ET
                         try:
                             root = ET.fromstring(xml_content)
                             posts = []
@@ -1422,12 +1240,10 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                                 post_id = post.get('id')
                                 file_url = post.get('file_url')
 
-                                # Skip duplicates
                                 if post_id in sent_content_ids:
                                     continue
 
                                 if file_url and file_url.startswith(('http://', 'https://')):
-                                    # Filter by media type for fallback search
                                     if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
                                         posts.append({
                                             'url': file_url,
@@ -1457,7 +1273,6 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                                 posts.sort(key=lambda x: x['score'], reverse=True)
                                 selected = random.choice(posts[:30])
 
-                                # Mark as sent
                                 sent_content_ids.add(selected['id'])
 
                                 logger.info(f"Found fallback content for {anime_name} with tag {tag}, ID: {selected['id']}")
@@ -1472,7 +1287,6 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
     logger.error(f"All attempts failed for {anime_name}")
     return None
 
-# ─── Create Media Selection Keyboard ────────────────────────────────
 def create_media_selection_keyboard(anime_name: str):
     """Create beautiful keyboard for media type selection"""
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -1486,7 +1300,6 @@ def create_media_selection_keyboard(anime_name: str):
     ])
     return keyboard
 
-# ─── Create Media Navigation Keyboard ────────────────────────────────
 def create_media_navigation_keyboard(anime_name: str, media_type: str, page: int = 1):
     """Create beautiful keyboard for media navigation with Update, Next, Back buttons"""
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -1500,7 +1313,6 @@ def create_media_navigation_keyboard(anime_name: str, media_type: str, page: int
     ])
     return keyboard
 
-# ─── Send Media Selection ─────────────────────────────────────────
 async def send_media_selection(anime_name: str, chat_id: int):
     """Send initial image with media type selection buttons"""
     anime_data = ANIME_COMMANDS.get(anime_name)
@@ -1510,7 +1322,6 @@ async def send_media_selection(anime_name: str, chat_id: int):
     title = anime_data["title"]
     logger.info(f"Sending media selection for {title}")
 
-    # Get a sample image first
     post = await fetch_rule34_media(anime_name, "image", chat_id)
     if not post:
         return None
@@ -1533,22 +1344,18 @@ async def send_media_selection(anime_name: str, chat_id: int):
         logger.error(f"Media selection error: {e}")
         return None
 
-# ─── Send Anime Media ─────────────────────────────────────────────
 async def send_random_media(chat_id: int, message_id: int | None = None, edit_mode: bool = False, media_type: str = "image", page: int = 1):
     """Send or edit random media with retry system (matching anime command style)"""
     try:
-        # Force truly new content on each call by using multiple attempts
         attempts = 0
         post = None
 
         while attempts < 3 and not post:
-            # Add microsecond delay to ensure different random seeds
             await asyncio.sleep(0.001)
             post = await fetch_random_content(media_type)
             attempts += 1
 
         if not post:
-            # Try again with different media type if failed
             post = await fetch_random_content("image")
         if not post:
             return None
@@ -1581,7 +1388,7 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
                     ),
                     reply_markup=keyboard
                 )
-            else:  # image
+            else:
                 await bot.edit_message_media(
                     chat_id=chat_id,
                     message_id=message_id,
@@ -1595,10 +1402,9 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
                 )
             logger.info(f"Successfully loaded random {media_type}")
         else:
-            # ✅ Uploading indicator before sending
             if media_type == "video":
                 await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
-            else:  # Treat gif as photo
+            else:
                 await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
 
             if media_type == "video":
@@ -1617,7 +1423,7 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-            else:  # image
+            else:
                 await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
@@ -1667,7 +1473,7 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
                     ),
                     reply_markup=keyboard
                 )
-            else:  # image
+            else:
                 await bot.edit_message_media(
                     chat_id=chat_id,
                     message_id=message_id,
@@ -1681,10 +1487,9 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
                 )
             logger.info(f"Successfully loaded search {media_type} for '{search_query}'")
         else:
-            # ✅ Add upload indicator
             if media_type == "video":
                 await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
-            else:  # Treat gif as photo
+            else:
                 await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
 
             if media_type == "video":
@@ -1703,7 +1508,7 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-            else:  # image
+            else:
                 await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
@@ -1728,14 +1533,12 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
     media_emoji = {"image": "🖼️", "video": "🎬", "gif": "🎨"}
     logger.info(f"Fetching {title} {media_type} content using API")
 
-    # Try to get media with fallback system
     post = None
     for attempt in range(15):
         post = await fetch_rule34_media(anime_name, media_type, chat_id)
         if post:
             break
 
-        # If no videos/gifs found after 10 attempts, fallback to images
         if attempt >= 10 and media_type in ["video", "gif"]:
             logger.info(f"No {media_type} found for {anime_name}, falling back to images")
             post = await fetch_rule34_media(anime_name, "image", chat_id)
@@ -1750,11 +1553,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
         keyboard = create_media_navigation_keyboard(anime_name, media_type, page)
         caption = f"💖 {title} {media_emoji.get(media_type, '')} ✨"
 
-        # Log media details for debugging
         logger.info(f"Sending {media_type} for {anime_name}: {post['url'][-50:]}")
 
         if edit_mode and message_id is not None:
-            # Edit existing message based on media type
             if media_type == "video":
                 await bot.edit_message_media(
                     chat_id=chat_id,
@@ -1779,7 +1580,7 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     ),
                     reply_markup=keyboard
                 )
-            else:  # image
+            else:
                 await bot.edit_message_media(
                     chat_id=chat_id,
                     message_id=message_id,
@@ -1793,13 +1594,11 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                 )
             return None
         else:
-            # ✅ Show upload indicator (photo/video) before sending
             if media_type == "video":
                 await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
-            else:  # includes "gif" and "image"
+            else:
                 await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
 
-            # Send new message based on media type
             if media_type == "video":
                 sent_msg = await bot.send_video(
                     chat_id=chat_id,
@@ -1817,7 +1616,7 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-            else:  # image
+            else:
                 sent_msg = await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
@@ -1831,19 +1630,17 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
         logger.warning(f"Send error: {e}")
         return None
 
-# ─── Random Command Function ──────────────────────────────────────────
 async def fetch_random_content(media_type: str = "image"):
     """Fetch completely random content from Rule34"""
     try:
         async with aiohttp.ClientSession() as session:
-            # Get random content with no specific tags
             params = {
                 "page": "dapi",
                 "s": "post",
                 "q": "index",
-                "tags": "",  # No tags for truly random content
+                "tags": "",
                 "limit": 50,
-                "pid": random.randint(0, 100) + int(time.time()) % 100,  # Reduced range for faster response
+                "pid": random.randint(0, 100) + int(time.time()) % 100,
                 "api_key": R34_API_KEY,
                 "user_id": R34_USER_ID
             }
@@ -1852,7 +1649,6 @@ async def fetch_random_content(media_type: str = "image"):
                 if response.status == 200:
                     xml_content = await response.text()
 
-                    import xml.etree.ElementTree as ET
                     try:
                         root = ET.fromstring(xml_content)
                         posts = []
@@ -1861,7 +1657,7 @@ async def fetch_random_content(media_type: str = "image"):
                             file_url = post.get('file_url')
                             if file_url and file_url.startswith(('http://', 'https://')):
                                 score = int(post.get('score', 0))
-                                if score >= 10:  # Only high-quality random content
+                                if score >= 10:
                                     if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
                                         posts.append({
                                             'url': file_url,
@@ -1888,12 +1684,10 @@ async def fetch_random_content(media_type: str = "image"):
                                         })
 
                         if posts:
-                            # Use timestamp and randomization for truly unique selection
-                            random.seed(int(time.time() * 1000000) % 1000000)  # Microsecond-based seed
+                            random.seed(int(time.time() * 1000000) % 1000000)
 
-                            # Sort by score and pick randomly from top results
                             posts.sort(key=lambda x: x['score'], reverse=True)
-                            top_posts = posts[:50]  # Larger pool for more variety
+                            top_posts = posts[:50]
                             selected = random.choice(top_posts)
                             logger.info(f"Found random content: score {selected['score']}")
                             return selected
@@ -1904,16 +1698,12 @@ async def fetch_random_content(media_type: str = "image"):
 
     return None
 
-# ─── Live Search Function ──────────────────────────────────────────────
 async def search_rule34_live(search_query: str, media_type: str = "image"):
     """Search Rule34 API with user's custom query - Enhanced with smart tag conversion"""
     try:
-        # Clean and format search query for Rule34
         clean_query = search_query.lower().strip()
 
-        # Smart tag conversion for common anime terms and character names
         tag_conversions = {
-            # Character name conversions
             "kushina uzumaki": "kushina_uzumaki",
             "hinata hyuga": "hinata_hyuga", 
             "sakura haruno": "sakura_haruno",
@@ -1937,7 +1727,6 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
             "makima chainsaw": "makima",
             "yor forger": "yor_forger",
             "anya forger": "anya_forger",
-            # Anime series conversions
             "naruto shippuden": "naruto",
             "attack on titan": "shingeki_no_kyojin", 
             "demon slayer": "kimetsu_no_yaiba",
@@ -1952,7 +1741,6 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
             "one punch man": "one-punch_man",
             "dr stone": "dr._stone",
             "tower of god": "tower_of_god",
-            # Descriptive tag conversions
             "school uniform": "school_uniform",
             "gym uniform": "gym_uniform",
             "swim suit": "swimsuit",
@@ -1969,9 +1757,6 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
             "blue hair": "blue_hair",
             "red hair": "red_hair",
             "pink hair": "pink_hair",
-            "purple hair": "purple_hair",
-            "green hair": "green_hair",
-            "white hair": "white_hair",
             "blue eyes": "blue_eyes",
             "brown eyes": "brown_eyes",
             "green eyes": "green_eyes",
@@ -1979,13 +1764,11 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
             "purple eyes": "purple_eyes"
         }
 
-        # Apply conversions
         formatted_query = clean_query
         for original, converted in tag_conversions.items():
             if original in formatted_query:
                 formatted_query = formatted_query.replace(original, converted)
 
-        # Replace remaining spaces with underscores
         formatted_query = formatted_query.replace(" ", "_")
 
         logger.info(f"Live searching Rule34 for: '{formatted_query}' (original: '{clean_query}')")
@@ -1997,7 +1780,7 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
                 "q": "index",
                 "tags": formatted_query,
                 "limit": 100,
-                "pid": random.randint(0, 100) + int(time.time()) % 100,  # Better randomization for pagination
+                "pid": random.randint(0, 100) + int(time.time()) % 100,
                 "api_key": R34_API_KEY,
                 "user_id": R34_USER_ID
             }
@@ -2006,7 +1789,6 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
                 if response.status == 200:
                     xml_content = await response.text()
 
-                    import xml.etree.ElementTree as ET
                     try:
                         root = ET.fromstring(xml_content)
                         posts = []
@@ -2040,12 +1822,10 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
                                     })
 
                         if posts:
-                            # Use timestamp-based randomization for truly different results each time
                             random.seed(int(time.time() * 1000000) % 1000000)
 
-                            # Sort by score and pick randomly from results
                             posts.sort(key=lambda x: x['score'], reverse=True)
-                            top_posts = posts[:50]  # Larger pool for more variety
+                            top_posts = posts[:50]
                             selected = random.choice(top_posts)
                             logger.info(f"Found search result for '{search_query}': score {selected['score']}")
                             return selected
@@ -2056,7 +1836,6 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
 
     return None
 
-# ─── Create Random Media Navigation Keyboard ──────────────────────────
 def create_random_selection_keyboard():
     """Create media type selection keyboard for random content (like anime commands)"""
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -2083,11 +1862,9 @@ def create_random_navigation_keyboard(media_type: str = "image", page: int = 1):
     ])
     return keyboard
 
-# ─── Create Search Navigation Keyboard ──────────────────────────────────
 def create_search_selection_keyboard(search_query: str):
     """Create media type selection keyboard for search results (like anime commands)"""
-    # Encode search query for callback data
-    encoded_query = search_query.replace(" ", "_")[:20]  # Limit length for callback data
+    encoded_query = search_query.replace(" ", "_")[:20]
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -2102,8 +1879,7 @@ def create_search_selection_keyboard(search_query: str):
 
 def create_search_navigation_keyboard(search_query: str, media_type: str = "image", page: int = 1):
     """Create navigation keyboard for search results (matching anime command style)"""
-    # Encode search query for callback data
-    encoded_query = search_query.replace(" ", "_")[:20]  # Limit length for callback data
+    encoded_query = search_query.replace(" ", "_")[:20]
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
@@ -2116,10 +1892,8 @@ def create_search_navigation_keyboard(search_query: str, media_type: str = "imag
     ])
     return keyboard
 
-# Updated anime handler factory with group membership check
 def make_anime_handler(anime_name):
     async def handler(msg: Message):
-        # Check membership for non-owner users in both private chats AND groups
         if msg.from_user and should_check_membership(msg.from_user.id):
             if not check_membership(msg.from_user.id):
                 await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
@@ -2127,26 +1901,14 @@ def make_anime_handler(anime_name):
         await send_media_selection(anime_name, msg.chat.id)
     return handler
 
-# Register handlers for each anime command
 for anime_name in ANIME_COMMANDS:
     dp.message.register(make_anime_handler(anime_name), Command(anime_name))
 
-# Updated /start handler with group membership check
 @dp.message(Command("start"))
 async def cmd_start(msg: Message):
 
     await bot.send_chat_action(msg.chat.id, action="upload_photo")
 
-    # Track user/group for broadcasting
-    if msg.from_user:
-        if msg.chat.type == "private":
-            user_ids.add(msg.from_user.id)
-            logger.info(f"👤 User tracked for broadcasting: {msg.from_user.id}")
-        else:
-            group_ids.add(msg.chat.id)
-            logger.info(f"👥 Group tracked for broadcasting: {msg.chat.id}")
-
-    # Check membership for non-owner users in both private chats AND groups
     if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(
@@ -2159,11 +1921,9 @@ async def cmd_start(msg: Message):
     user_name = msg.from_user.full_name if msg.from_user else "User"
     user_id = msg.from_user.id if msg.from_user else ""
 
-    # Get bot username dynamically for group invite
     bot_info = await bot.get_me()
     bot_username = bot_info.username
 
-    # Create inline keyboard with dynamic group invite button
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(text="💟 Updates", url="https://t.me/WorkGlows"),
@@ -2181,10 +1941,9 @@ async def cmd_start(msg: Message):
 
 🎀 Enjoy <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
-<blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
+<blockquote><i>💌 Use any anime command to begin your journey!</i></blockquote>
 """
 
-    # List of 40 image URLs
     image_urls = [
     "https://ik.imagekit.io/asadofc/Images1.png",
     "https://ik.imagekit.io/asadofc/Images2.png",
@@ -2228,10 +1987,8 @@ async def cmd_start(msg: Message):
     "https://ik.imagekit.io/asadofc/Images40.png"
   ]
 
-    # Pick one at random
     selected_image = random.choice(image_urls)
 
-    # Send image with caption + buttons
     await msg.answer_photo(
         photo=selected_image,
         caption=welcome_text,
@@ -2239,58 +1996,14 @@ async def cmd_start(msg: Message):
         reply_markup=keyboard
     )
 
-# Updated /help handler with group membership check
-@dp.message(Command("help"))
-async def cmd_help(msg: Message):
 
-    await bot.send_chat_action(msg.chat.id, action="typing")
 
-    # Check membership for non-owner users in both private chats AND groups
-    if msg.from_user and should_check_membership(msg.from_user.id):
-        if not check_membership(msg.from_user.id):
-            await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
-            return
-
-    user_name = msg.from_user.full_name if msg.from_user else "User"
-    user_id = msg.from_user.id if msg.from_user else ""
-
-    # Create short help text with expand button
-    short_help_text = f"""
-💝 <b>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
-
-<b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
-
-<blockquote>╭─<b> 🎌 Quick Start</b>
-├─ /naruto /bleach /op /jjk /aot /ds
-├─ /hinata /sakura /rukia /orihime
-╰─ /mikasa /nezuko /nobara /makima</blockquote>
-
-<blockquote>╭─<b> 🎀 How to use</b>
-├─ Choose any kind of command
-├─ Select media type Vid/img/Gif  
-╰─ Explore with navigation buttons</blockquote>
-
-Type a command to begin! 🌟
-"""
-
-    # Create keyboard with expand button
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="📖 Expand Full Guide", callback_data="expand_help")
-        ]
-    ])
-
-    await msg.answer(short_help_text, reply_markup=keyboard)
-
-# ─── /random Handler ───────────────────────────────────────────────
 async def send_random_selection(chat_id: int):
     """Send initial random content with media type selection buttons (like anime commands)"""
     logger.info("Sending random media selection")
 
-    # 👇 Show photo sending indicator
     await bot.send_chat_action(chat_id, action="upload_photo")
 
-    # Get a sample image first
     post = await fetch_random_content("image")
     if not post:
         return None
@@ -2312,11 +2025,9 @@ async def send_random_selection(chat_id: int):
         logger.error(f"Random selection send error: {e}")
         return None
 
-# Updated /random handler with group membership check
 @dp.message(Command("random"))
 async def cmd_random(msg: Message):
     """Handle random content command"""
-    # Check membership for non-owner users in both private chats AND groups
     if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
@@ -2324,7 +2035,6 @@ async def cmd_random(msg: Message):
 
     logger.info("Random command requested")
 
-    # 👇 Show "sending photo..." indicator
     await bot.send_chat_action(msg.chat.id, action="upload_photo")
 
     try:
@@ -2332,74 +2042,31 @@ async def cmd_random(msg: Message):
     except Exception as e:
         logger.error(f"Random command error: {e}")
 
-# ─── Broadcast Command Handler ───────────────────────────────────────
-@dp.message(Command("broadcast"))
-async def cmd_broadcast(msg: Message):
-    """Handle broadcast command (owner only, others silently ignored or reminded to join)"""
-    if not msg.from_user:
-        return  # Ignore anonymous users or system messages
 
-    user_id = msg.from_user.id
-    info = extract_user_info(msg)
-
-    logger.info(f"📢 Broadcast command attempted by {info['full_name']}")
-
-    # If user is not the owner
-    if user_id != OWNER_ID:
-        # Check if user has joined both required groups
-        if not check_membership(user_id):
-            await send_membership_reminder(chat_id=msg.chat.id, user_id=user_id, user_name=info['full_name'])
-            logger.info(f"🔒 Non-member attempted broadcast | User ID: {user_id}")
-        else:
-            logger.info(f"🚫 Non-owner but member tried broadcast | User ID: {user_id} — Silently ignored.")
-        return  # Do nothing more
-
-    # Owner access granted
-    await bot.send_chat_action(msg.chat.id, ChatAction.TYPING)
-
-    # Create inline keyboard for broadcast target selection
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text=f"👥 Users ({len(user_ids)})", callback_data="broadcast_users"),
-            InlineKeyboardButton(text=f"📢 Groups ({len(group_ids)})", callback_data="broadcast_groups")
-        ]
-    ])
-
-    response = await msg.answer(
-        "📣 <b>Choose broadcast target:</b>\n\n"
-        f"👥 <b>Users:</b> {len(user_ids)} individual users\n"
-        f"📢 <b>Groups:</b> {len(group_ids)} groups\n\n"
-        "Select where you want to send your broadcast message:",
-        reply_markup=keyboard
-    )
-    logger.info(f"✅ Broadcast target selection sent, message ID: {response.message_id}")
 
 @dp.message(Command("privacy"))
 async def cmd_privacy(msg: Message):
     """Handle privacy mode command (owner only)"""
-    global privacy_mode  # Declare global at the beginning
+    global privacy_mode
 
     if not msg.from_user:
         return
 
     user_id = msg.from_user.id
-    info = extract_user_info(msg)
+    full_name = msg.from_user.full_name if msg.from_user else "Unknown User"
 
-    logger.info(f"🔒 Privacy command attempted by {info['full_name']}")
+    logger.info(f"🔒 Privacy command attempted by {full_name}")
 
-    # Only owner can access this command
     if user_id != OWNER_ID:
         logger.info(f"🚫 Non-owner attempted privacy command | User ID: {user_id}")
-        return  # Silently ignore non-owner attempts
+        return
 
     await bot.send_chat_action(msg.chat.id, ChatAction.TYPING)
 
-    # Get current mode status
     current_mode = privacy_mode
     mode_emoji = "🔓" if current_mode == "public" else "🔒"
     mode_text = "Public" if current_mode == "public" else "Normal (Membership Required)"
 
-    # Create inline keyboard for privacy settings
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
             InlineKeyboardButton(
@@ -2439,33 +2106,24 @@ async def cmd_privacy(msg: Message):
     await msg.answer(privacy_text, reply_markup=keyboard)
     logger.info(f"✅ Privacy settings sent to owner")
 
-# Updated /ping handler with group membership check
 @dp.message(F.text == "/ping")
 async def ping_command(msg: Message):
     """Respond with latency - works for everyone, replies in groups, direct message in private"""
-    info = extract_user_info(msg)
-    user_id = info['user_id']
+    user_id = msg.from_user.id if msg.from_user else 0
+    username = msg.from_user.username if msg.from_user else "Unknown"
+    full_name = msg.from_user.full_name if msg.from_user else "Unknown User"
+    chat_title = msg.chat.title or msg.chat.first_name or "" if msg.chat else ""
+    chat_type = msg.chat.type if msg.chat else "unknown"
+    chat_id = msg.chat.id if msg.chat else 0
 
-    logger.info(f"📥 /ping received | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat: {info['chat_title']} ({info['chat_type']}) | Chat ID: {info['chat_id']} | Link: {info['chat_link']}")
-
-    # Broadcast tracking (track everyone who uses the command)
-    if msg.from_user:
-        if msg.chat.type == "private":
-            user_ids.add(user_id)
-            logger.info(f"👤 User tracked for broadcasting: {user_id}")
-        else:
-            group_ids.add(msg.chat.id)
-            logger.info(f"👥 Group tracked for broadcasting: {msg.chat.id}")
+    logger.info(f"📥 /ping received | Name: {full_name} | Username: @{username} | User ID: {user_id} | Chat: {chat_title} ({chat_type}) | Chat ID: {chat_id}")
 
     try:
         start = time.perf_counter()
 
-        # Handle private chats vs groups differently
         if msg.chat.type == "private":
-            # In private chats, send a direct message
             response = await msg.answer("🛰️ Pinging...")
         else:
-            # In groups/channels, reply to the user's message
             response = await msg.reply("🛰️ Pinging...")
 
         end = time.perf_counter()
@@ -2477,69 +2135,14 @@ async def ping_command(msg: Message):
             disable_web_page_preview=True
         )
 
-        logger.info(f"✅ Pong sent | Latency: {latency_ms:.2f}ms | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat: {info['chat_title']} ({info['chat_type']}) | Chat ID: {info['chat_id']}")
+        logger.info(f"✅ Pong sent | Latency: {latency_ms:.2f}ms | Name: {full_name} | Username: @{username} | User ID: {user_id} | Chat: {chat_title} ({chat_type}) | Chat ID: {chat_id}")
 
     except Exception as e:
-        logger.error(f"❌ /ping failed | Name: {info['full_name']} | Username: @{info['username']} | User ID: {user_id} | Chat ID: {info['chat_id']} | Error: {str(e)}")
+        logger.error(f"❌ /ping failed | Name: {full_name} | Username: @{username} | User ID: {user_id} | Chat ID: {chat_id} | Error: {str(e)}")
 
-# Updated live search handler with group membership check
 @dp.message(F.chat.type == "private")
 async def handle_live_search(msg: Message):
-    """Handle live search in private messages and broadcast functionality"""
-    # Check for broadcast mode first (owner bypass)
-    if msg.from_user and msg.from_user.id in broadcast_mode:
-        logger.info(f"📢 Broadcasting message from owner {msg.from_user.id}")
-
-        target = broadcast_target.get(msg.from_user.id, "users")
-        target_list = user_ids if target == "users" else group_ids
-
-        success_count = 0
-        failed_count = 0
-
-        is_forwarded = hasattr(msg, "forward_from") or hasattr(msg, "forward_from_chat")
-
-        for target_id in target_list:
-            try:
-                if is_forwarded:
-                    # If message is forwarded, preserve that
-                    await bot.forward_message(
-                        chat_id=target_id,
-                        from_chat_id=msg.chat.id,
-                        message_id=msg.message_id
-                    )
-                    logger.info(f"🔁 Forwarded to {target_id}")
-                else:
-                    # Fallback to copy (clean look, no forward header)
-                    await bot.copy_message(
-                        chat_id=target_id,
-                        from_chat_id=msg.chat.id,
-                        message_id=msg.message_id
-                    )
-                    logger.info(f"📋 Copied to {target_id}")
-
-                success_count += 1
-            except Exception as e:
-                failed_count += 1
-                logger.warning(f"❌ Failed to send to {target_id}: {e}")
-
-        # Send broadcast summary
-        await msg.answer(
-            f"📊 <b>Broadcast Summary:</b>\n\n"
-            f"✅ <b>Sent:</b> {success_count}\n"
-            f"❌ <b>Failed:</b> {failed_count}\n"
-            f"🎯 <b>Target:</b> {target}\n\n"
-            "Broadcast mode is still active. Send another message or use /start to disable."
-        )
-
-        # Remove from broadcast mode after sending
-        broadcast_mode.discard(msg.from_user.id)
-        if msg.from_user.id in broadcast_target:
-            del broadcast_target[msg.from_user.id]
-
-        logger.info(f"🔓 Broadcast mode disabled for {msg.from_user.id}")
-        return
-
-    # Check membership for non-owner users (this is only for private chats)
+    """Handle live search in private messages"""
     if msg.from_user and should_check_membership(msg.from_user.id):
         if not check_membership(msg.from_user.id):
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
@@ -2548,27 +2151,21 @@ async def handle_live_search(msg: Message):
     if not msg.text:
         return
 
-    # Skip if it's a command that starts with /
     if msg.text.startswith('/'):
         return
 
-    # Skip if it's already handled by other commands
     search_text = msg.text.strip()
     if not search_text:
         return
 
-    # Check if it's a one-word search (likely a character name)
     words = search_text.split()
     if len(words) == 1:
         search_query = words[0].lower()
 
-        # Check if it matches any of our existing anime commands
         if search_query in ANIME_COMMANDS:
-            # Use existing anime command logic
             await send_media_selection(search_query, msg.chat.id)
             return
 
-    # Show search guidance message first
     guidance_text = f"""
 🔍 <b>Live Search Mode</b> 💫
 
@@ -2590,28 +2187,26 @@ async def handle_live_search(msg: Message):
 
     guidance_msg = await msg.answer(guidance_text)
 
-    # Perform live search with fallback strategy
     post = await search_rule34_live(search_text, "image")
 
-    # If no results, try alternative search strategies
     if not post and " " in search_text:
-        # Try with underscores
         alt_search = search_text.replace(" ", "_")
         post = await search_rule34_live(alt_search, "image")
 
     if not post and len(search_text.split()) > 1:
-        # Try with just the first word (character name)
         first_word = search_text.split()[0]
         post = await search_rule34_live(first_word, "image")
 
+    if not post and len(search_text.split()) > 1:
+        last_word = search_text.split()[-1]
+        post = await search_rule34_live(last_word, "image")
+
     if not post:
-        # Try removing common suffixes
-        clean_name = search_text.replace(" uzumaki", "").replace(" uchiha", "").replace(" hyuga", "")
+        clean_name = search_text.replace(" uzumaki", "").replace(" uchiha", "").replace(" hyuga", "").replace(" kamado", "").replace(" kuchiki", "")
         if clean_name != search_text:
             post = await search_rule34_live(clean_name, "image")
 
     if not post:
-        # If no results found, show helpful message
         no_results_text = f"""
 🔍 <b>No Results Found</b> 😔
 
@@ -2636,7 +2231,6 @@ async def handle_live_search(msg: Message):
         return
 
     try:
-        # Delete guidance message and send result with media selection (like anime commands)
         await bot.delete_message(msg.chat.id, guidance_msg.message_id)
 
         keyboard = create_search_selection_keyboard(search_text)
@@ -2654,9 +2248,8 @@ async def handle_live_search(msg: Message):
         logger.info(f"Live search selection sent for: {search_text}")
     except Exception as e:
         logger.error(f"Live search send error: {e}")
-        pass  # Remove error message
+        pass
 
-# Updated callback query handler with group membership check
 @dp.callback_query()
 async def handle_callbacks(callback: CallbackQuery):
     """Handle all callback queries with membership verification for the new media selection workflow"""
@@ -2666,7 +2259,6 @@ async def handle_callbacks(callback: CallbackQuery):
         await callback.answer("Invalid button")
         return
 
-    # Handle membership check callback first (before other checks)
     if callback.data == "check_membership":
         user_id = callback.from_user.id
         if check_membership(user_id):
@@ -2699,9 +2291,8 @@ async def handle_callbacks(callback: CallbackQuery):
             await callback.answer("💘 You're not part of our cozy little family yet. Come join us, we're waiting with open arms 💅", show_alert=True)
         return
 
-    # Handle privacy mode callbacks (owner only) - ADD THIS SECTION
     if callback.data.startswith('privacy_'):
-        global privacy_mode  # Declare global at the beginning
+        global privacy_mode
 
         if callback.from_user.id != OWNER_ID:
             await callback.answer("⛔ This command is restricted.", show_alert=True)
@@ -2722,7 +2313,6 @@ async def handle_callbacks(callback: CallbackQuery):
             await callback.answer(f"📊 Current mode: {mode_text}", show_alert=True)
             return
 
-        # Update the message with new status
         current_mode = privacy_mode
         mode_emoji = "🔓" if current_mode == "public" else "🔒"
         mode_text = "Public" if current_mode == "public" else "Normal (Membership Required)"
@@ -2774,683 +2364,16 @@ async def handle_callbacks(callback: CallbackQuery):
             logger.error(f"❌ Failed to edit privacy message: {e}")
         return
 
-    # ===== MEMBERSHIP CHECK FOR ALL OTHER CALLBACKS =====
-    # Skip membership check only for owner and broadcast-related callbacks
     if callback.from_user and should_check_membership(callback.from_user.id):
-        if not callback.data.startswith('broadcast_'):
-            if not check_membership(callback.from_user.id):
-                await callback.answer("🥀️ You were here, part of our little family. Come back so we can continue this beautiful journey together ❤️‍🩹", show_alert=True)
+        if not check_membership(callback.from_user.id):
+            await callback.answer("🥀️ You were here, part of our little family. Come back so we can continue this beautiful journey together ❤️‍🩹", show_alert=True)
 
-                await send_membership_reminder(
-                    chat_id=callback.message.chat.id,
-                    user_id=callback.from_user.id,
-                    user_name=callback.from_user.full_name
-                )
-                return
-
-    # Handle broadcast target selection (owner only)
-    if callback.data.startswith('broadcast_'):
-        if callback.from_user.id != OWNER_ID:
-            await callback.answer("⛔ This command is restricted.", show_alert=True)
-            return
-
-        target = callback.data.split('_')[1]  # 'users' or 'groups'
-        broadcast_target[callback.from_user.id] = target
-        broadcast_mode.add(callback.from_user.id)
-
-        logger.info(f"👑 Enabling broadcast mode for owner {callback.from_user.id} - Target: {target}")
-
-        target_text = "individual users" if target == "users" else "groups"
-        target_count = len(user_ids) if target == "users" else len(group_ids)
-
-        try:
-            await bot.edit_message_text(
-                text=f"📣 <b>Broadcast mode enabled!</b>\n\n"
-                f"🎯 <b>Target:</b> {target_text} ({target_count})\n\n"
-                "Send me any message and I will forward it to all selected targets.",
+            await send_membership_reminder(
                 chat_id=callback.message.chat.id,
-                message_id=callback.message.message_id
+                user_id=callback.from_user.id,
+                user_name=callback.from_user.full_name
             )
-        except Exception as e:
-            logger.error(f"❌ Failed to edit broadcast message: {e}")
-        return
-
-    # Handle expand/minimize help functionality with pagination
-    if callback.data == "expand_help" or callback.data.startswith("help_page_"):
-        user_name = callback.from_user.full_name if callback.from_user else "User"
-        user_id = callback.from_user.id if callback.from_user else ""
-
-        # Determine current page
-        if callback.data == "expand_help":
-            page = 1
-        else:
-            page = int(callback.data.split("_")[-1])
-
-        # Page 1: Welcome + Main Anime Series
-        if page == 1:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 🎌 ALL ANIME SERIES</b>
-├─ /naruto - Ninja World
-├─ /bleach - Soul Society  
-├─ /op - Grand Line
-├─ /jjk - Cursed Energy
-├─ /aot - Titan World
-├─ /ds - Demon Hunt
-├─ /mha - Hero Academy
-├─ /cm - Devil Hunt
-├─ /opm - Hero World
-├─ /spyfam - Secret Family
-├─ /hxh - Hunter Life
-├─ /fma - Alchemy Art
-├─ /overflow - School Days
-├─ /dand - Yokai Hunt
-├─ /vs - Viking Saga
-├─ /drs - Science World
-├─ /sd - Assassin Life
-├─ /boruto - New Era
-├─ /dn - Death Gods
-├─ /tg - Ghoul World
-├─ /mdd - Cosplay Fun
-╰─ /ps - School Prison</blockquote>
-
-<b>📖 Page 1 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_2"),
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 2: Naruto Characters Part 1
-        elif page == 2:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 💖 NARUTO P1</b>
-├─ /hinata - Shy Princess
-├─ /sakura - Cherry Blossom
-├─ /tsunade - Legendary Sannin
-├─ /kushina - Red Hot
-├─ /temari - Wind Master
-├─ /ino - Mind Transfer
-├─ /konan - Paper Angel
-╰─ /shizune - Medical Ninja</blockquote>
-
-<b>📖 Page 2 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_1"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_3")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 3: Naruto Characters Part 2
-        elif page == 3:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 💖 NARUTO P2</b>
-├─ /sarada - New Generation
-├─ /rin - Lost Love
-├─ /tenten - Weapon Specialist
-├─ /kurenai - Genjutsu Master
-├─ /anko - Snake Style
-├─ /hanabi - Gentle Fist
-├─ /kaguya - Moon Goddess
-├─ /mei - Mist Kage
-╰─ /karin - Sensor Type</blockquote>
-
-<b>📖 Page 3 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_2"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_4")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 4: Bleach Characters Part 1
-        elif page == 4:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> ⚔️ BLEACH P1</b>
-├─ /rukia - Ice Princess
-├─ /orihime - Sweet Angel
-├─ /yoruichi - Flash Goddess
-├─ /rangiku - Boozy Beauty
-├─ /soifon - Stealth Force
-├─ /nemu - Synthetic Soul
-├─ /lisa - Serious Beauty
-╰─ /hiyori - Tomboy Fighter</blockquote>
-
-<b>📖 Page 4 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_3"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_5")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 5: Bleach Characters Part 2
-        elif page == 5:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> ⚔️ BLEACH P2</b>
-├─ /mashiro - Cheerful Vizard
-├─ /retsu - Healing Captain
-├─ /isane - Gentle Giant
-├─ /nanao - Book Lover
-├─ /yachiru - Pink Terror
-├─ /nelliel - Arrancar Queen
-╰─ /katen - Spirit Sword</blockquote>
-
-<b>📖 Page 5 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_4"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_6")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 6: One Piece + Jujutsu Kaisen Part 1
-        elif page == 6:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 🏴‍☠️ ONE PIECE</b>
-├─ /nami - Navigator Queen
-╰─ /hancock - Snake Princess</blockquote>
-
-<blockquote>╭─<b> ✨ JUJUTSU KAISEN P1</b>
-├─ /nobara - Strong Girl
-├─ /maki - Weapon Master
-├─ /yuki - Special Grade
-├─ /meimei - Money Lover
-╰─ /utahime - School Teacher</blockquote>
-
-<b>📖 Page 6 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_5"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_7")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 7: Jujutsu Kaisen Part 2 + Attack on Titan Part 1
-        elif page == 7:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> ✨ JUJUTSU KAISEN P2</b>
-├─ /kasumi - Simple Girl
-├─ /shoko - Medical Student
-╰─ /rika - Cursed Spirit</blockquote>
-
-<blockquote>╭─<b> ⚡ ATTACK ON TITAN P1</b>
-├─ /mikasa - Warrior Queen
-├─ /annie - Crystal Girl
-├─ /historia - True Queen
-├─ /sasha - Potato Girl
-╰─ /ymir - Jaw Titan</blockquote>
-
-<b>📖 Page 7 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_6"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_8")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 8: Attack on Titan Part 2 + Demon Slayer Part 1
-        elif page == 8:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b>⚡ ATTACK ON TITAN P2</b>
-├─ /hange - Research Titan
-├─ /pieck - Cart Titan
-├─ /gabi - Marley Warrior
-├─ /carla - Loving Mother
-├─ /frieda - Founding Titan
-╰─ /ymirfritz - First Titan</blockquote>
-
-<blockquote>╭─<b> 🗡️ DEMON SLAYER P1</b>
-├─ /nezuko - Bamboo Cutie
-├─ /shinobu - Butterfly Beauty
-├─ /mitsuri - Love Pillar
-╰─ /kanao - Flower Breathing</blockquote>
-
-<b>📖 Page 8 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_7"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_9")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 9: Demon Slayer Part 2
-        elif page == 9:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 🗡️ DEMON SLAYER P2</b>
-├─ /daki - Upper Moon Six
-├─ /tamayo - Demon Doctor
-├─ /aoi - Medical Helper
-├─ /kanae - Flower Pillar
-╰─ /amane - Master's Wife</blockquote>
-
-<b>📖 Page 9 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_8"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_10")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 10: My Hero Academia Characters
-        elif page == 10:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 🦸 MY HERO ACADEMIA</b>
-├─ /ochaco - Gravity Girl
-├─ /tsuyu - Frog Hero
-├─ /momoyaoyorozu - Creation Queen
-├─ /toga - Blood Girl
-├─ /kyoka - Sound Hero
-├─ /nejire - Big Three
-├─ /mirko - Rabbit Hero
-├─ /mina - Acid Queen
-├─ /star - American Hero
-╰─ /eri - Rewind Quirk</blockquote>
-
-<b>📖 Page 10 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_9"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_11")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 11: Chainsaw Man Characters
-        elif page == 11:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 🔥 CHAINSAW MAN</b>
-├─ /power - Blood Fiend
-├─ /makima - Control Devil
-├─ /himeno - Ghost Hunter
-├─ /quanxi - First Devil
-├─ /reze - Bomb Girl
-├─ /angel - Angel Devil
-╰─ /asa - War Devil</blockquote>
-
-<b>📖 Page 11 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_10"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_12")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 12: One Punch Man + Spy x Family + Hunter x Hunter
-        elif page == 12:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> ⚡ ONE PUNCH MAN</b>
-├─ /tatsumaki - Tornado Terror
-╰─ /fubuki - Blizzard Beauty</blockquote>
-
-<blockquote>╭─<b>🕵️ SPY X FAMILY</b>
-├─ /yor - Assassin Mom
-╰─ /anya - Mind Reader</blockquote>
-
-<blockquote>╭─<b> 🎮 HUNTER X HUNTER</b>
-├─ /biscuit - Transform Master
-├─ /machi - Thread Specialist
-╰─ /neon - Fortune Teller</blockquote>
-
-<b>📖 Page 12 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_11"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_13")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 13: Fullmetal Alchemist Characters
-        elif page == 13:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> ⚗️ FULLMETAL ALCHEMIST</b>
-├─ /winry - Automail Mechanic
-├─ /riza - Hawk's Eye
-├─ /olivier - Ice Queen
-├─ /izumi - Alchemy Teacher
-├─ /lanfan - Royal Guard
-├─ /meichang - Alkahestry User
-├─ /rose - Church Girl
-├─ /nina - Tragic Child
-├─ /trisha - Loving Mother
-╰─ /sheska - Book Lover</blockquote>
-
-<b>📖 Page 13 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_12"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_14")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 14: Death Note + Tokyo Ghoul Part 1
-        elif page == 14:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 📓 DEATH NOTE</b>
-├─ /misa - Second Kira
-├─ /naomimisora - FBI Agent
-╰─ /kiyomi - News Anchor</blockquote>
-
-<blockquote>╭─<b> 🖤 TOKYO GHOUL P1</b>
-├─ /touka - Coffee Shop
-├─ /eto - One Eyed
-├─ /rize - Binge Eater
-├─ /akira - Investigator Daughter
-╰─ /hinami - Book Lover</blockquote>
-
-<b>📖 Page 14 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_13"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_15")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 15: Tokyo Ghoul Part 2 + Other Series
-        elif page == 15:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 🖤 TOKYO GHOUL P2</b>
-├─ /itori - Information Broker
-├─ /karren - Rose Family
-├─ /kimi - Human Friend
-├─ /yoriko - Best Friend
-╰─ /roma - Clown Member</blockquote>
-
-<blockquote>╭─<b> 👗 MY DRESS-UP DARLING</b>
-├─ /marin - Cosplay Queen
-├─ /sajuna - Photography Expert
-╰─ /shinju - Shy Sister</blockquote>
-
-<blockquote>╭─<b> 🛡️ VINLAND SAGA</b>
-├─ /helga - Viking Mother
-├─ /ylva - Strong Sister
-├─ /arnheid - Slave Girl
-╰─ /gudrid - Explorer Girl</blockquote>
-
-<b>📖 Page 15 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_14"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_16")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 16: Dandadan Characters
-        elif page == 16:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 👻 DANDADAN</b>
-├─ /momoayase - Psychic Girl
-├─ /oka - Occult Club
-├─ /naomidand - Mystery Girl
-├─ /shakunetsu - Fire Spirit
-╰─ /ikue - School Girl</blockquote>
-
-<b>📖 Page 16 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_15"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_17")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 17: Dr Stone Characters
-        elif page == 17:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 🧪 DR STONE</b>
-├─ /yuzuriha - Lion's Mane
-├─ /kohaku - Village Warrior
-├─ /ruri - Village Priestess
-├─ /suika - Melon Head
-╰─ /stella - Modern Girl</blockquote>
-
-<b>📖 Page 17 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_16"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_18")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 18: Overflow + Sakamoto Days
-        elif page == 18:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 💧 OVERFLOW</b>
-├─ /kotone - Elder Sister
-╰─ /ayane - Younger Sister</blockquote>
-
-<blockquote>╭─<b> 🎯 SAKAMOTO DAYS</b>
-╰─ /osaragi - Fortune Teller</blockquote>
-
-<b>📖 Page 18 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_17"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_19")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 19: How to Enjoy Guide
-        elif page == 19:
-            help_text = f"""
-💝 <b>Makima's Complete Guide</b> 💝
-
-<blockquote>╭─<b> 🎀 How to Enjoy:</b>
-├─ Choose any anime or character!
-├─ Select media type Vid/img/Gif
-├─ Use navigation buttons 
-╰─ Find new content every update!</blockquote>
-
-<blockquote>╭─<b> 🌺 Pro Tips:</b>
-├─ Anime-based command list!
-├─ Each character, unique content!
-├─ Explore all media types freely!
-╰─ Use /start to return to main menu!</blockquote>
-
-<b>📖 Page 19 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_18"),
-                    InlineKeyboardButton(text="▶️ Next", callback_data="help_page_20")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Page 20: Final Page
-        elif page == 20:
-            help_text = f"""
-💝 <b>Makima's Complete Guide </b> 💝
-
-<b>💗 Thanks <a href="tg://user?id={user_id}">{user_name}</a> for exploring with me!</b>
-
-<i>Enjoy diving into the anime world with unique content for every character. 💘</i>
-
-<blockquote>✨ Use <b>/start</b> to return home anytime!</blockquote>
-
-<b>📖 Page 20 of 20</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="◀️ Previous", callback_data="help_page_19"),
-                    InlineKeyboardButton(text="🏠 Page 1", callback_data="help_page_1")
-                ],
-                [
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        # Default fallback for invalid pages
-        else:
-            help_text = f"""
-💝 <b>Makima's Complete Guide </b> 💝
-
-<b>🌸 Invalid page! Use the buttons to navigate properly.</b>
-
-<b>📖 Page Error</b>
-"""
-            keyboard = InlineKeyboardMarkup(inline_keyboard=[
-                [
-                    InlineKeyboardButton(text="🏠 Page 1", callback_data="help_page_1"),
-                    InlineKeyboardButton(text="📚 Minimize", callback_data="minimize_help")
-                ]
-            ])
-
-        await bot.edit_message_text(
-            text=help_text,
-            chat_id=callback.message.chat.id,
-            message_id=callback.message.message_id,
-            reply_markup=keyboard
-        )
-
-        if callback.data == "expand_help":
-            await callback.answer("📖 Full guide expanded! Use Next/Previous to navigate")
-        else:
-            await callback.answer(f"📖 Page {page} loaded")
-        return
-
-    elif callback.data == "minimize_help":
-        user_name = callback.from_user.full_name if callback.from_user else "User"
-        user_id = callback.from_user.id if callback.from_user else ""
-
-        short_help_text = f"""
-💝 <b>Makima's Guide - <a href="tg://user?id={user_id}">{user_name}</a></b> 💝
-
-<b>🌸 Welcome to my anime world!</b> I'm your personal anime companion with 150+ commands!
-
-<blockquote>╭─<b> 🎌 Quick Start</b>
-├─ /naruto /bleach /op /jjk /aot /ds
-├─ /hinata /sakura /tsunade /rukia
-╰─ /mikasa /nobara /power /makima</blockquote>
-
-<blockquote>╭─<b> 🎀 How to use</b>
-├─ Choose any type of command
-├─ Select media type Vid/img/Gif  
-╰─ Explore with navigation buttons</blockquote>
-
-Type a command to begin! 🌟
-"""
-
-        keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [
-                InlineKeyboardButton(text="📖 Expand Full Guide", callback_data="expand_help")
-            ]
-        ])
-
-        await bot.edit_message_text(
-            text=short_help_text,
-            chat_id=callback.message.chat.id,
-            message_id=callback.message.message_id,
-            reply_markup=keyboard
-        )
-        await callback.answer("📖 Guide minimized!")
-        return
+            return
 
     data_parts = callback.data.split("_")
     action = data_parts[0]
@@ -3459,16 +2382,13 @@ Type a command to begin! 🌟
         await callback.answer("Invalid button format")
         return
 
-    # Handle media type selection
     if action == "select":
-        media_type = data_parts[1]  # video, image, or gif
-        target = data_parts[2]  # anime_name, random, or search_query
+        media_type = data_parts[1]
+        target = data_parts[2]
 
         logger.info(f"Media type {media_type} selected for: {target}")
 
-        # Handle different target types
         if target == "random":
-            # Random content selection
             await callback.answer(f"💞 Loading random {media_type}...")
             try:
                 await send_random_media(
@@ -3483,7 +2403,6 @@ Type a command to begin! 🌟
                 logger.error(f"Random selection error: {e}")
                 await callback.answer("Failed to load random content", show_alert=True)
         elif target in ANIME_COMMANDS:
-            # Anime command selection
             await callback.answer(f"💞 Loading {media_type}...")
             try:
                 await send_anime_media(
@@ -3499,7 +2418,6 @@ Type a command to begin! 🌟
                 logger.error(f"Anime selection error: {e}")
                 await callback.answer("Failed to load anime content", show_alert=True)
         else:
-            # Search query selection (decode the search query)
             search_query = target.replace("_", " ")
             await callback.answer(f"💞 Loading {media_type} for '{search_query}'...")
             try:
@@ -3516,7 +2434,6 @@ Type a command to begin! 🌟
                 logger.error(f"Search selection error: {e}")
                 await callback.answer(f"Failed to load search content", show_alert=True)
 
-    # Handle navigation buttons (update, next)
     elif action in ["update", "next"]:
         anime_name = data_parts[1]
         media_type = data_parts[2] if len(data_parts) > 2 else "image"
@@ -3527,7 +2444,6 @@ Type a command to begin! 🌟
             await callback.answer("✨ Getting fresh content...")
 
             try:
-                # Handle different content types
                 if anime_name == "random":
                     await send_random_media(
                         chat_id=callback.message.chat.id,
@@ -3546,7 +2462,6 @@ Type a command to begin! 🌟
                         page=page
                     )
                 else:
-                    # Search query
                     search_query = anime_name.replace("_", " ")
                     await send_search_media(
                         search_query=search_query,
@@ -3565,7 +2480,6 @@ Type a command to begin! 🌟
             await callback.answer("💞 Loading more content...")
 
             try:
-                # Handle different content types
                 if anime_name == "random":
                     await send_random_media(
                         chat_id=callback.message.chat.id,
@@ -3582,7 +2496,6 @@ Type a command to begin! 🌟
                         page=page + 1
                     )
                 else:
-                    # Search query
                     search_query = anime_name.replace("_", " ")
                     await send_search_media(
                         search_query=search_query,
@@ -3595,7 +2508,6 @@ Type a command to begin! 🌟
             except Exception as e:
                 logger.error(f"Next callback error: {e}")
 
-    # Handle back to menu button
     elif callback.data == "back_to_menu":
         logger.info("Back to menu button pressed")
         await callback.answer("💕 Returning to main menu...")
@@ -3610,7 +2522,7 @@ Type a command to begin! 🌟
 
 🎀 Enjoy <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
-<blockquote><i>💌 Just type <b>/help</b> to unlock magic!</i></blockquote>
+<blockquote><i>💌 Use any anime command to begin your journey!</i></blockquote>
 """
 
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
@@ -3636,7 +2548,6 @@ Type a command to begin! 🌟
             await callback.answer("Failed to return to menu", show_alert=True)
         return
 
-    # Handle back button - return to media selection
     elif action == "back":
         target = data_parts[1]
         logger.info(f"Back button pressed for: {target}")
@@ -3644,11 +2555,9 @@ Type a command to begin! 🌟
 
         try:
             if target == "random":
-                # Return to random selection
                 keyboard = create_random_selection_keyboard()
                 caption = "🎲 <b>Random Content</b> ✨\n\n💫 What would you like to see?"
             elif target in ANIME_COMMANDS:
-                # Return to anime command selection
                 anime_data = ANIME_COMMANDS.get(target)
                 keyboard = create_media_selection_keyboard(target)
                 if anime_data:
@@ -3656,7 +2565,6 @@ Type a command to begin! 🌟
                 else:
                     caption = f"💖 {target.title()}\n\n✨ What would you like to see?"
             else:
-                # Return to search selection (decode search query)
                 search_query = target.replace("_", " ")
                 keyboard = create_search_selection_keyboard(search_query)
                 caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_query}</i>\n\n✨ What would you like to see?"
@@ -3676,7 +2584,6 @@ Type a command to begin! 🌟
     else:
         await callback.answer("Unknown button")
 
-# ─── Performance Monitoring ─────────────────────────────────────────
 def log_performance_stats():
     """Log current performance statistics"""
     logger.info(f"📊 Performance Stats:")
@@ -3684,11 +2591,8 @@ def log_performance_stats():
     logger.info(f"   User offsets tracked: {len(user_offsets)}")
     logger.info(f"   Recent API requests: {len(api_request_times)}")
 
-# ─── Startup Function ───────────────────────────────────────────────
 async def main():
-    # Colored logging is already configured above, no need for basicConfig
 
-    # Start HTTP server for deployment compatibility
     threading.Thread(target=start_dummy_server, daemon=True).start()
 
     logger.info("🌸 Starting Makima - Your Anime Companion...")
@@ -3698,7 +2602,6 @@ async def main():
         logger.info(f"✨ Beautiful commands registered: {len(BOT_COMMANDS)} commands set")
         logger.info("💖 Makima is ready to serve! Press Ctrl+C to stop.")
 
-        # Log initial performance stats
         log_performance_stats()
 
         await dp.start_polling(bot)
