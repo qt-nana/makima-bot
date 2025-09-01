@@ -1,4 +1,3 @@
-
 import os
 import json
 import time
@@ -115,7 +114,7 @@ logger = setup_colored_logging()
 def extract_user_info(msg: Message) -> Dict[str, Any]:
     """Extract user and chat information from message"""
     logger.debug("🔍 Extracting user information from message")
-    
+
     if not msg.from_user:
         return {
             "user_id": 0,
@@ -129,7 +128,7 @@ def extract_user_info(msg: Message) -> Dict[str, Any]:
             "chat_username": f"@{msg.chat.username}" if msg.chat and msg.chat.username else "No Username",
             "chat_link": f"https://t.me/{msg.chat.username}" if msg.chat and msg.chat.username else "No Link",
         }
-    
+
     u = msg.from_user
     c = msg.chat
     info = {
@@ -153,10 +152,10 @@ def extract_user_info(msg: Message) -> Dict[str, Any]:
 def log_with_user_info(level: str, message: str, user_info: Dict[str, Any]) -> None:
     """Log message with user information"""
     user_detail = (
-        f"👤 {user_info['full_name']} (@{user_info['username']}) "
-        f"[ID: {user_info['user_id']}] | "
-        f"💬 {user_info['chat_title']} [{user_info['chat_id']}] "
-        f"({user_info['chat_type']}) {user_info['chat_link']}"
+        f"👤 {user_info.get('full_name', 'N/A')} (@{user_info.get('username', 'N/A')}) "
+        f"[ID: {user_info.get('user_id', 'N/A')}] | "
+        f"💬 {user_info.get('chat_title', 'N/A')} [{user_info.get('chat_id', 'N/A')}] "
+        f"({user_info.get('chat_type', 'N/A')}) {user_info.get('chat_link', 'N/A')}"
     )
     full_message = f"{message} | {user_detail}"
 
@@ -211,7 +210,7 @@ BOT_MESSAGES = {
 I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b> 💖
 
 <blockquote><i>✨ Join our <b>special places</b>. Tap below and come find me! 💕</i></blockquote>""",
-    
+
     "welcome_text": """💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</b>
 
 <b>Makima</b> here, to brighten your day! 🌸
@@ -219,7 +218,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b>
 🎀 Enjoy <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
 
 <blockquote><i>💌 Use any anime command to begin your journey!</i></blockquote>""",
-    
+
     "membership_success": """🌸 <b>You're now officially part of our little world!</b> 💕
 
 🥰 I'm really happy to have you here. You can now enjoy all the special features and content waiting for you.
@@ -227,7 +226,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b>
 <blockquote><b><i>I can't wait to share my favorite anime moments with you, sweetheart 🌺</i></b></blockquote>
 
 ✨ Type <b>/start</b> to begin your journey with me! 🎀""",
-    
+
     "privacy_settings": """🔐 <b>Privacy Mode Settings</b>
 
 <b>Current Mode:</b> {mode_emoji} <b>{mode_text}</b>
@@ -243,7 +242,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b>
 ╰─ Default secure behavior</blockquote>
 
 <b>👑 Owner always has full access regardless of mode</b>""",
-    
+
     "search_guidance": """🔍 <b>Live Search Mode</b> 💫
 
 <i>Searching for:</i> <b>"{search_text}"</b>
@@ -260,7 +259,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b>
 ╰─ Art styles like "anime", "manga", "3d"</blockquote>
 
 ⏳ <i>Searching live from internet...</i>""",
-    
+
     "no_results": """🔍 <b>No Results Found</b> 😔
 
 <i>Searched for:</i> <b>"{search_text}"</b>
@@ -275,7 +274,7 @@ I'm <b>Makima</b>, but I only play with those who join our <b>lovely family!</b>
 ├─ hinata, sakura, tsunade (Naruto)
 ├─ rukia, orihime, yoruichi (Bleach)
 ╰─ mikasa, annie, historia (AOT)</blockquote>""",
-    
+
     "media_selection": "💖 {title}\n\n✨ What would you like to see?",
     "anime_media_caption": "💖 {title} {media_emoji} ✨",
     "random_selection": "🎲 <b>Random Content</b> ✨\n\n💫 What would you like to see?",
@@ -395,14 +394,14 @@ class DummyHandler(BaseHTTPRequestHandler):
 def check_membership(user_id):
     """Check if user is a member of required channel and group"""
     logger.info(f"🔍 Starting membership check for user ID: {user_id}")
-    
+
     try:
         logger.debug(f"🌐 Preparing channel membership check for user {user_id}")
         channel_url = f"{TELEGRAM_API_URL}/getChatMember"
         channel_data = {"chat_id": "@WorkGlows", "user_id": user_id}
         logger.debug(f"📡 Channel API URL: {channel_url}")
         logger.debug(f"📋 Channel request data: {channel_data}")
-        
+
         channel_response = requests.post(channel_url, json=channel_data, timeout=10)
         logger.debug(f"📨 Channel API response status: {channel_response.status_code}")
 
@@ -411,16 +410,16 @@ def check_membership(user_id):
         group_data = {"chat_id": "-1002186262653", "user_id": user_id}
         logger.debug(f"📡 Group API URL: {group_url}")
         logger.debug(f"📋 Group request data: {group_data}")
-        
+
         group_response = requests.post(group_url, json=group_data, timeout=10)
         logger.debug(f"📨 Group API response status: {group_response.status_code}")
 
         if channel_response.status_code == 200 and group_response.status_code == 200:
             logger.debug(f"✅ Both API calls successful for user {user_id}")
-            
+
             channel_member = channel_response.json().get("result", {})
             group_member = group_response.json().get("result", {})
-            
+
             logger.debug(f"👤 Channel member data: {channel_member}")
             logger.debug(f"👥 Group member data: {group_member}")
 
@@ -429,23 +428,23 @@ def check_membership(user_id):
 
             channel_status = channel_member.get("status")
             group_status = group_member.get("status")
-            
+
             logger.debug(f"🔐 Channel status for user {user_id}: {channel_status}")
             logger.debug(f"🔐 Group status for user {user_id}: {group_status}")
 
             channel_joined = channel_status in valid_statuses
             group_joined = group_status in valid_statuses
-            
+
             logger.debug(f"✓ Channel membership valid: {channel_joined}")
             logger.debug(f"✓ Group membership valid: {group_joined}")
 
             membership_status = channel_joined and group_joined
-            
+
             if membership_status:
                 logger.info(f"✅ User {user_id} has valid membership in both channel and group")
             else:
                 logger.warning(f"⚠️ User {user_id} membership check failed - Channel: {channel_joined} ({channel_status}), Group: {group_joined} ({group_status})")
-            
+
             return membership_status
         else:
             logger.error(f"❌ API error checking membership for user {user_id} - Channel: {channel_response.status_code}, Group: {group_response.status_code}")
@@ -519,7 +518,7 @@ async def send_membership_reminder(chat_id, user_id, user_name):
             reply_markup=keyboard
         )
         logger.info(f"✅ Membership reminder sent successfully to {user_name} (ID: {user_id}) in chat {chat_id}")
-        
+
     except Exception as e:
         logger.error(f"❌ Failed to send membership reminder to {user_name} (ID: {user_id}) in chat {chat_id}: {str(e)}")
         logger.error(f"❌ Reminder failure details - Chat: {chat_id}, User: {user_id}, Image: {selected_image}")
@@ -529,16 +528,16 @@ def check_rate_limit():
     logger.debug(f"⏱️ Starting rate limit check")
     current_time = time.time()
     logger.debug(f"🕐 Current timestamp: {current_time}")
-    
+
     global api_request_times
     original_count = len(api_request_times)
     logger.debug(f"📊 Original request count: {original_count}")
-    
+
     # Filter out requests older than 60 seconds
     api_request_times = [t for t in api_request_times if current_time - t < 60]
     filtered_count = len(api_request_times)
     logger.debug(f"📊 Filtered request count (last 60s): {filtered_count}")
-    
+
     if original_count != filtered_count:
         logger.debug(f"🧹 Cleaned {original_count - filtered_count} old request timestamps")
 
@@ -558,17 +557,17 @@ def manage_content_cache():
     global sent_content_ids
     original_size = len(sent_content_ids)
     logger.debug(f"📊 Current cache size: {original_size}/{MAX_CONTENT_CACHE}")
-    
+
     if len(sent_content_ids) > MAX_CONTENT_CACHE:
         logger.warning(f"⚠️ Cache size exceeded limit: {original_size} > {MAX_CONTENT_CACHE}")
         logger.debug(f"🔄 Converting cache set to list for processing")
         cache_list = list(sent_content_ids)
-        
+
         # Keep the second half (newer items)
         midpoint = len(cache_list) // 2
         logger.debug(f"✂️ Removing first {midpoint} items from cache")
         sent_content_ids = set(cache_list[midpoint:])
-        
+
         new_size = len(sent_content_ids)
         logger.info(f"🧹 Content cache cleaned - reduced from {original_size} to {new_size} items ({original_size - new_size} removed)")
     else:
@@ -1408,85 +1407,86 @@ BOT_COMMANDS = [
     for cmd in REGISTERED_COMMANDS
 ]
 
-async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id: int = 0, max_retries: int = 5):
+async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_info: Dict[str, Any] = None, max_retries: int = 5):
     """
     Fetches anime-specific NSFW content from Rule34 API using tags
     Returns high-quality content (image/video/gif) with guaranteed success through retries
     Prevents duplicate content using advanced tracking system
     """
-    logger.info(f"🎯 Starting Rule34 media fetch for anime: {anime_name}, media_type: {media_type}, user_id: {user_id}")
-    
+    log_with_user_info("INFO", f"🎯 Starting Rule34 media fetch for anime: {anime_name}, media_type: {media_type}", user_info or {})
+
     anime_data = ANIME_COMMANDS.get(anime_name)
     if not anime_data:
-        logger.error(f"❌ Anime '{anime_name}' not found in ANIME_COMMANDS")
+        log_with_user_info("ERROR", f"❌ Anime '{anime_name}' not found in ANIME_COMMANDS", user_info or {})
         return None
 
-    logger.debug(f"✅ Anime data found for {anime_name}: {anime_data['title']} with {len(anime_data['tags'])} tags")
+    log_with_user_info("DEBUG", f"✅ Anime data found for {anime_name}: {anime_data['title']} with {len(anime_data['tags'])} tags", user_info or {})
 
     tags = anime_data["tags"]
+    user_id = user_info.get("user_id", 0) if user_info else 0
     user_key = f"{user_id}_{anime_name}" if user_id else anime_name
 
     if user_key not in user_offsets:
         user_offsets[user_key] = 0
-        logger.debug(f"🆕 Created new user offset for key: {user_key}")
-    
-    logger.info(f"📍 User offset for {user_key}: {user_offsets[user_key]}")
+        log_with_user_info("DEBUG", f"🆕 Created new user offset for key: {user_key}", user_info or {})
+
+    log_with_user_info("INFO", f"📍 User offset for {user_key}: {user_offsets[user_key]}", user_info or {})
 
     for retry in range(max_retries):
-        logger.debug(f"🔄 Attempt {retry + 1}/{max_retries} for {anime_name}")
-        
+        log_with_user_info("DEBUG", f"🔄 Attempt {retry + 1}/{max_retries} for {anime_name}", user_info or {})
+
         try:
             character_specific_tags = []
             generic_tags = []
 
             character_name = anime_data["title"].lower().replace(" ", "_")
-            logger.debug(f"🔤 Processing character name: {character_name}")
-            
+            log_with_user_info("DEBUG", f"🔤 Processing character name: {character_name}", user_info or {})
+
             for tag in tags:
                 if any(name_part in tag.lower() for name_part in character_name.split("_")):
                     character_specific_tags.append(tag)
                 else:
                     generic_tags.append(tag)
 
-            logger.debug(f"🏷️ Character specific tags: {character_specific_tags}")
-            logger.debug(f"🏷️ Generic tags: {generic_tags}")
+            log_with_user_info("DEBUG", f"🏷️ Character specific tags: {character_specific_tags}", user_info or {})
+            log_with_user_info("DEBUG", f"🏷️ Generic tags: {generic_tags}", user_info or {})
 
             if retry < len(character_specific_tags):
                 selected_tags = [character_specific_tags[retry]]
-                logger.debug(f"🎯 Using character specific tag: {selected_tags}")
+                log_with_user_info("DEBUG", f"🎯 Using character specific tag: {selected_tags}", user_info or {})
             elif retry < len(character_specific_tags) + len(generic_tags):
                 generic_index = retry - len(character_specific_tags)
                 selected_tags = [generic_tags[generic_index]]
-                logger.debug(f"🎯 Using generic tag: {selected_tags}")
+                log_with_user_info("DEBUG", f"🎯 Using generic tag: {selected_tags}", user_info or {})
             else:
                 if character_specific_tags:
                     primary_tag = random.choice(character_specific_tags)
                     if len(character_specific_tags) > 1:
                         secondary_tag = random.choice([t for t in character_specific_tags if t != primary_tag])
                         selected_tags = [primary_tag, secondary_tag]
-                        logger.debug(f"🎯 Using combined character tags: {selected_tags}")
+                        log_with_user_info("DEBUG", f"🎯 Using combined character tags: {selected_tags}", user_info or {})
                     else:
                         selected_tags = [primary_tag]
-                        logger.debug(f"🎯 Using single character tag: {selected_tags}")
+                        log_with_user_info("DEBUG", f"🎯 Using single character tag: {selected_tags}", user_info or {})
                 else:
                     tag_count = min(random.randint(1, 2), len(generic_tags))
                     selected_tags = random.sample(generic_tags, tag_count)
-                    logger.debug(f"🎯 Using random generic tags: {selected_tags}")
+                    log_with_user_info("DEBUG", f"🎯 Using random generic tags: {selected_tags}", user_info or {})
 
             tag_string = "+".join(selected_tags)
-            logger.info(f"🔗 Final tag string: {tag_string}")
+            log_with_user_info("INFO", f"🔗 Final tag string: {tag_string}", user_info or {})
 
             page_offset = user_offsets[user_key] + retry
-            logger.debug(f"📄 Page offset: {page_offset}")
+            log_with_user_info("DEBUG", f"📄 Page offset: {page_offset}", user_info or {})
 
             if not check_rate_limit():
-                logger.warning(f"⚠️ Rate limit exceeded, sleeping for 10 seconds")
+                log_with_user_info("WARNING", f"⚠️ Rate limit exceeded, sleeping for 10 seconds", user_info or {})
                 await asyncio.sleep(10)
                 continue
 
             manage_content_cache()
 
-            logger.debug(f"🌐 Making API request to Rule34 with tags: {tag_string}")
+            log_with_user_info("DEBUG", f"🌐 Making API request to Rule34 with tags: {tag_string}", user_info or {})
             async with aiohttp.ClientSession() as session:
                 params = {
                     "page": "dapi",
@@ -1498,39 +1498,43 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                     "api_key": R34_API_KEY,
                     "user_id": R34_USER_ID
                 }
-                logger.debug(f"📋 API params: {params}")
+                log_with_user_info("DEBUG", f"📋 API params: {params}", user_info or {})
 
                 async with session.get(RULE34_API_BASE, params=params) as response:
-                    logger.debug(f"📡 API response status: {response.status}")
-                    
+                    log_with_user_info("DEBUG", f"📡 API response status: {response.status}", user_info or {})
+
                     if response.status == 200:
                         xml_content = await response.text()
-                        logger.debug(f"📄 Received XML content length: {len(xml_content)} characters")
+                        log_with_user_info("DEBUG", f"📄 Received XML content length: {len(xml_content)} characters", user_info or {})
 
                         try:
                             root = ET.fromstring(xml_content)
-                            logger.debug(f"✅ Successfully parsed XML")
+                            log_with_user_info("DEBUG", f"✅ Successfully parsed XML", user_info or {})
 
                             posts = []
                             total_posts_found = 0
-                            
+
                             for post in root.findall('.//post'):
                                 total_posts_found += 1
                                 post_id = post.get('id')
                                 file_url = post.get('file_url')
 
                                 if post_id in sent_content_ids:
-                                    logger.debug(f"⏭️ Skipping duplicate post ID: {post_id}")
+                                    log_with_user_info("DEBUG", f"⏭️ Skipping duplicate post ID: {post_id}", user_info or {})
                                     continue
 
                                 if file_url and file_url.startswith(('http://', 'https://')):
-                                    if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
+                                    # Check image formats with PNG priority
+                                    if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.webp', '.png')):
+                                        # Prefer non-PNG formats for better compatibility
+                                        priority = 1 if file_url.lower().endswith('.png') else 2
                                         posts.append({
                                             'url': file_url,
                                             'id': post_id,
                                             'tags': post.get('tags', ''),
                                             'score': int(post.get('score', 0)),
-                                            'type': 'image'
+                                            'type': 'image',
+                                            'priority': priority
                                         })
                                     elif media_type == "gif" and file_url.lower().endswith('.gif'):
                                         posts.append({
@@ -1549,45 +1553,46 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                                             'type': 'video'
                                         })
 
-                            logger.info(f"📊 Found {total_posts_found} total posts, {len(posts)} matching {media_type} type")
+                            log_with_user_info("INFO", f"📊 Found {total_posts_found} total posts, {len(posts)} matching {media_type} type", user_info or {})
 
                             if posts:
-                                posts.sort(key=lambda x: x['score'], reverse=True)
+                                # Sort by priority then score for better compatibility
+                                posts.sort(key=lambda x: (x.get('priority', 1), x['score']), reverse=True)
                                 top_posts = posts[:50]
                                 selected = random.choice(top_posts)
-                                
-                                logger.info(f"✨ Selected post: ID {selected['id']}, score {selected['score']}, type {selected['type']}")
+
+                                log_with_user_info("INFO", f"✨ Selected post: ID {selected['id']}, score {selected['score']}, type {selected['type']}", user_info or {})
 
                                 sent_content_ids.add(selected['id'])
-                                logger.debug(f"💾 Added post ID {selected['id']} to sent_content_ids cache")
+                                log_with_user_info("DEBUG", f"💾 Added post ID {selected['id']} to sent_content_ids cache", user_info or {})
 
                                 user_offsets[user_key] += 1
-                                logger.debug(f"📈 Incremented user offset for {user_key} to {user_offsets[user_key]}")
+                                log_with_user_info("DEBUG", f"📈 Incremented user offset for {user_key} to {user_offsets[user_key]}", user_info or {})
 
                                 return selected
                             else:
-                                logger.warning(f"⚠️ No posts found matching criteria for attempt {retry + 1}")
-                                
+                                log_with_user_info("WARNING", f"⚠️ No posts found matching criteria for attempt {retry + 1}", user_info or {})
+
                         except ET.ParseError as e:
-                            logger.error(f"❌ XML parsing error on attempt {retry + 1}: {str(e)}")
+                            log_with_user_info("ERROR", f"❌ XML parsing error on attempt {retry + 1}: {str(e)}", user_info or {})
                             continue
                     else:
-                        logger.error(f"❌ API request failed with status {response.status}")
+                        log_with_user_info("ERROR", f"❌ API request failed with status {response.status}", user_info or {})
 
         except Exception as e:
-            logger.error(f"❌ Exception during attempt {retry + 1}: {str(e)}")
+            log_with_user_info("ERROR", f"❌ Exception during attempt {retry + 1}: {str(e)}", user_info or {})
             continue
 
-    logger.warning(f"⚠️ All primary attempts failed, starting fallback search for {anime_name}")
+    log_with_user_info("WARNING", f"⚠️ All primary attempts failed, starting fallback search for {anime_name}", user_info or {})
     character_name = anime_data["title"].lower().replace(" ", "_")
     fallback_tags = list(tags) + [character_name]
-    logger.debug(f"🔄 Fallback tags: {fallback_tags}")
+    log_with_user_info("DEBUG", f"🔄 Fallback tags: {fallback_tags}", user_info or {})
 
     for tag in fallback_tags:
-        logger.debug(f"🔍 Trying fallback tag: {tag}")
+        log_with_user_info("DEBUG", f"🔍 Trying fallback tag: {tag}", user_info or {})
         try:
             page_offset = random.randint(0, 10)
-            logger.debug(f"📄 Fallback page offset: {page_offset}")
+            log_with_user_info("DEBUG", f"📄 Fallback page offset: {page_offset}", user_info or {})
 
             async with aiohttp.ClientSession() as session:
                 params = {
@@ -1600,20 +1605,20 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                     "api_key": R34_API_KEY,
                     "user_id": R34_USER_ID
                 }
-                logger.debug(f"📋 Fallback API params: {params}")
+                log_with_user_info("DEBUG", f"📋 Fallback API params: {params}", user_info or {})
 
                 async with session.get(RULE34_API_BASE, params=params) as response:
-                    logger.debug(f"📡 Fallback API response status: {response.status}")
-                    
+                    log_with_user_info("DEBUG", f"📡 Fallback API response status: {response.status}", user_info or {})
+
                     if response.status == 200:
                         xml_content = await response.text()
-                        logger.debug(f"📄 Fallback XML content length: {len(xml_content)} characters")
-                        
+                        log_with_user_info("DEBUG", f"📄 Fallback XML content length: {len(xml_content)} characters", user_info or {})
+
                         try:
                             root = ET.fromstring(xml_content)
                             posts = []
                             total_posts_found = 0
-                            
+
                             for post in root.findall('.//post'):
                                 total_posts_found += 1
                                 post_id = post.get('id')
@@ -1623,13 +1628,17 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                                     continue
 
                                 if file_url and file_url.startswith(('http://', 'https://')):
-                                    if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
+                                    # Check image formats with PNG handling
+                                    if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.webp', '.png')):
+                                        # Prefer non-PNG formats for better compatibility
+                                        priority = 1 if file_url.lower().endswith('.png') else 2
                                         posts.append({
                                             'url': file_url,
                                             'id': post_id,
                                             'tags': post.get('tags', ''),
                                             'score': int(post.get('score', 0)),
-                                            'type': 'image'
+                                            'type': 'image',
+                                            'priority': priority
                                         })
                                     elif media_type == "gif" and file_url.lower().endswith('.gif'):
                                         posts.append({
@@ -1648,26 +1657,27 @@ async def fetch_rule34_media(anime_name: str, media_type: str = "image", user_id
                                             'type': 'video'
                                         })
 
-                            logger.info(f"📊 Fallback found {total_posts_found} total posts, {len(posts)} matching {media_type} type")
+                            log_with_user_info("INFO", f"📊 Fallback found {total_posts_found} total posts, {len(posts)} matching {media_type} type", user_info or {})
 
                             if posts:
-                                posts.sort(key=lambda x: x['score'], reverse=True)
+                                # Sort by priority then score for better compatibility
+                                posts.sort(key=lambda x: (x.get('priority', 1), x['score']), reverse=True)
                                 selected = random.choice(posts[:30])
-                                
-                                logger.info(f"✨ Fallback selected post: ID {selected['id']}, score {selected['score']}, type {selected['type']}")
+
+                                log_with_user_info("INFO", f"✨ Fallback selected post: ID {selected['id']}, score {selected['score']}, type {selected['type']}", user_info or {})
 
                                 sent_content_ids.add(selected['id'])
-                                logger.debug(f"💾 Added fallback post ID {selected['id']} to cache")
+                                log_with_user_info("DEBUG", f"💾 Added fallback post ID {selected['id']} to cache", user_info or {})
 
                                 return selected
                         except ET.ParseError as e:
-                            logger.error(f"❌ Fallback XML parsing error: {str(e)}")
+                            log_with_user_info("ERROR", f"❌ Fallback XML parsing error: {str(e)}", user_info or {})
                             continue
         except Exception as e:
-            logger.error(f"❌ Fallback exception for tag {tag}: {str(e)}")
+            log_with_user_info("ERROR", f"❌ Fallback exception for tag {tag}: {str(e)}", user_info or {})
             continue
 
-    logger.error(f"❌ Complete failure: No content found for {anime_name} with media_type {media_type}")
+    log_with_user_info("ERROR", f"❌ Complete failure: No content found for {anime_name} with media_type {media_type}", user_info or {})
     return None
 
 def create_media_selection_keyboard(anime_name: str):
@@ -1696,40 +1706,40 @@ def create_media_navigation_keyboard(anime_name: str, media_type: str, page: int
     ])
     return keyboard
 
-async def send_media_selection(anime_name: str, chat_id: int):
+async def send_media_selection(anime_name: str, chat_id: int, user_info: Dict[str, Any] = None):
     """Send initial image with media type selection buttons"""
-    logger.info(f"🎯 Starting media selection for anime: {anime_name} in chat: {chat_id}")
-    
+    log_with_user_info("INFO", f"🎯 Starting media selection for anime: {anime_name} in chat: {chat_id}", user_info or {})
+
     anime_data = ANIME_COMMANDS.get(anime_name)
     if not anime_data:
-        logger.error(f"❌ Anime '{anime_name}' not found in ANIME_COMMANDS")
+        log_with_user_info("ERROR", f"❌ Anime '{anime_name}' not found in ANIME_COMMANDS", user_info or {})
         return None
 
     title = anime_data["title"]
-    logger.debug(f"📝 Anime title: {title}")
+    log_with_user_info("DEBUG", f"📝 Anime title: {title}", user_info or {})
 
-    logger.debug(f"🎯 Fetching initial image for {anime_name}")
-    post = await fetch_rule34_media(anime_name, "image", chat_id)
+    log_with_user_info("DEBUG", f"🎯 Fetching initial image for {anime_name}", user_info or {})
+    post = await fetch_rule34_media(anime_name, "image", user_info)
     if not post:
-        logger.error(f"❌ Failed to fetch initial image for {anime_name}")
+        log_with_user_info("ERROR", f"❌ Failed to fetch initial image for {anime_name}", user_info or {})
         return None
 
-    logger.info(f"✅ Successfully fetched initial image: {post['id']} for {anime_name}")
+    log_with_user_info("INFO", f"✅ Successfully fetched initial image: {post['id']} for {anime_name}", user_info or {})
 
     try:
-        logger.debug(f"⌨️ Creating media selection keyboard for {anime_name}")
+        log_with_user_info("DEBUG", f"⌨️ Creating media selection keyboard for {anime_name}", user_info or {})
         keyboard = create_media_selection_keyboard(anime_name)
-        logger.debug(f"✅ Media selection keyboard created")
-        
-        logger.debug(f"📝 Formatting caption for {title}")
+        log_with_user_info("DEBUG", f"✅ Media selection keyboard created", user_info or {})
+
+        log_with_user_info("DEBUG", f"📝 Formatting caption for {title}", user_info or {})
         caption = BOT_MESSAGES["media_selection"].format(title=title)
-        logger.debug(f"📄 Caption length: {len(caption)} characters")
+        log_with_user_info("DEBUG", f"📄 Caption length: {len(caption)} characters", user_info or {})
 
-        logger.debug(f"📤 Sending upload photo action to chat {chat_id}")
+        log_with_user_info("DEBUG", f"📤 Sending upload photo action to chat {chat_id}", user_info or {})
         await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
-        logger.debug(f"✅ Upload photo action sent")
+        log_with_user_info("DEBUG", f"✅ Upload photo action sent", user_info or {})
 
-        logger.debug(f"📸 Sending media selection photo to chat {chat_id}")
+        log_with_user_info("DEBUG", f"📸 Sending media selection photo to chat {chat_id}", user_info or {})
         sent_msg = await bot.send_photo(
             chat_id=chat_id,
             photo=post['url'],
@@ -1737,12 +1747,12 @@ async def send_media_selection(anime_name: str, chat_id: int):
             reply_markup=keyboard,
             has_spoiler=True
         )
-        logger.info(f"✅ Media selection sent successfully for {anime_name} to chat {chat_id}, message ID: {sent_msg.message_id}")
+        log_with_user_info("INFO", f"✅ Media selection sent successfully for {anime_name} to chat {chat_id}, message ID: {sent_msg.message_id}", user_info or {})
         return sent_msg
-        
+
     except Exception as e:
-        logger.error(f"❌ Failed to send media selection for {anime_name} to chat {chat_id}: {str(e)}")
-        logger.error(f"❌ Error details - URL: {post['url']}, Title: {title}")
+        log_with_user_info("ERROR", f"❌ Failed to send media selection for {anime_name} to chat {chat_id}: {str(e)}", user_info or {})
+        log_with_user_info("ERROR", f"❌ Error details - URL: {post['url']}, Title: {title}", user_info or {})
         return None
 
 async def send_random_media(chat_id: int, message_id: int | None = None, edit_mode: bool = False, media_type: str = "image", page: int = 1):
@@ -1834,6 +1844,7 @@ async def send_random_media(chat_id: int, message_id: int | None = None, edit_mo
 
         return True
     except Exception as e:
+        logger.error(f"❌ Failed to send random media: {str(e)}")
         return None
 
 async def send_search_media(search_query: str, chat_id: int, message_id: int | None = None, edit_mode: bool = False, media_type: str = "image", page: int = 1):
@@ -1916,63 +1927,64 @@ async def send_search_media(search_query: str, chat_id: int, message_id: int | N
 
         return True
     except Exception as e:
+        logger.error(f"❌ Failed to send search media: {str(e)}")
         return None
 
-async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None = None, edit_mode: bool = False, media_type: str = "image", page: int = 1):
+async def send_anime_media(anime_name: str, chat_id: int, user_info: Dict[str, Any] = None, message_id: int | None = None, edit_mode: bool = False, media_type: str = "image", page: int = 1):
     """Send or edit anime media with retry system"""
-    logger.info(f"🎬 Starting anime media send for {anime_name}, type: {media_type}, edit_mode: {edit_mode}, page: {page}")
-    
+    log_with_user_info("INFO", f"🎬 Starting anime media send for {anime_name}, type: {media_type}, edit_mode: {edit_mode}, page: {page}", user_info or {})
+
     anime_data = ANIME_COMMANDS.get(anime_name)
     if not anime_data:
-        logger.error(f"❌ Anime '{anime_name}' not found in ANIME_COMMANDS")
+        log_with_user_info("ERROR", f"❌ Anime '{anime_name}' not found in ANIME_COMMANDS", user_info or {})
         return None
 
     title = anime_data["title"]
-    logger.debug(f"📝 Anime title: {title}")
-    
+    log_with_user_info("DEBUG", f"📝 Anime title: {title}", user_info or {})
+
     media_emoji = {"image": "🖼️", "video": "🎬", "gif": "🎨"}
-    logger.debug(f"🎭 Media emoji for {media_type}: {media_emoji.get(media_type, '❓')}")
+    log_with_user_info("DEBUG", f"🎭 Media emoji for {media_type}: {media_emoji.get(media_type, '❓')}", user_info or {})
 
     post = None
-    logger.info(f"🔄 Starting retry loop with up to 15 attempts for {anime_name}")
-    
+    log_with_user_info("INFO", f"🔄 Starting retry loop with up to 15 attempts for {anime_name}", user_info or {})
+
     for attempt in range(15):
-        logger.debug(f"🎯 Attempt {attempt + 1}/15 for {anime_name} {media_type}")
-        post = await fetch_rule34_media(anime_name, media_type, chat_id)
+        log_with_user_info("DEBUG", f"🎯 Attempt {attempt + 1}/15 for {anime_name} {media_type}", user_info or {})
+        post = await fetch_rule34_media(anime_name, media_type, user_info)
         if post:
-            logger.info(f"✅ Successfully fetched {media_type} on attempt {attempt + 1}: {post['id']}")
+            log_with_user_info("INFO", f"✅ Successfully fetched {media_type} on attempt {attempt + 1}: {post['id']}", user_info or {})
             break
 
         if attempt >= 10 and media_type in ["video", "gif"]:
-            logger.warning(f"⚠️ Attempt {attempt + 1}: Falling back to image for {media_type}")
-            post = await fetch_rule34_media(anime_name, "image", chat_id)
+            log_with_user_info("WARNING", f"⚠️ Attempt {attempt + 1}: Falling back to image for {media_type}", user_info or {})
+            post = await fetch_rule34_media(anime_name, "image", user_info)
             if post:
-                logger.info(f"✅ Fallback to image successful on attempt {attempt + 1}: {post['id']}")
+                log_with_user_info("INFO", f"✅ Fallback to image successful on attempt {attempt + 1}: {post['id']}", user_info or {})
                 break
 
     if not post:
-        logger.error(f"❌ Complete failure: No media found for {anime_name} after 15 attempts")
+        log_with_user_info("ERROR", f"❌ Complete failure: No media found for {anime_name} after 15 attempts", user_info or {})
         return None
 
-    logger.info(f"🎉 Media ready for sending: {post['type']} with ID {post['id']}, score {post['score']}")
+    log_with_user_info("INFO", f"🎉 Media ready for sending: {post['type']} with ID {post['id']}, score {post['score']}", user_info or {})
 
     try:
-        logger.debug(f"⌨️ Creating navigation keyboard for {anime_name}")
+        log_with_user_info("DEBUG", f"⌨️ Creating navigation keyboard for {anime_name}", user_info or {})
         keyboard = create_media_navigation_keyboard(anime_name, media_type, page)
-        logger.debug(f"✅ Navigation keyboard created")
-        
-        logger.debug(f"📝 Formatting caption for {title}")
+        log_with_user_info("DEBUG", f"✅ Navigation keyboard created", user_info or {})
+
+        log_with_user_info("DEBUG", f"📝 Formatting caption for {title}", user_info or {})
         caption = BOT_MESSAGES["anime_media_caption"].format(
             title=title, 
             media_emoji=MEDIA_EMOJIS.get(media_type, '')
         )
-        logger.debug(f"📄 Caption: {caption}")
+        log_with_user_info("DEBUG", f"📄 Caption: {caption}", user_info or {})
 
         if edit_mode and message_id is not None:
-            logger.info(f"✏️ Edit mode: Updating message {message_id} with {media_type}")
-            
+            log_with_user_info("INFO", f"✏️ Edit mode: Updating message {message_id} with {media_type}", user_info or {})
+
             if media_type == "video":
-                logger.debug(f"🎬 Editing message with video")
+                log_with_user_info("DEBUG", f"🎬 Editing message with video", user_info or {})
                 await bot.edit_message_media(
                     chat_id=chat_id,
                     message_id=message_id,
@@ -1984,9 +1996,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     ),
                     reply_markup=keyboard
                 )
-                logger.info(f"✅ Video message edited successfully")
+                log_with_user_info("INFO", f"✅ Video message edited successfully", user_info or {})
             elif media_type == "gif":
-                logger.debug(f"🎨 Editing message with GIF")
+                log_with_user_info("DEBUG", f"🎨 Editing message with GIF", user_info or {})
                 await bot.edit_message_media(
                     chat_id=chat_id,
                     message_id=message_id,
@@ -1998,9 +2010,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     ),
                     reply_markup=keyboard
                 )
-                logger.info(f"✅ GIF message edited successfully")
+                log_with_user_info("INFO", f"✅ GIF message edited successfully", user_info or {})
             else:
-                logger.debug(f"🖼️ Editing message with image")
+                log_with_user_info("DEBUG", f"🖼️ Editing message with image", user_info or {})
                 await bot.edit_message_media(
                     chat_id=chat_id,
                     message_id=message_id,
@@ -2012,20 +2024,20 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     ),
                     reply_markup=keyboard
                 )
-                logger.info(f"✅ Image message edited successfully")
+                log_with_user_info("INFO", f"✅ Image message edited successfully", user_info or {})
             return None
         else:
-            logger.info(f"📤 Send mode: Creating new message with {media_type}")
-            
+            log_with_user_info("INFO", f"📤 Send mode: Creating new message with {media_type}", user_info or {})
+
             if media_type == "video":
-                logger.debug(f"📤 Sending upload video action")
+                log_with_user_info("DEBUG", f"📤 Sending upload video action", user_info or {})
                 await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_VIDEO)
             else:
-                logger.debug(f"📤 Sending upload photo action")
+                log_with_user_info("DEBUG", f"📤 Sending upload photo action", user_info or {})
                 await bot.send_chat_action(chat_id=chat_id, action=ChatAction.UPLOAD_PHOTO)
 
             if media_type == "video":
-                logger.debug(f"🎬 Sending video message")
+                log_with_user_info("DEBUG", f"🎬 Sending video message", user_info or {})
                 sent_msg = await bot.send_video(
                     chat_id=chat_id,
                     video=post['url'],
@@ -2034,9 +2046,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     supports_streaming=True,
                     has_spoiler=True
                 )
-                logger.info(f"✅ Video sent successfully, message ID: {sent_msg.message_id}")
+                log_with_user_info("INFO", f"✅ Video sent successfully, message ID: {sent_msg.message_id}", user_info or {})
             elif media_type == "gif":
-                logger.debug(f"🎨 Sending GIF message")
+                log_with_user_info("DEBUG", f"🎨 Sending GIF message", user_info or {})
                 sent_msg = await bot.send_animation(
                     chat_id=chat_id,
                     animation=post['url'],
@@ -2044,9 +2056,9 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-                logger.info(f"✅ GIF sent successfully, message ID: {sent_msg.message_id}")
+                log_with_user_info("INFO", f"✅ GIF sent successfully, message ID: {sent_msg.message_id}", user_info or {})
             else:
-                logger.debug(f"🖼️ Sending image message")
+                log_with_user_info("DEBUG", f"🖼️ Sending image message", user_info or {})
                 sent_msg = await bot.send_photo(
                     chat_id=chat_id,
                     photo=post['url'],
@@ -2054,16 +2066,17 @@ async def send_anime_media(anime_name: str, chat_id: int, message_id: int | None
                     reply_markup=keyboard,
                     has_spoiler=True
                 )
-                logger.info(f"✅ Image sent successfully, message ID: {sent_msg.message_id}")
+                log_with_user_info("INFO", f"✅ Image sent successfully, message ID: {sent_msg.message_id}", user_info or {})
             return sent_msg
 
     except Exception as e:
-        logger.error(f"❌ Failed to send anime media for {anime_name}: {str(e)}")
-        logger.error(f"❌ Error details - Media type: {media_type}, Edit mode: {edit_mode}, Post URL: {post['url']}")
+        log_with_user_info("ERROR", f"❌ Failed to send anime media for {anime_name}: {str(e)}", user_info or {})
+        log_with_user_info("ERROR", f"❌ Error details - Media type: {media_type}, Edit mode: {edit_mode}, Post URL: {post['url']}", user_info or {})
         return None
 
 async def fetch_random_content(media_type: str = "image"):
     """Fetch completely random content from Rule34"""
+    log_with_user_info("INFO", f"🎲 Fetching random content type: {media_type}")
     try:
         async with aiohttp.ClientSession() as session:
             params = {
@@ -2088,54 +2101,56 @@ async def fetch_random_content(media_type: str = "image"):
                         for post in root.findall('.//post'):
                             file_url = post.get('file_url')
                             if file_url and file_url.startswith(('http://', 'https://')):
-                                score = int(post.get('score', 0))
-                                if score >= 10:
-                                    if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
-                                        posts.append({
-                                            'url': file_url,
-                                            'id': post.get('id'),
-                                            'tags': post.get('tags', ''),
-                                            'score': score,
-                                            'type': 'image'
-                                        })
-                                    elif media_type == "gif" and file_url.lower().endswith('.gif'):
-                                        posts.append({
-                                            'url': file_url,
-                                            'id': post.get('id'),
-                                            'tags': post.get('tags', ''),
-                                            'score': score,
-                                            'type': 'gif'
-                                        })
-                                    elif media_type == "video" and file_url.lower().endswith(('.mp4', '.webm', '.mov')):
-                                        posts.append({
-                                            'url': file_url,
-                                            'id': post.get('id'),
-                                            'tags': post.get('tags', ''),
-                                            'score': score,
-                                            'type': 'video'
-                                        })
+                                if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.webp', '.png')):
+                                    # Prefer non-PNG formats for better compatibility
+                                    priority = 1 if file_url.lower().endswith('.png') else 2
+                                    posts.append({
+                                        'url': file_url,
+                                        'id': post.get('id'),
+                                        'tags': post.get('tags', ''),
+                                        'score': int(post.get('score', 0)),
+                                        'type': 'image',
+                                        'priority': priority
+                                    })
+                                elif media_type == "gif" and file_url.lower().endswith('.gif'):
+                                    posts.append({
+                                        'url': file_url,
+                                        'id': post.get('id'),
+                                        'tags': post.get('tags', ''),
+                                        'score': int(post.get('score', 0)),
+                                        'type': 'gif'
+                                    })
+                                elif media_type == "video" and file_url.lower().endswith(('.mp4', '.webm', '.mov')):
+                                    posts.append({
+                                        'url': file_url,
+                                        'id': post.get('id'),
+                                        'tags': post.get('tags', ''),
+                                        'score': int(post.get('score', 0)),
+                                        'type': 'video'
+                                    })
 
                         if posts:
                             random.seed(int(time.time() * 1000000) % 1000000)
 
-                            posts.sort(key=lambda x: x['score'], reverse=True)
+                            # Sort by priority then score for better compatibility
+                            posts.sort(key=lambda x: (x.get('priority', 1), x['score']), reverse=True)
                             top_posts = posts[:50]
                             selected = random.choice(top_posts)
                             return selected
                     except ET.ParseError as e:
-                        pass
+                        logger.error(f"❌ XML parsing error during random fetch: {str(e)}")
     except Exception as e:
-        pass
+        logger.error(f"❌ Exception during random content fetch: {str(e)}")
 
     return None
 
 async def search_rule34_live(search_query: str, media_type: str = "image"):
     """Search Rule34 API with user's custom query - Enhanced with smart tag conversion"""
-    logger.info(f"🔍 Starting live search for query: '{search_query}', media_type: {media_type}")
-    
+    log_with_user_info("INFO", f"🔍 Starting live search for query: '{search_query}', media_type: {media_type}")
+
     try:
         clean_query = search_query.lower().strip()
-        logger.debug(f"🧹 Cleaned query: '{clean_query}'")
+        log_with_user_info("DEBUG", f"🧹 Cleaned query: '{clean_query}'")
 
         tag_conversions = {
             "kushina uzumaki": "kushina_uzumaki",
@@ -2228,13 +2243,17 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
                         for post in root.findall('.//post'):
                             file_url = post.get('file_url')
                             if file_url and file_url.startswith(('http://', 'https://')):
-                                if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.png', '.webp')):
+                                # Check image formats with PNG compatibility
+                                if media_type == "image" and file_url.lower().endswith(('.jpg', '.jpeg', '.webp', '.png')):
+                                    # Prefer non-PNG formats for telegram compatibility
+                                    priority = 1 if file_url.lower().endswith('.png') else 2
                                     posts.append({
                                         'url': file_url,
                                         'id': post.get('id'),
                                         'tags': post.get('tags', ''),
                                         'score': int(post.get('score', 0)),
-                                        'type': 'image'
+                                        'type': 'image',
+                                        'priority': priority
                                     })
                                 elif media_type == "gif" and file_url.lower().endswith('.gif'):
                                     posts.append({
@@ -2256,14 +2275,15 @@ async def search_rule34_live(search_query: str, media_type: str = "image"):
                         if posts:
                             random.seed(int(time.time() * 1000000) % 1000000)
 
-                            posts.sort(key=lambda x: x['score'], reverse=True)
+                            # Sort by priority then score for better compatibility
+                            posts.sort(key=lambda x: (x.get('priority', 1), x['score']), reverse=True)
                             top_posts = posts[:50]
                             selected = random.choice(top_posts)
                             return selected
                     except ET.ParseError as e:
-                        pass
+                        logger.error(f"❌ XML parsing error during search: {str(e)}")
     except Exception as e:
-        pass
+        logger.error(f"❌ Exception during search_rule34_live: {str(e)}")
 
     return None
 
@@ -2325,11 +2345,13 @@ def create_search_navigation_keyboard(search_query: str, media_type: str = "imag
 
 def make_anime_handler(anime_name):
     async def handler(msg: Message):
+        user_info = extract_user_info(msg)
         if msg.from_user and should_check_membership(msg.from_user.id):
             if not check_membership(msg.from_user.id):
+                log_with_user_info("WARNING", "🚫 User failed membership check", user_info)
                 await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
                 return
-        await send_media_selection(anime_name, msg.chat.id)
+        await send_media_selection(anime_name, msg.chat.id, user_info)
     return handler
 
 for anime_name in ANIME_COMMANDS:
@@ -2381,7 +2403,7 @@ async def cmd_start(msg: Message):
             parse_mode="HTML",
             reply_markup=keyboard
         )
-        
+
         log_with_user_info("INFO", "✅ Welcome message sent successfully", user_info)
     except Exception as e:
         log_with_user_info("ERROR", f"❌ Failed to send welcome message: {str(e)}", user_info)
@@ -2408,6 +2430,7 @@ async def send_random_selection(chat_id: int):
         )
         return True
     except Exception as e:
+        logger.error(f"❌ Failed to send random selection: {str(e)}")
         return None
 
 @dp.message(Command("random"))
@@ -2534,28 +2557,28 @@ async def ping_command(msg: Message):
 async def handle_live_search(msg: Message):
     """Handle live search in private messages"""
     user_info = extract_user_info(msg)
-    
-    logger.debug(f"💬 Private message received from user {user_info.get('user_id', 'unknown')}")
+
+    log_with_user_info("DEBUG", f"💬 Private message received from user {user_info.get('user_id', 'unknown')}")
 
     if msg.from_user and should_check_membership(msg.from_user.id):
-        logger.debug(f"🔐 Checking membership for user {msg.from_user.id}")
+        log_with_user_info("DEBUG", f"🔐 Checking membership for user {msg.from_user.id}")
         if not check_membership(msg.from_user.id):
             log_with_user_info("WARNING", "🚫 User failed membership check for live search", user_info)
             await send_membership_reminder(msg.chat.id, msg.from_user.id, msg.from_user.full_name)
             return
-        logger.debug(f"✅ Membership check passed for user {msg.from_user.id}")
+        log_with_user_info("DEBUG", f"✅ Membership check passed for user {msg.from_user.id}")
 
     if not msg.text:
-        logger.debug(f"⏭️ Skipping non-text message")
+        log_with_user_info("DEBUG", f"⏭️ Skipping non-text message")
         return
 
     if msg.text.startswith('/'):
-        logger.debug(f"⏭️ Skipping command message: {msg.text}")
+        log_with_user_info("DEBUG", f"⏭️ Skipping command message: {msg.text}")
         return
 
     search_text = msg.text.strip()
     if not search_text:
-        logger.debug(f"⏭️ Skipping empty search text")
+        log_with_user_info("DEBUG", f"⏭️ Skipping empty search text")
         return
 
     log_with_user_info("INFO", f"🔍 Live search initiated: '{search_text}'", user_info)
@@ -2566,28 +2589,11 @@ async def handle_live_search(msg: Message):
 
         if search_query in ANIME_COMMANDS:
             log_with_user_info("INFO", f"✅ Direct anime command match found: {search_query}", user_info)
-            await send_media_selection(search_query, msg.chat.id)
+            await send_media_selection(search_query, msg.chat.id, user_info)
             return
 
-    guidance_text = f"""
-🔍 <b>Live Search Mode</b> 💫
-
-<i>Searching for:</i> <b>"{search_text}"</b>
-
-<blockquote>╭─ 🌟 <b>Search Tips:</b>
-├─ Use character names: "sakura"
-├─ Try anime names: "naruto", "bleach"
-├─ Use underscores: "yor_forger"
-╰─ Combine tags: "big_breasts"</blockquote>
-
-<blockquote>╭─ 💡 <b>Popular searches:</b>
-├─ Character names from any anime
-├─ Series names with specific tags
-╰─ Art styles like "anime", "manga", "3d"</blockquote>
-
-⏳ <i>Searching live from internet...</i>
-"""
-
+    guidance_text = BOT_MESSAGES["search_guidance"].format(search_text=search_text)
+    
     guidance_msg = await msg.answer(guidance_text)
 
     post = await search_rule34_live(search_text, "image")
@@ -2610,22 +2616,9 @@ async def handle_live_search(msg: Message):
             post = await search_rule34_live(clean_name, "image")
 
     if not post:
-        no_results_text = f"""
-🔍 <b>No Results Found</b> 😔
-
-<i>Searched for:</i> <b>"{search_text}"</b>
-
-<blockquote>╭─ 💡 <b>Try these instead:</b>
-├─ Use underscores: "{search_text.replace(' ', '_')}"
-├─ Try character first name only
-├─ Check spelling of character names
-╰─ Use /random for surprise content</blockquote>
-
-<blockquote>╭─ 🌸 <b>Or try these popular characters:</b>
-├─ hinata, sakura, tsunade (Naruto)
-├─ rukia, orihime, yoruichi (Bleach)
-╰─ mikasa, annie, historia (AOT)</blockquote>
-"""
+        search_underscore = search_text.replace(" ", "_")
+        no_results_text = BOT_MESSAGES["no_results"].format(search_text=search_text, search_underscore=search_underscore)
+        
         await bot.edit_message_text(
             text=no_results_text,
             chat_id=msg.chat.id,
@@ -2637,7 +2630,7 @@ async def handle_live_search(msg: Message):
         await bot.delete_message(msg.chat.id, guidance_msg.message_id)
 
         keyboard = create_search_selection_keyboard(search_text)
-        caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_text}</i>\n\n✨ What would you like to see?"
+        caption = BOT_MESSAGES["search_selection"].format(search_text=search_text)
 
         await bot.send_chat_action(msg.chat.id, action="upload_photo")
 
@@ -2649,32 +2642,27 @@ async def handle_live_search(msg: Message):
             has_spoiler=True
         )
     except Exception as e:
-        pass
+        log_with_user_info("ERROR", f"❌ Failed to send search result: {str(e)}", user_info)
 
 @dp.callback_query()
 async def handle_callbacks(callback: CallbackQuery):
     """Handle all callback queries with membership verification for the new media selection workflow"""
     user_info = extract_user_info(callback.message) if callback.message else {}
-    
-    logger.info(f"🔘 Callback query received: {callback.data}")
+
+    log_with_user_info("INFO", f"🔘 Callback query received: {callback.data}", user_info)
     log_with_user_info("INFO", f"📱 Callback button pressed: {callback.data}", user_info)
 
     if not callback.data or not callback.message:
-        logger.warning(f"⚠️ Invalid callback query - data: {callback.data}, message: {callback.message}")
+        log_with_user_info("WARNING", f"⚠️ Invalid callback query - data: {callback.data}, message: {callback.message}")
         await callback.answer("Invalid button")
         return
 
     if callback.data == "check_membership":
         user_id = callback.from_user.id
         if check_membership(user_id):
-            await callback.answer("🎀 Yay! Welcome to our loving family, sweetheart! 💖", show_alert=True)
+            await callback.answer(CALLBACK_ANSWERS["membership_success"], show_alert=True)
             try:
-                response_text = (
-    "🌸 <b>You're now officially part of our little world!</b> 💕\n\n"
-    "🥰 I'm really happy to have you here. You can now enjoy all the special features and content waiting for you.\n\n"
-    "<blockquote><b><i>I can't wait to share my favorite anime moments with you, sweetheart 🌺</i></b></blockquote>\n\n"
-    "✨ Type <b>/start</b> to begin your journey with me! 🎀"
-        )
+                response_text = BOT_MESSAGES["membership_success"]
 
                 if callback.message.content_type == "photo":
                     await bot.edit_message_caption(
@@ -2691,25 +2679,25 @@ async def handle_callbacks(callback: CallbackQuery):
                         parse_mode="HTML"
                     )
             except Exception as e:
-                pass
+                log_with_user_info("ERROR", f"❌ Failed to update message after membership success: {str(e)}", user_info)
         else:
-            await callback.answer("💘 You're not part of our cozy little family yet. Come join us, we're waiting with open arms 💅", show_alert=True)
+            await callback.answer(CALLBACK_ANSWERS["membership_failed"], show_alert=True)
         return
 
     if callback.data.startswith('privacy_'):
         global privacy_mode
 
         if callback.from_user.id != OWNER_ID:
-            await callback.answer("⛔ This command is restricted.", show_alert=True)
+            await callback.answer(CALLBACK_ANSWERS["privacy_restricted"], show_alert=True)
             return
 
         if callback.data == "privacy_public":
             privacy_mode = "public"
-            await callback.answer("🔓 Bot set to Public Mode - Everyone can use it now!", show_alert=True)
+            await callback.answer(CALLBACK_ANSWERS["privacy_public"])
 
         elif callback.data == "privacy_normal":
             privacy_mode = "normal"
-            await callback.answer("🔒 Bot set to Normal Mode - Membership required!", show_alert=True)
+            await callback.answer(CALLBACK_ANSWERS["privacy_normal"])
 
         elif callback.data == "privacy_status":
             mode_text = "Public (Everyone)" if privacy_mode == "public" else "Normal (Membership Required)"
@@ -2738,23 +2726,7 @@ async def handle_callbacks(callback: CallbackQuery):
             ]
         ])
 
-        privacy_text = f"""
-🔐 <b>Privacy Mode Settings</b>
-
-<b>Current Mode:</b> {mode_emoji} <b>{mode_text}</b>
-
-<blockquote>╭─<b> 🔓 Public Mode</b>
-├─ Everyone can use the bot
-├─ No membership requirements
-╰─ Works in groups and private chats</blockquote>
-
-<blockquote>╭─<b> 🔒 Normal Mode</b>
-├─ Membership verification required
-├─ Users must join channel & group
-╰─ Default secure behavior</blockquote>
-
-<b>👑 Owner always has full access regardless of mode</b>
-"""
+        privacy_text = BOT_MESSAGES["privacy_settings"].format(mode_emoji=mode_emoji, mode_text=mode_text)
 
         try:
             await bot.edit_message_text(
@@ -2764,12 +2736,12 @@ async def handle_callbacks(callback: CallbackQuery):
                 reply_markup=keyboard
             )
         except Exception as e:
-            pass
+            log_with_user_info("ERROR", f"❌ Failed to update privacy settings message: {str(e)}", user_info)
         return
 
     if callback.from_user and should_check_membership(callback.from_user.id):
         if not check_membership(callback.from_user.id):
-            await callback.answer("🥀️ You were here, part of our little family. Come back so we can continue this beautiful journey together ❤️‍🩹", show_alert=True)
+            await callback.answer(CALLBACK_ANSWERS["membership_required"], show_alert=True)
 
             await send_membership_reminder(
                 chat_id=callback.message.chat.id,
@@ -2790,7 +2762,7 @@ async def handle_callbacks(callback: CallbackQuery):
         target = data_parts[2]
 
         if target == "random":
-            await callback.answer(f"💞 Loading random {media_type}...")
+            await callback.answer(CALLBACK_ANSWERS["loading_random"].format(media_type=media_type))
             try:
                 await send_random_media(
                     chat_id=callback.message.chat.id,
@@ -2800,23 +2772,26 @@ async def handle_callbacks(callback: CallbackQuery):
                     page=1
                 )
             except Exception as e:
+                log_with_user_info("ERROR", f"❌ Failed to load random media: {str(e)}", user_info)
                 await callback.answer("Failed to load random content", show_alert=True)
         elif target in ANIME_COMMANDS:
-            await callback.answer(f"💞 Loading {media_type}...")
+            await callback.answer(CALLBACK_ANSWERS["loading_content"].format(media_type=media_type))
             try:
                 await send_anime_media(
                     anime_name=target,
                     chat_id=callback.message.chat.id,
+                    user_info=user_info,
                     message_id=callback.message.message_id,
                     edit_mode=True,
                     media_type=media_type,
                     page=1
                 )
             except Exception as e:
+                log_with_user_info("ERROR", f"❌ Failed to load anime media: {str(e)}", user_info)
                 await callback.answer("Failed to load anime content", show_alert=True)
         else:
             search_query = target.replace("_", " ")
-            await callback.answer(f"💞 Loading {media_type} for '{search_query}'...")
+            await callback.answer(CALLBACK_ANSWERS["loading_search"].format(media_type=media_type, search_query=search_query))
             try:
                 await send_search_media(
                     search_query=search_query,
@@ -2827,18 +2802,19 @@ async def handle_callbacks(callback: CallbackQuery):
                     page=1
                 )
             except Exception as e:
-                await callback.answer(f"Failed to load search content", show_alert=True)
+                log_with_user_info("ERROR", f"❌ Failed to load search media: {str(e)}", user_info)
+                await callback.answer("Failed to load search content", show_alert=True)
 
     elif action in ["update", "next"]:
-        anime_name = data_parts[1]
+        target = data_parts[1]
         media_type = data_parts[2] if len(data_parts) > 2 else "image"
         page = int(data_parts[3]) if len(data_parts) > 3 else 1
 
         if action == "update":
-            await callback.answer("✨ Getting fresh content...")
+            await callback.answer(CALLBACK_ANSWERS["fresh_content"])
 
             try:
-                if anime_name == "random":
+                if target == "random":
                     await send_random_media(
                         chat_id=callback.message.chat.id,
                         message_id=callback.message.message_id,
@@ -2846,17 +2822,18 @@ async def handle_callbacks(callback: CallbackQuery):
                         media_type=media_type,
                         page=page
                     )
-                elif anime_name in ANIME_COMMANDS:
+                elif target in ANIME_COMMANDS:
                     await send_anime_media(
-                        anime_name=anime_name,
+                        anime_name=target,
                         chat_id=callback.message.chat.id,
+                        user_info=user_info,
                         message_id=callback.message.message_id,
                         edit_mode=True,
                         media_type=media_type,
                         page=page
                     )
                 else:
-                    search_query = anime_name.replace("_", " ")
+                    search_query = target.replace("_", " ")
                     await send_search_media(
                         search_query=search_query,
                         chat_id=callback.message.chat.id,
@@ -2866,29 +2843,31 @@ async def handle_callbacks(callback: CallbackQuery):
                         page=page
                     )
             except Exception as e:
-                pass
+                log_with_user_info("ERROR", f"❌ Failed to update media: {str(e)}", user_info)
+                await callback.answer("Failed to refresh content", show_alert=True)
 
         elif action == "next":
-            await callback.answer("💞 Loading more content...")
+            await callback.answer(CALLBACK_ANSWERS["more_content"])
 
             try:
-                if anime_name == "random":
+                if target == "random":
                     await send_random_media(
                         chat_id=callback.message.chat.id,
                         edit_mode=False,
                         media_type=media_type,
                         page=page + 1
                     )
-                elif anime_name in ANIME_COMMANDS:
+                elif target in ANIME_COMMANDS:
                     await send_anime_media(
-                        anime_name=anime_name,
+                        anime_name=target,
                         chat_id=callback.message.chat.id,
+                        user_info=user_info,
                         edit_mode=False,
                         media_type=media_type,
                         page=page + 1
                     )
                 else:
-                    search_query = anime_name.replace("_", " ")
+                    search_query = target.replace("_", " ")
                     await send_search_media(
                         search_query=search_query,
                         chat_id=callback.message.chat.id,
@@ -2897,31 +2876,27 @@ async def handle_callbacks(callback: CallbackQuery):
                         page=page + 1
                     )
             except Exception as e:
-                pass
+                log_with_user_info("ERROR", f"❌ Failed to load more media: {str(e)}", user_info)
+                await callback.answer("Failed to load more content", show_alert=True)
 
     elif callback.data == "back_to_menu":
-        await callback.answer("💕 Returning to main menu...")
+        await callback.answer(CALLBACK_ANSWERS["back_to_menu"])
 
         user_name = callback.from_user.full_name if callback.from_user else "User"
         user_id = callback.from_user.id if callback.from_user else ""
 
-        welcome_text = f"""
-💖 <b>Hey there</b> <a href="tg://user?id={user_id}"><b>{user_name}</b></a>, <b>Welcome!</b>
+        welcome_text = BOT_MESSAGES["welcome_text"].format(user_id=user_id, user_name=user_name)
 
-<b>Makima</b> here, to brighten your day! 🌸
-
-🎀 Enjoy <b>150+ anime commands</b> and <b>amazing content</b> from <b>22+ series.</b> All super easy to explore!
-
-<blockquote><i>💌 Use any anime command to begin your journey!</i></blockquote>
-"""
+        bot_info = await bot.get_me()
+        bot_username = bot_info.username
 
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [
-                InlineKeyboardButton(text="💟 Updates", url="https://t.me/WorkGlows"),
-                InlineKeyboardButton(text="Support 💞", url="https://t.me/SoulMeetsHQ")
+                InlineKeyboardButton(text=BUTTON_TEXTS["updates"], url=URLS["channel"]),
+                InlineKeyboardButton(text=BUTTON_TEXTS["support"], url=URLS["group"])
             ],
             [
-                InlineKeyboardButton(text="💗️ Add Me To Your Group 💗️", url=f"https://t.me/{(await bot.get_me()).username}?startgroup=true&admin=delete_messages+ban_users+invite_users+pin_messages+manage_chat+manage_video_chats+post_messages+edit_messages+manage_topics+add_admins")
+                InlineKeyboardButton(text=BUTTON_TEXTS["add_to_group"], url=f"https://t.me/{bot_username}?startgroup=true&admin=delete_messages+ban_users+invite_users+pin_messages+manage_chat+manage_video_chats+post_messages+edit_messages+manage_topics+add_admins")
             ]
         ])
 
@@ -2933,28 +2908,29 @@ async def handle_callbacks(callback: CallbackQuery):
                 reply_markup=keyboard
             )
         except Exception as e:
+            log_with_user_info("ERROR", f"❌ Failed to return to menu: {str(e)}", user_info)
             await callback.answer("Failed to return to menu", show_alert=True)
         return
 
     elif action == "back":
         target = data_parts[1]
-        await callback.answer("💕 Going back to selection...")
+        await callback.answer(CALLBACK_ANSWERS["back_to_selection"])
 
         try:
             if target == "random":
                 keyboard = create_random_selection_keyboard()
-                caption = "🎲 <b>Random Content</b> ✨\n\n💫 What would you like to see?"
+                caption = BOT_MESSAGES["random_selection"]
             elif target in ANIME_COMMANDS:
                 anime_data = ANIME_COMMANDS.get(target)
                 keyboard = create_media_selection_keyboard(target)
                 if anime_data:
-                    caption = f"💖 {anime_data['title']}\n\n✨ What would you like to see?"
+                    caption = BOT_MESSAGES["media_selection"].format(title=anime_data['title'])
                 else:
-                    caption = f"💖 {target.title()}\n\n✨ What would you like to see?"
+                    caption = BOT_MESSAGES["media_selection"].format(title=target.title())
             else:
                 search_query = target.replace("_", " ")
                 keyboard = create_search_selection_keyboard(search_query)
-                caption = f"🔍 <b>Search Result</b> ✨\n\n💫 Found: <i>{search_query}</i>\n\n✨ What would you like to see?"
+                caption = BOT_MESSAGES["search_selection"].format(search_text=search_query)
 
             await bot.edit_message_caption(
                 chat_id=callback.message.chat.id,
@@ -2963,6 +2939,7 @@ async def handle_callbacks(callback: CallbackQuery):
                 reply_markup=keyboard
             )
         except Exception as e:
+            log_with_user_info("ERROR", f"❌ Failed to go back: {str(e)}", user_info)
             await callback.answer("Failed to go back", show_alert=True)
 
     else:
