@@ -5,31 +5,15 @@ import aiohttp
 import random
 import asyncio
 import requests
-import threading
 import logging
+import threading
+import aiogram.types as types
+import xml.etree.ElementTree as ET
 from typing import Dict, Any
-
-from http.server import (
-    HTTPServer,
-    BaseHTTPRequestHandler
-)
-
-from dotenv import (
-    load_dotenv
-)
-
-from aiogram import (
-    F,
-    Bot,
-    Dispatcher
-)
-from aiogram.enums import (
-    ParseMode,
-    ChatAction
-)
-from aiogram.filters import (
-    Command
-)
+from dotenv import load_dotenv
+from aiogram import Bot, Dispatcher, F
+from aiogram.filters import Command
+from aiogram.enums import ParseMode, ChatAction
 from aiogram.types import (
     Message,
     BotCommand,
@@ -40,12 +24,8 @@ from aiogram.types import (
     InputMediaVideo,
     InputMediaAnimation
 )
-from aiogram.client.default import (
-    DefaultBotProperties
-)
-import aiogram.types as types
-
-import xml.etree.ElementTree as ET
+from aiogram.client.default import DefaultBotProperties
+from http.server import BaseHTTPRequestHandler, HTTPServer
 
 load_dotenv()
 
@@ -2593,7 +2573,7 @@ async def handle_live_search(msg: Message):
             return
 
     guidance_text = BOT_MESSAGES["search_guidance"].format(search_text=search_text)
-    
+
     guidance_msg = await msg.answer(guidance_text)
 
     post = await search_rule34_live(search_text, "image")
@@ -2618,7 +2598,7 @@ async def handle_live_search(msg: Message):
     if not post:
         search_underscore = search_text.replace(" ", "_")
         no_results_text = BOT_MESSAGES["no_results"].format(search_text=search_text, search_underscore=search_underscore)
-        
+
         await bot.edit_message_text(
             text=no_results_text,
             chat_id=msg.chat.id,
