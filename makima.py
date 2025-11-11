@@ -2144,7 +2144,7 @@ async def fetch_random_content(media_type: str = "image"):
 
 async def search_rule34_live(search_query: str, media_type: str = "image"):
     """Search Rule34 API with user's custom query - Enhanced with smart tag conversion"""
-    log_with_user_info("INFO", f"🔍 Starting live search for query: '{search_query}', media_type: {media_type}")
+    log_with_user_info("INFO", f"🔍 Starting live search for query: '{search_query}', media_type: {media_type}", user_info)
 
     try:
         clean_query = search_query.lower().strip()
