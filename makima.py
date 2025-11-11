@@ -2556,7 +2556,7 @@ async def handle_live_search(msg: Message):
     """Handle live search in private messages"""
     user_info = extract_user_info(msg)
 
-    log_with_user_info("DEBUG", f"💬 Private message received from user {user_info.get('user_id', 'unknown')}")
+    log_with_user_info("DEBUG", f"💬 Private message received from user {user_info.get('user_id', 'unknown')}", user_info)
 
     if msg.from_user and should_check_membership(msg.from_user.id):
         log_with_user_info("DEBUG", f"🔐 Checking membership for user {msg.from_user.id}")
